@@ -2,1336 +2,2461 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricelist Wedding Photography</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kaone Studio — Formulir Biodata</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --bg:#FBF7F0;
-    --bg-deep:#F3EBDC;
-    --paper:#FFFFFF;
-    --ink:#3B3128;
-    --gold:#A9803F;
-    --gold-deep:#8A6A32;
-    --gold-bright:#8A6A32;
-    --hairline:rgba(169,128,63,0.28);
-    --muted:#8C8072;
-    --wa:#3C7A5E;
+    --ink:#2b241e;
+    --ink-soft:#6b5d4f;
+    --maroon:#b8960b;
+    --maroon-deep:#7a5f00;
+    --gold:#ffd700;
+    --gold-soft:#ffe766;
+    --paper:#fffdf0;
+    --paper-2:#fff4c2;
+    --line:#f5e18a;
+    --white:#fffdf8;
+    --heading-font:'Fraunces', serif;
+    --radius:3px;
+    --radius-lg:8px;
   }
+
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
   body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'Jost',sans-serif;
-    min-height:100vh;
-  }
-  .content-pad{
-    background:radial-gradient(ellipse at top, var(--bg-deep) 0%, var(--bg) 55%);
-    padding:64px 18px 90px;
-  }
-  .sheet{
-    max-width:760px;
-    margin:0 auto;
-    position:relative;
-  }
-
-  /* ---------- hero ---------- */
-  .hero{
-    position:relative;
-    overflow:hidden;
-    padding:88px 20px 72px;
-    background:
-      radial-gradient(circle at 14% 20%, rgba(169,128,63,0.22), transparent 45%),
-      radial-gradient(circle at 86% 15%, rgba(169,128,63,0.14), transparent 55%),
-      linear-gradient(135deg, #F8F2E5 0%, #F1E7D3 55%, #ECDFC4 100%);
-  }
-  .hero-inner{
-    max-width:820px;
-    margin:0 auto;
-    text-align:center;
-    position:relative;
-  }
-  .eyebrow-line{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:8px 10px;
-    margin:0 0 22px;
-  }
-  .eyebrow-line .dot{
-    width:6px;height:6px;
-    border-radius:50%;
-    background:var(--gold);
-    flex-shrink:0;
-  }
-  .eyebrow-thin{
-    font-family:'Jost',sans-serif;
-    font-weight:500;
-    font-size:11.5px;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--gold-deep);
-    opacity:0.85;
-  }
-  .eyebrow-bold{
-    font-family:'Marcellus',serif;
-    font-size:11.5px;
-    letter-spacing:0.26em;
-    text-transform:uppercase;
-    color:var(--gold-deep);
-  }
-  .hero-title{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:500;
-    font-size:clamp(46px,9.5vw,80px);
-    line-height:1.03;
     margin:0;
-    color:var(--gold-deep);
-  }
-  .hero-title em{
-    font-style:italic;
-    font-weight:400;
-    color:var(--ink);
-  }
-  .hero-sub{
-    font-family:'Jost',sans-serif;
-    font-weight:400;
-    font-size:15px;
-    line-height:1.75;
-    color:var(--muted);
-    max-width:560px;
-    margin:24px auto 0;
-  }
-
-  .zigzag{
-    height:5px;
-    background:repeating-linear-gradient(90deg,
-      var(--gold) 0px, var(--gold) 10px,
-      transparent 10px, transparent 16px,
-      var(--gold-deep) 16px, var(--gold-deep) 26px,
-      transparent 26px, transparent 32px);
-    opacity:0.75;
-  }
-
-  /* ---------- intro to pricelist ---------- */
-  .intro-head{
-    text-align:center;
-    margin:8px 0 44px;
-  }
-  .intro-head .eyebrow{
-    font-family:'Marcellus',serif;
-    font-size:11px;
-    letter-spacing:0.32em;
-    text-transform:uppercase;
-    color:var(--gold);
-    margin:0 0 16px;
-  }
-  .intro-head h2{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:500;
-    font-size:clamp(26px,5vw,36px);
-    color:var(--gold-deep);
-    margin:0;
-  }
-  .intro-head .desc{
-    font-family:'Jost',sans-serif;
-    font-size:14px;
-    line-height:1.75;
-    color:var(--muted);
-    max-width:520px;
-    margin:18px auto 0;
-  }
-
-  /* ---------- ornament frame ---------- */
-  .frame{
     background:var(--paper);
-    border:1px solid var(--hairline);
-    padding:48px 34px 56px;
-    position:relative;
-    box-shadow:0 30px 60px -35px rgba(90,70,30,0.25);
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
-  .frame::before,.frame::after,
-  .frame-inner::before,.frame-inner::after{
-    content:"";
-    position:absolute;
-    width:26px;height:26px;
-    border:1px solid var(--gold);
-  }
-  .frame::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
-  .frame::after{top:-1px;right:-1px;border-left:none;border-bottom:none;}
-  .frame-inner::before{bottom:-1px;left:-1px;border-right:none;border-top:none;}
-  .frame-inner::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
-  .frame-inner{position:absolute;inset:0;pointer-events:none;}
 
-  /* ---------- header ---------- */
-  header{text-align:center;margin-bottom:14px;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--heading-font); margin:0; font-weight:500;}
+  img,svg{max-width:100%;}
+
   .eyebrow{
-    font-family:'Marcellus',serif;
-    letter-spacing:0.42em;
-    font-size:11px;
-    color:var(--gold);
-    text-transform:uppercase;
-    margin:0 0 18px;
-  }
-  h1{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:500;
-    font-size:clamp(38px,7.5vw,56px);
-    line-height:1.05;
-    margin:0;
-    color:var(--gold-deep);
-    letter-spacing:0.02em;
-  }
-  h1 em{font-style:italic;font-weight:400;color:var(--ink);}
-  .pricelist-label{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    margin:16px 0 0;
-    font-family:'Marcellus',serif;
-    font-size:13px;
-    letter-spacing:0.3em;
-    text-transform:uppercase;
-    color:var(--ink);
-  }
-  .pricelist-label .dot{color:var(--gold);letter-spacing:0;font-size:16px;}
-  .sub{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:17px;
-    color:var(--muted);
-    margin:14px 0 0;
-  }
-
-  .rule{
-    display:flex;align-items:center;gap:14px;
-    margin:34px 0 40px;
-  }
-  .rule .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--hairline) 20%,var(--hairline) 80%,transparent);}
-  .rule .diamond{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);}
-
-  /* ---------- package cards ---------- */
-  .packages{display:flex;flex-direction:column;gap:26px;}
-
-  .pkg{
-    border:1px solid var(--hairline);
-    background:linear-gradient(180deg, rgba(169,128,63,0.035), rgba(169,128,63,0) 40%);
-    padding:30px 28px 28px;
-    position:relative;
-    transition:transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-  }
-  .pkg:hover{
-    transform:translateY(-6px);
-    box-shadow:0 24px 40px -24px rgba(90,70,30,0.35);
-    border-color:var(--gold);
-  }
-  .pkg.featured{
-    border-color:var(--gold);
-    background:linear-gradient(180deg, rgba(169,128,63,0.09), rgba(169,128,63,0.02) 55%);
-  }
-  .badge{
-    position:absolute;
-    top:-13px;right:26px;
-    background:var(--paper);
-    border:1px solid var(--gold);
-    color:var(--gold-deep);
-    font-family:'Marcellus',serif;
-    font-size:10px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
     letter-spacing:0.22em;
     text-transform:uppercase;
-    padding:5px 12px;
+    color:var(--maroon);
   }
 
-  .pkg-top{
+  /* ---------- Ulos-inspired divider ---------- */
+  .ulos-band{
+    height:26px;
+    width:100%;
+    background-color:var(--paper-2);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='26'%3E%3Cline x1='0' y1='13' x2='48' y2='13' stroke='%23ffd700' stroke-width='1'/%3E%3Crect x='19' y='8' width='10' height='10' fill='%23fffdf0' stroke='%23ffd700' stroke-width='1.3' transform='rotate(45 24 13)'/%3E%3C/svg%3E");
+    background-repeat:repeat-x;
+    background-position:center;
+  }
+
+  /* ---------- Header ---------- */
+  .site-header{
+    padding:0.85rem 5vw;
     display:flex;
+    align-items:center;
     justify-content:space-between;
-    align-items:baseline;
-    flex-wrap:wrap;
-    gap:8px 20px;
-    border-bottom:1px solid var(--hairline);
-    padding-bottom:16px;
-    margin-bottom:18px;
+    border-bottom:1px solid var(--line);
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:20;
   }
-  .pkg-name{
-    font-family:'Cormorant Garamond',serif;
-    font-size:30px;
-    letter-spacing:0.02em;
-    color:var(--gold-deep);
+  .brand-mark{
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    min-width:0;
   }
-  .pkg-tag{
-    display:block;
-    font-family:'Jost',sans-serif;
-    font-size:11px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--muted);
-    margin-top:4px;
-  }
-  .pkg-price{
-    font-family:'Cormorant Garamond',serif;
-    font-size:26px;
-    color:var(--ink);
+  .brand-emblem{ color:var(--gold); flex-shrink:0; line-height:0; }
+  .brand-emblem svg{ width:30px; height:30px; display:block; }
+  .brand-wordmark{
+    font-family:'Fraunces', serif;
+    font-size:1.1rem;
+    letter-spacing:0.01em;
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
     white-space:nowrap;
   }
-  .pkg-price sup{font-size:13px;color:var(--muted);font-weight:400;margin-right:2px;}
-
-  ul.feat{
-    list-style:none;
-    margin:0 0 22px;padding:0;
-    display:grid;
-    grid-template-columns:1fr;
-    gap:10px 24px;
+  .brand-name{
+    background:linear-gradient(100deg,
+      var(--maroon-deep) 25%,
+      var(--gold) 42%,
+      var(--gold-soft) 50%,
+      var(--gold) 58%,
+      var(--maroon-deep) 75%);
+    background-size:280% 100%;
+    background-position:180% 0;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:var(--maroon-deep);
+    animation:splashBrandShimmer 4s linear infinite;
   }
-  @media(min-width:560px){
-    ul.feat{grid-template-columns:1fr 1fr;}
+  .brand-sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.52rem;
+    letter-spacing:0.08em;
+    color:var(--maroon);
+    text-transform:uppercase;
+    margin-top:0.15rem;
+    display:block;
+    max-width:56vw;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
-  ul.feat li{
-    font-size:14px;
-    line-height:1.5;
-    color:var(--ink);
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-  }
-  ul.feat li::before{
-    content:"❖";
-    color:var(--gold);
-    font-size:10px;
-    margin-top:4px;
+  @media (min-width:640px){ .brand-sub{ max-width:340px; font-size:0.56rem; letter-spacing:0.1em; } }
+  .home-link{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border:1px solid var(--ink);
+    padding:0.5rem 0.9rem;
+    border-radius:999px;
+    transition:background 0.2s ease, color 0.2s ease;
     flex-shrink:0;
   }
+  .home-link:hover{ background:var(--ink); color:var(--paper); }
 
-  /* ---------- order button ---------- */
-  .order-btn{
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:3.6rem 6vw 3rem;
+    max-width:640px;
+    margin:0 auto;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .flourish{ color:var(--gold); width:170px; height:auto; display:block; margin:0 auto 1.2rem; }
+  .flourish.small{ width:140px; margin:1.3rem auto 0; }
+  @media (max-width:420px){ .flourish{ width:130px; } .flourish.small{ width:110px; } }
+
+  .hero-blob{
+    position:absolute;
+    inset:-10% -20% auto -20%;
+    height:340px;
+    background:
+      radial-gradient(circle at 22% 30%, rgba(255,215,0,0.20), transparent 55%),
+      radial-gradient(circle at 78% 15%, rgba(122,95,0,0.12), transparent 50%),
+      radial-gradient(circle at 55% 78%, rgba(255,231,102,0.22), transparent 55%);
+    filter:blur(26px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .hero > *:not(.hero-blob){ position:relative; z-index:1; }
+
+  .hero-chip{
+    display:inline-block;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:0.5rem 1.1rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:clamp(0.5rem, 1.8vw, 0.66rem);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    box-shadow:0 2px 8px rgba(43,36,30,0.05);
+  }
+  .hero-chip em{ font-style:normal; color:var(--maroon); padding:0 0.45em; }
+
+  .hero h1{
+    margin-top:1.3rem;
+    font-size:clamp(2rem, 10vw, 3.6rem);
+    line-height:1.05;
+    color:var(--maroon-deep);
+    font-weight:300;
+    letter-spacing:-0.01em;
+  }
+  .hero .tagline{
+    margin:0.9rem auto 0;
+    max-width:340px;
+    font-family:'Manrope', sans-serif;
+    font-weight:400;
+    font-size:clamp(0.8rem, 2.6vw, 0.94rem);
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- Services (3-column adaptive grid) ---------- */
+  .services{
+    padding:1.6rem 5vw 4.2rem;
+    max-width:900px;
+    margin:0 auto;
+    position:relative;
+  }
+  .services h2{ font-size:clamp(1.05rem, 3.6vw, 1.5rem); text-align:center; color:var(--maroon-deep); letter-spacing:0.01em; }
+  .services .eyebrow{ display:block; text-align:center; margin-bottom:0.5rem; letter-spacing:0.28em; }
+  .services .lede{ text-align:center; max-width:340px; margin:0.6rem auto 2.2rem; color:var(--ink-soft); font-size:0.78rem; line-height:1.6; }
+
+  .service-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:0.65rem;
+  }
+  @media (min-width:640px){ .service-grid{ gap:1rem; } }
+
+  .service-tile{
+    aspect-ratio:1/1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:0.6rem;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:20px;
+    text-decoration:none;
+    color:var(--ink);
+    padding:0.6rem;
+    box-shadow:0 1px 3px rgba(43,36,30,0.04);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    opacity:0;
+    animation:tileEnter .6s ease forwards;
+    animation-delay:calc(0.15s + var(--i, 0) * 0.08s);
+  }
+  @keyframes tileEnter{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .service-tile:hover, .service-tile:active{
+    transform:translateY(-3px);
+    box-shadow:0 12px 24px rgba(43,36,30,0.08);
+    border-color:var(--accent, var(--maroon));
+  }
+  .service-tile .icon-badge{
+    width:clamp(34px, 10vw, 46px);
+    height:clamp(34px, 10vw, 46px);
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--tint, var(--paper-2));
+    transition:transform .25s ease;
+  }
+  .service-tile:hover .icon-badge{ transform:scale(1.06); }
+  .service-tile .icon-badge svg{ width:46%; height:46%; color:var(--accent, var(--maroon-deep)); }
+  .service-tile h3{
+    font-size:clamp(0.64rem, 2.5vw, 0.82rem);
+    line-height:1.22;
+    font-weight:700;
+    font-family:'Manrope', sans-serif;
+    color:var(--ink);
+  }
+  .service-tile .tile-arrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:clamp(0.48rem, 1.8vw, 0.58rem);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent, var(--maroon));
+    opacity:0.8;
+  }
+  @media (max-width:360px){
+    .service-tile{ border-radius:16px; padding:0.4rem; gap:0.4rem; }
+    .service-tile .icon{ width:20px; height:20px; }
+  }
+
+  .btn{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    gap:9px;
-    width:100%;
-    padding:13px 18px;
-    background:var(--wa);
-    color:#fff;
-    text-decoration:none;
-    font-family:'Jost',sans-serif;
-    font-weight:500;
-    font-size:13.5px;
-    letter-spacing:0.06em;
-    border-radius:3px;
-    transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .order-btn svg{width:15px;height:15px;flex-shrink:0;}
-  .order-btn:hover{
-    background:#2F6249;
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px -10px rgba(60,122,94,0.55);
-  }
-
-  /* ---------- section heading ---------- */
-  .section-head{
-    text-align:center;
-    margin:56px 0 30px;
-  }
-  .section-head .eyebrow{margin-bottom:10px;}
-  .section-head h2{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:500;
-    font-size:clamp(28px,5vw,36px);
-    color:var(--gold-deep);
-    margin:0;
-  }
-  .section-head .section-sub{
-    font-family:'Marcellus',serif;
-    letter-spacing:0.3em;
-    font-size:11px;
-    color:var(--muted);
-    text-transform:uppercase;
-    margin:10px 0 0;
-  }
-
-  /* ---------- add-ons ---------- */
-  .addons{
-    border:1px solid var(--hairline);
-    padding:8px 28px;
-  }
-  .addon-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:16px;
-    padding:15px 0;
-    border-bottom:1px solid var(--hairline);
-  }
-  .addon-row:last-child{border-bottom:none;}
-  .addon-name{
-    font-size:14.5px;
-    color:var(--ink);
-  }
-  .addon-dots{
-    flex:1;
-    border-bottom:1px dotted var(--hairline);
-    margin:0 4px;
-    transform:translateY(-4px);
-  }
-  .addon-price{
-    font-family:'Cormorant Garamond',serif;
-    font-size:19px;
-    color:var(--gold-deep);
-    white-space:nowrap;
-  }
-  .addon-price sup{font-size:11px;color:var(--muted);margin-right:1px;}
-
-  /* ---------- terms ---------- */
-  .terms{
-    counter-reset:term;
-    display:flex;
-    flex-direction:column;
-    gap:28px;
-  }
-  .term-block{
-    display:flex;
-    gap:16px;
-  }
-  .term-num{
-    counter-increment:term;
-    flex-shrink:0;
-    width:26px;height:26px;
-    border:1px solid var(--gold);
-    color:var(--gold-deep);
-    font-family:'Marcellus',serif;
-    font-size:11px;
-    display:flex;align-items:center;justify-content:center;
-    margin-top:2px;
-  }
-  .term-num::before{content:counter(term);}
-  .term-body{flex:1;}
-  .term-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:19px;
-    color:var(--gold-deep);
-    margin:0 0 2px;
-  }
-  .term-title span{
-    display:block;
-    font-family:'Jost',sans-serif;
-    font-size:10.5px;
+    gap:0.5rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.74rem;
     letter-spacing:0.12em;
     text-transform:uppercase;
-    color:var(--muted);
-    margin-top:3px;
+    text-decoration:none;
+    color:var(--white);
+    background:var(--maroon-deep);
+    border:1px solid var(--maroon-deep);
+    padding:0.8rem 1.2rem;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease;
   }
-  .term-sub{
-    list-style:none;
-    margin:12px 0 0;
-    padding:0;
-    display:flex;
-    flex-direction:column;
-    gap:9px;
+  .btn:hover{ background:var(--maroon); transform:translateY(-1px); }
+  .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:2px;
   }
-  .term-sub li{
-    font-size:13.5px;
-    line-height:1.65;
-    color:var(--muted);
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-  }
-  .term-sub li::before{
-    content:"❖";
-    color:var(--gold);
-    font-size:9px;
-    margin-top:5px;
-    flex-shrink:0;
-  }
-  /* ---------- booking CTA + modal ---------- */
-  .cta-wrap{
-    text-align:center;
-    margin:-10px 0 44px;
-  }
-  .cta-btn{
+  .btn-ghost{ background:transparent; color:var(--maroon-deep); }
+  .btn-ghost:hover{ background:var(--maroon-deep); color:var(--white); }
+
+  .btn-mini{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--maroon-deep);
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    padding:0.55rem 0.7rem;
+    border-radius:var(--radius);
+    cursor:pointer;
     display:inline-flex;
     align-items:center;
-    gap:10px;
-    background:var(--gold-deep);
-    color:#fff;
-    text-decoration:none;
-    font-family:'Jost',sans-serif;
-    font-weight:500;
-    font-size:14px;
-    letter-spacing:0.04em;
-    padding:14px 28px;
-    border:none;
-    border-radius:3px;
-    cursor:pointer;
-    transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    gap:0.35rem;
+    transition:background .18s ease, border-color .18s ease;
+    flex:1 1 auto;
+    justify-content:center;
+    white-space:nowrap;
   }
-  .cta-btn svg{width:16px;height:16px;flex-shrink:0;}
-  .cta-btn:hover{
-    background:var(--gold);
-    transform:translateY(-2px);
-    box-shadow:0 14px 24px -12px rgba(169,128,63,0.5);
+  .btn-mini:hover{ background:var(--white); border-color:var(--gold); }
+
+  /* ---------- Views (routing) ---------- */
+  .view{ display:none; }
+  .view.active{
+    display:block;
+    animation:viewEnter 1s cubic-bezier(.22,.75,.32,1) both;
+  }
+  @keyframes viewEnter{
+    from{ opacity:0; transform:translateY(26px) scale(0.985); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
   }
 
+  .form-page{ max-width:720px; margin:0 auto; padding:2.4rem 5vw 4rem; }
+  .form-page .back-link{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:var(--maroon);
+    display:inline-flex;
+    align-items:center;
+    gap:0.4rem;
+    margin-bottom:1.6rem;
+  }
+  .form-page .back-link:hover{ text-decoration:underline; }
+  .form-page .form-title{ font-size:clamp(1.6rem, 7vw, 2.6rem); color:var(--maroon-deep); }
+  .form-page .form-sub{ margin-top:0.6rem; color:var(--ink-soft); font-size:0.94rem; max-width:52ch; line-height:1.6; }
+
+  form{ margin-top:2rem; display:flex; flex-direction:column; gap:1.3rem; }
+  fieldset{ border:none; padding:0; margin:0; display:flex; flex-direction:column; gap:1.2rem; }
+  fieldset legend{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    padding:0 0 0.55rem;
+    border-bottom:1px solid var(--line);
+    width:100%;
+    margin-bottom:0.2rem;
+  }
+  .field label{ display:block; font-size:0.84rem; font-weight:700; margin-bottom:0.4rem; color:var(--ink); }
+  .field .hint{ font-weight:400; color:var(--ink-soft); font-size:0.76rem; display:block; margin-top:0.35rem; line-height:1.5; }
+  input[type="text"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
+    width:100%;
+    font-family:'Manrope', sans-serif;
+    font-size:0.95rem;
+    padding:0.72rem 0.85rem;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--white);
+    color:var(--ink);
+  }
+  input[readonly]{ background:var(--paper-2); color:var(--ink-soft); }
+  textarea{ min-height:90px; resize:vertical; }
+  .radio-row, .check-row{ display:flex; flex-wrap:wrap; gap:0.55rem 1.2rem; }
+  .radio-row label, .check-row label{ display:flex; align-items:center; gap:0.5rem; font-weight:400; font-size:0.88rem; margin-bottom:0; }
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+  @media (max-width:560px){ .two-col{ grid-template-columns:1fr; } }
+  .required-mark{ color:var(--maroon); }
+
+  .maps-actions{ display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
+
+  .summary-box{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:1rem 1.1rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.5rem;
+  }
+  .summary-row{ display:flex; justify-content:space-between; gap:0.6rem; font-size:0.88rem; color:var(--ink-soft); }
+  .summary-row strong{ color:var(--ink); font-weight:700; }
+  .summary-row.grand{ border-top:1px dashed var(--gold); padding-top:0.6rem; margin-top:0.15rem; font-size:1rem; }
+  .summary-row.grand span, .summary-row.grand strong{ color:var(--maroon-deep); }
+
+  .submit-row{ margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; }
+  .submit-note{ font-size:0.78rem; color:var(--ink-soft); }
+  .btn:disabled, .btn[disabled]{ opacity:0.42; cursor:not-allowed; transform:none !important; }
+  .btn:disabled:hover, .btn[disabled]:hover{ background:var(--maroon-deep); }
+  .btn-ghost:disabled:hover, .btn-ghost[disabled]:hover{ background:transparent; color:var(--maroon-deep); }
+
+  /* ---------- Generator gambar mandiri ---------- */
+  .gen-tabs{ display:flex; gap:0.6rem; margin:1.2rem 0 1.6rem; flex-wrap:wrap; }
+  .gen-tab.active{ background:var(--maroon-deep); color:var(--white); }
+  .gen-panel{ display:flex; flex-direction:column; gap:1.2rem; }
+  #gen-preview img{ display:block; width:100%; height:auto; border-radius:12px; border:1px solid var(--line); box-shadow:0 6px 18px rgba(43,36,30,0.08); }
+
+  /* ---------- Map picker modal ---------- */
   .modal-overlay{
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(59,49,40,0.55);
-    z-index:1000;
+    background:rgba(23,17,12,0.55);
+    z-index:100;
     align-items:center;
     justify-content:center;
-    padding:20px;
+    padding:1rem;
   }
-  .modal-overlay.open{display:flex;}
+  .modal-overlay.open{ display:flex; }
   .modal-box{
-    background:var(--paper);
-    max-width:460px;
+    background:var(--white);
+    border-radius:10px;
+    max-width:420px;
     width:100%;
-    max-height:90vh;
-    overflow-y:auto;
-    border:1px solid var(--hairline);
-    border-radius:6px;
-    padding:32px 26px 28px;
-    position:relative;
-    box-shadow:0 40px 70px -30px rgba(59,49,40,0.45);
+    padding:1.3rem;
+    box-shadow:0 24px 60px rgba(0,0,0,0.35);
   }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; }
+  .modal-head h3{ font-size:1.1rem; color:var(--maroon-deep); }
   .modal-close{
-    position:absolute;
-    top:14px;right:14px;
-    width:28px;height:28px;
-    border:none;
-    background:transparent;
-    color:var(--muted);
-    font-size:20px;
-    line-height:1;
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:color 0.15s ease;
+    background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--ink-soft);
+    line-height:1; padding:0.2rem 0.4rem;
   }
-  .modal-close:hover{color:var(--gold-deep);}
-  .modal-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:26px;
-    color:var(--gold-deep);
-    margin:0 0 6px;
-    text-align:center;
+  .modal-hint{ font-size:0.8rem; color:var(--ink-soft); margin:0.5rem 0 0.9rem; line-height:1.5; }
+  .map-canvas{
+    position:relative;
+    height:280px;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:var(--paper-2);
   }
-  .modal-sub{
-    font-family:'Jost',sans-serif;
-    font-size:12.5px;
-    color:var(--muted);
-    text-align:center;
-    margin:0 0 24px;
+  .map-canvas .leaflet-container{ width:100%; height:100%; font-family:'Manrope', sans-serif; background:var(--paper-2); }
+  .map-status{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    background:var(--paper-2);
+    pointer-events:none;
+    z-index:1;
+    transition:opacity .2s ease;
   }
-  .form-field{margin-bottom:16px;}
-  .form-field label{
-    display:block;
-    font-family:'Jost',sans-serif;
-    font-weight:500;
-    font-size:12.5px;
-    letter-spacing:0.03em;
-    color:var(--ink);
-    margin-bottom:6px;
-  }
-  .form-field input,
-  .form-field select,
-  .form-field textarea{
-    width:100%;
-    font-family:'Jost',sans-serif;
-    font-size:14px;
-    color:var(--ink);
-    background:var(--bg);
-    border:1px solid var(--hairline);
-    border-radius:3px;
-    padding:10px 12px;
-  }
-  .form-field input:focus,
-  .form-field select:focus,
-  .form-field textarea:focus{
-    outline:none;
-    border-color:var(--gold);
-  }
-  .form-field textarea{resize:vertical;min-height:64px;}
+  .map-status.hidden{ opacity:0; visibility:hidden; }
+  .custom-pin-icon{ filter:drop-shadow(0 3px 3px rgba(0,0,0,0.35)); background:none; border:none; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:0.6rem; margin-top:1.1rem; }
 
-  .addon-toggle{
+  /* ---------- Splash / Selamat Datang ---------- */
+  body:has(#splash.active) .site-header{ display:none; }
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  .splash-wrap{
+    min-height:100vh;
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    width:100%;
-    background:var(--bg);
-    border:1px solid var(--hairline);
-    border-radius:3px;
-    padding:11px 14px;
-    font-family:'Jost',sans-serif;
-    font-size:13px;
-    font-weight:500;
-    color:var(--gold-deep);
-    cursor:pointer;
-    transition:border-color 0.15s ease;
-  }
-  .addon-toggle:hover{border-color:var(--gold-deep);}
-  .addon-toggle svg{
-    width:15px;height:15px;
-    flex-shrink:0;
-    transition:transform 0.2s ease;
-  }
-  .addon-toggle.open svg{transform:rotate(180deg);}
-
-  .addon-checks{
-    margin-top:8px;
-    border:1px solid var(--hairline);
-    border-radius:3px;
-    max-height:190px;
-    overflow-y:auto;
-    padding:4px 12px;
-  }
-  .addon-check{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:9px 0;
-    border-bottom:1px solid var(--hairline);
-    font-size:13px;
-    color:var(--ink);
-    cursor:pointer;
-  }
-  .addon-check:last-child{border-bottom:none;}
-  .addon-check input{width:auto;flex-shrink:0;accent-color:var(--gold-deep);}
-  .addon-check span{flex:1;}
-  .addon-check em{font-style:normal;color:var(--muted);font-size:12px;}
-
-  .maps-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:8px;
-  }
-  .maps-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-family:'Jost',sans-serif;
-    font-size:11.5px;
-    font-weight:500;
-    color:var(--gold-deep);
-    background:var(--bg);
-    border:1px solid var(--hairline);
-    border-radius:3px;
-    padding:7px 12px;
-    cursor:pointer;
-    text-decoration:none;
-    transition:border-color 0.15s ease, color 0.15s ease;
-  }
-  .maps-btn svg{width:13px;height:13px;flex-shrink:0;}
-  .maps-btn:hover{border-color:var(--gold-deep);color:var(--gold);}
-  .maps-status{
-    font-size:11px;
-    color:var(--muted);
-    margin:8px 0 0;
-  }
-
-  .total-box{
-    border:1px solid var(--hairline);
-    border-radius:3px;
-    padding:14px 16px;
-    margin:6px 0 18px;
-    background:var(--bg);
-  }
-  .total-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    font-size:13px;
-    color:var(--ink);
-    padding:5px 0;
-  }
-  .total-row strong{
-    font-family:'Cormorant Garamond',serif;
-    font-size:17px;
-    color:var(--gold-deep);
-    font-weight:600;
-  }
-  .total-row-final{
-    border-top:1px solid var(--hairline);
-    margin-top:4px;
-    padding-top:10px;
-  }
-  .total-row-final strong{font-size:19px;}
-  .form-submit{
-    display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:9px;
-    width:100%;
-    padding:13px 18px;
-    background:var(--wa);
-    color:#fff;
-    border:none;
-    font-family:'Jost',sans-serif;
-    font-weight:500;
-    font-size:14px;
-    letter-spacing:0.05em;
-    border-radius:3px;
-    cursor:pointer;
-    margin-top:6px;
-    transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .form-submit svg{width:15px;height:15px;flex-shrink:0;}
-  .form-submit:hover{
-    background:#2F6249;
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px -10px rgba(60,122,94,0.55);
-  }
-  .form-note{
-    font-size:11px;
-    color:var(--muted);
     text-align:center;
-    margin:10px 0 0;
+    padding:2rem 6vw;
+  }
+  .splash-brand-text{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(1.4rem, 6.2vw, 2.6rem);
+    line-height:1.1;
+    margin:0 auto;
+    background:linear-gradient(100deg,
+      var(--maroon-deep) 25%,
+      var(--gold) 42%,
+      var(--gold-soft) 50%,
+      var(--gold) 58%,
+      var(--maroon-deep) 75%);
+    background-size:280% 100%;
+    background-position:180% 0;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:var(--maroon-deep);
+    opacity:0;
+    letter-spacing:0.7em;
+    text-indent:0.7em;
+    animation:
+      splashBrandFade 1.5s cubic-bezier(.22,.75,.32,1) 0.2s forwards,
+      splashBrandShimmer 3.2s linear 1.9s infinite;
+  }
+  @keyframes splashBrandFade{
+    from{ opacity:0; letter-spacing:0.7em; text-indent:0.7em; transform:translateY(12px); }
+    to{ opacity:1; letter-spacing:0.03em; text-indent:0; transform:translateY(0); }
+  }
+  @keyframes splashBrandShimmer{
+    from{ background-position:180% 0; }
+    to{ background-position:-100% 0; }
   }
 
-  /* ---------- footer ---------- */
-  footer{
-    text-align:center;
-    margin-top:46px;
+  .splash-flourish{
+    color:var(--gold);
+    width:110px;
+    margin:1.1rem auto;
+    opacity:0;
+    animation:splashFadeUp 0.8s ease forwards;
+    animation-delay:1.7s;
   }
-  footer .note{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    color:var(--muted);
-    font-size:15px;
-    margin-bottom:22px;
+
+  .splash-welcome{
+    font-family:'Fraunces', serif;
+    font-weight:300;
+    font-size:clamp(1.7rem, 7.5vw, 3rem);
+    line-height:1.05;
+    color:var(--maroon-deep);
+    opacity:0;
+    animation:splashFadeUp 0.9s ease forwards;
+    animation-delay:2.0s;
   }
-  .contact{
-    font-family:'Marcellus',serif;
-    letter-spacing:0.2em;
-    font-size:12px;
+  .splash-sub{
+    margin:0.9rem auto 0;
+    max-width:300px;
+    font-family:'Manrope', sans-serif;
+    color:var(--ink-soft);
+    font-size:0.82rem;
+    line-height:1.6;
+    opacity:0;
+    animation:splashFadeUp 0.9s ease forwards;
+    animation-delay:2.3s;
+  }
+  .splash-cta{
+    margin-top:1.8rem;
+    opacity:0;
+    animation:splashFadeUp 0.9s ease forwards;
+    animation-delay:2.6s;
+  }
+  @keyframes splashFadeUp{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ---------- Toast notifikasi ---------- */
+  .kaone-toast{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform:translate(-50%, 14px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.95rem 1.25rem;
+    border-radius:10px;
+    font-family:'Manrope', sans-serif;
+    font-size:0.84rem;
+    line-height:1.55;
+    max-width:90vw;
+    width:420px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.28);
+    opacity:0;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:200;
+    pointer-events:none;
+  }
+  .kaone-toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .kaone-toast a{ color:var(--gold-soft); text-decoration:underline; pointer-events:auto; }
+
+  /* ---------- Tema per formulir (warna, font, & radius berbeda-beda, beda dari beranda) ---------- */
+  #wedding{
+    --maroon:#8a3a63; --maroon-deep:#5c2542; --gold:#cf9e6c; --gold-soft:#e2c093;
+    --paper-2:#f4e7ee; --line:#e9d3de; --page-bg:#f7eef3;
+    --heading-font:'Fraunces', serif;
+    --radius:3px; --radius-lg:8px;
+  }
+  #margondang{
+    --maroon:#c2611f; --maroon-deep:#8f4212; --gold:#e0a83c; --gold-soft:#eec27a;
+    --paper-2:#f6e8d4; --line:#ecd3ab; --page-bg:#fbf0e3;
+    --heading-font:'Playfair Display', serif;
+    --radius:10px; --radius-lg:14px;
+  }
+  #mangayun{
+    --maroon:#4f7a5a; --maroon-deep:#345842; --gold:#b9a06a; --gold-soft:#d3c193;
+    --paper-2:#e8f0e6; --line:#d3e2d3; --page-bg:#eef5ec;
+    --heading-font:'Quicksand', sans-serif;
+    --radius:14px; --radius-lg:18px;
+  }
+  #wisuda{
+    --maroon:#1c3b63; --maroon-deep:#12283f; --gold:#b8922f; --gold-soft:#d0ac5d;
+    --paper-2:#e6ecf3; --line:#cddbea; --page-bg:#eef2f8;
+    --heading-font:'Cormorant Garamond', serif;
+    --radius:2px; --radius-lg:4px;
+  }
+  #undangan{
+    --maroon:#2a94ae; --maroon-deep:#1c6d80; --gold:#e0925a; --gold-soft:#eab488;
+    --paper-2:#e3f1f4; --line:#c9e3e8; --page-bg:#e6f4f6;
+    --heading-font:'Poppins', sans-serif;
+    --radius:8px; --radius-lg:12px;
+  }
+  #wedding, #margondang, #mangayun, #wisuda, #undangan{
+    background:var(--page-bg);
+    min-height:100vh;
+  }
+  #wisuda .form-page .form-title, #undangan .form-page .form-title{ font-weight:600; }
+  #mangayun .form-page .form-title{ font-weight:600; }
+
+  /* ---------- Footer ---------- */
+  footer{ background:var(--ink); color:var(--paper); }
+  .footer-inner{
+    max-width:1100px;
+    margin:0 auto;
+    padding:2.8rem 6vw 1.8rem;
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr;
+    gap:2rem;
+  }
+  @media (max-width:720px){ .footer-inner{ grid-template-columns:1fr; gap:1.8rem; } }
+  .footer-inner h4{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.16em;
     text-transform:uppercase;
-    color:var(--gold-deep);
+    color:var(--gold-soft);
+    margin:0 0 0.9rem;
   }
-  .contact span{
-    color:var(--muted);
-    letter-spacing:0.05em;
-    display:block;
-    margin-top:10px;
-    font-family:'Jost',sans-serif;
-    text-transform:none;
-    font-size:13px;
+  .footer-brand p{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:1rem;
+    line-height:1.6;
+    color:var(--paper-2);
+    max-width:32ch;
   }
-  .contact span a{
-    color:var(--muted);
+  .footer-links{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.65rem; }
+  .footer-links a{
     text-decoration:none;
-    border-bottom:1px solid var(--hairline);
-    padding-bottom:1px;
-    transition:color 0.15s ease, border-color 0.15s ease;
+    font-size:0.9rem;
+    color:var(--paper);
+    border-bottom:1px solid transparent;
+    transition:border-color 0.2s ease, color 0.2s ease;
   }
-  .contact span a:hover,
-  .contact span a:focus-visible{
-    color:var(--gold-deep);
-    border-color:var(--gold);
+  .footer-links a:hover{ color:var(--gold-soft); border-color:var(--gold-soft); }
+
+  .copyright{
+    border-top:1px solid rgba(242,232,216,0.15);
+    text-align:center;
+    padding:1.2rem 6vw;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    color:var(--paper-2);
+  }
+
+  @media (max-width:640px){
+    .site-header{ padding:0.7rem 5vw; }
+    .form-page{ padding:2rem 5.5vw 3.2rem; }
   }
 </style>
 </head>
 <body>
 
+<header class="site-header">
+  <a href="#home" class="brand-mark">
+    <span class="brand-emblem" aria-hidden="true">
+      <svg viewBox="0 0 44 44" fill="none" stroke="currentColor">
+        <rect x="4" y="4" width="36" height="36" transform="rotate(45 22 22)" stroke-width="1.3"/>
+        <rect x="10" y="10" width="24" height="24" transform="rotate(45 22 22)" stroke-width="0.7"/>
+        <text x="22" y="27" text-anchor="middle" font-family="Fraunces, serif" font-size="15" fill="currentColor" stroke="none">K</text>
+      </svg>
+    </span>
+    <span class="brand-wordmark"><span class="brand-name">Kaone Studio</span><span class="brand-sub">Est. Aek Haruaya, Portibi, Padang Lawas Utara — Sejak 2023</span></span>
+  </a>
+  <a href="#home" class="home-link">Beranda</a>
+</header>
+
+<!-- ============ SPLASH / SELAMAT DATANG ============ -->
+<main id="splash" class="view active">
+  <div class="splash-wrap">
+    <h2 class="splash-brand-text">Kaone Studio</h2>
+
+    <svg class="flourish splash-flourish" aria-hidden="true" viewBox="0 0 140 20" fill="none" stroke="currentColor" stroke-width="1.2">
+      <line x1="4" y1="10" x2="60" y2="10"/>
+      <line x1="80" y1="10" x2="136" y2="10"/>
+      <rect x="64" y="4" width="12" height="12" transform="rotate(45 70 10)" fill="currentColor" stroke="none"/>
+    </svg>
+
+    <h1 class="splash-welcome">Selamat Datang</h1>
+    <p class="splash-sub">Yuk, lengkapi biodata acara Anda agar kami bisa siapkan dokumentasi terbaik.</p>
+    <a href="#home" class="btn splash-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>
+      Isi Biodata
+    </a>
+  </div>
+</main>
+
+<!-- ============ HOME ============ -->
+<main id="home" class="view">
   <section class="hero">
-    <div class="hero-inner">
-      <p class="eyebrow-line">
-        <span class="dot"></span>
-        <span class="eyebrow-thin">Kaone Motret &mdash; Dokumentasi Pernikahan</span>
-        <span class="eyebrow-bold">Paket Foto &amp; Video</span>
-      </p>
-      <h1 class="hero-title">Kaone <em>Motret</em></h1>
-      <p class="hero-sub">Pilihan paket dokumentasi untuk hari bahagia Anda &mdash; dari akad hingga resepsi, diabadikan dengan detail dan kehangatan yang layak dikenang seumur hidup.</p>
+    <div class="hero-blob" aria-hidden="true"></div>
+
+    <span class="hero-chip">Fotografer <em>·</em> Videografer <em>·</em> Undangan Digital <em>·</em> WCC</span>
+
+    <h1><span class="brand-name">Kaone Studio</span></h1>
+
+    <p class="tagline">Setiap momen berharga layak diabadikan dengan hati — bukan sekadar kamera.</p>
+  </section>
+
+  <section class="services">
+    <span class="eyebrow">Layanan Kami</span>
+    <h2>Pilih Acara Anda</h2>
+    <p class="lede">Ketuk salah satu layanan untuk langsung mengisi formulir biodata acara Anda.</p>
+
+    <div class="service-grid">
+      <a href="#wedding" class="service-tile" style="--i:0; --tint:#f4e7ee; --accent:#8a3a63;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="15" r="4.5"/><circle cx="16" cy="15" r="4.5"/><path d="M9 6h6l1.5 3h-9L9 6Z"/></svg></span>
+        <h3>Wedding &amp; Patuaekkon</h3>
+        <span class="tile-arrow">Isi Biodata →</span>
+      </a>
+
+      <a href="#margondang" class="service-tile" style="--i:1; --tint:#f6e8d4; --accent:#c2611f;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><ellipse cx="12" cy="7" rx="6" ry="2.4"/><path d="M6 7v9c0 1.3 2.7 2.4 6 2.4s6-1.1 6-2.4V7"/><path d="M6 11.5c0 1.3 2.7 2.4 6 2.4s6-1.1 6-2.4"/></svg></span>
+        <h3>Margondang</h3>
+        <span class="tile-arrow">Isi Biodata →</span>
+      </a>
+
+      <a href="#mangayun" class="service-tile" style="--i:2; --tint:#e8f0e6; --accent:#4f7a5a;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 16c0-3 3-4 8-4s8 1 8 4"/><path d="M4 16v1.5c0 1.5 3.6 2.5 8 2.5s8-1 8-2.5V16"/><path d="M12 12V5"/><path d="M9 6c0-2 1.5-3 3-3s3 1 3 3"/></svg></span>
+        <h3>Mangayun / Aqiqah</h3>
+        <span class="tile-arrow">Isi Biodata →</span>
+      </a>
+
+      <a href="#wisuda" class="service-tile" style="--i:3; --tint:#e6ecf3; --accent:#1c3b63;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4 2 9l10 5 10-5-10-5Z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></span>
+        <h3>Wisuda</h3>
+        <span class="tile-arrow">Isi Biodata →</span>
+      </a>
+
+      <a href="#undangan" class="service-tile" style="--i:4; --tint:#e3f1f4; --accent:#2a94ae;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5.5" width="18" height="13" rx="1.2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg></span>
+        <h3>Undangan Digital</h3>
+        <span class="tile-arrow">Isi Biodata →</span>
+      </a>
+
+      <a href="#generator" class="service-tile" style="--i:5; --tint:#f2ece0; --accent:#7a5f00;">
+        <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="14" rx="1.5"/><path d="M3 13l4.5-4.5 3 3L16 6l5 5"/><circle cx="8" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></span>
+        <h3>Buat Gambar Mandiri</h3>
+        <span class="tile-arrow">Buka Alat →</span>
+      </a>
     </div>
   </section>
-  <div class="zigzag"></div>
+</main>
 
-  <div class="content-pad">
-  <div class="sheet">
+<!-- ============ GENERATOR GAMBAR MANDIRI ============ -->
+<main id="generator" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Alat Bantu Admin</span>
+    <h2 class="form-title">Buat Gambar Biodata Mandiri</h2>
+    <p class="form-sub">Gunakan halaman ini untuk membuat ulang gambar ringkasan biodata dari teks WhatsApp yang sudah diterima, atau dari data hasil export Google Spreadsheet (Excel/CSV) — tanpa perlu klien mengisi formulir lagi.</p>
 
-    <div class="intro-head">
-      <p class="eyebrow">Pilih Paket Anda</p>
-      <h2>Daftar Harga Wedding</h2>
-      <p class="desc">Wedding (Akad/Resepsi) &amp; Patuaekkon &mdash; setiap paket sudah termasuk tim fotografer, editing, dan pengiriman file digital.</p>
+    <div class="field" style="margin-top:1.6rem;">
+      <label for="gen-tema">Tema / Jenis Acara</label>
+      <select id="gen-tema">
+        <option value="wedding">Wedding &amp; Patuaekkon</option>
+        <option value="margondang">Margondang</option>
+        <option value="mangayun">Mangayun / Aqiqah</option>
+        <option value="wisuda">Wisuda</option>
+        <option value="undangan">Undangan Digital</option>
+      </select>
     </div>
 
-    <div class="cta-wrap">
-      <button type="button" class="cta-btn" onclick="document.getElementById('bookingModal').classList.add('open')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-        Isi Formulir Pemesanan
-      </button>
+    <div class="gen-tabs">
+      <button type="button" class="btn btn-ghost gen-tab active" data-gen-tab="paste">📋 Tempel Teks WhatsApp</button>
+      <button type="button" class="btn btn-ghost gen-tab" data-gen-tab="excel">📊 Upload File Excel</button>
     </div>
 
-    <div class="frame">
-      <div class="frame-inner"></div>
-
-      <div class="rule"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
-
-      <div class="packages">
-
-        <div class="pkg">
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Reguler</div>
-              <span class="pkg-tag">Esensial &amp; rapi</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>1.150.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magnetic isi 80 foto</li>
-            <li>Foto edit maks. 150 foto</li>
-            <li>File ori &amp; edit dikirim via link, durasi 3 bulan</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Reguler%20Wedding%20seharga%20Rp1.150.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
-        <div class="pkg">
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Premium</div>
-              <span class="pkg-tag">Kenangan tercetak</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>1.350.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magnetic isi 80 foto</li>
-            <li>1 foto ukuran 16" + bingkai</li>
-            <li>2 foto ukuran 12" + bingkai</li>
-            <li>Foto edit maks. 200 foto</li>
-            <li>File ori &amp; edit dikirim via link, durasi 3 bulan</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Premium%20Wedding%20seharga%20Rp1.350.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
-        <div class="pkg featured">
-          <span class="badge">Favorit</span>
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Signature</div>
-              <span class="pkg-tag">Lengkap &amp; seimbang</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>1.850.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magnetic isi 80 foto</li>
-            <li>2 foto ukuran 16" + bingkai</li>
-            <li>3 foto ukuran 12" + bingkai</li>
-            <li>Foto edit maks. 230 foto</li>
-            <li>File ori &amp; edit dikirim via link, durasi 3 bulan</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Signature%20Wedding%20seharga%20Rp1.850.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
-        <div class="pkg">
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Platinum</div>
-              <span class="pkg-tag">Foto &amp; video</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>2.950.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magnetic isi 120 foto</li>
-            <li>2 foto ukuran 16" + bingkai</li>
-            <li>3 foto ukuran 12" + bingkai</li>
-            <li>Foto edit maks. 300 foto</li>
-            <li>Video dokumentasi 2–3 jam+</li>
-            <li>File ori &amp; edit dikirim via link, durasi 3 bulan</li>
-            <li>1 flashdisk berisi foto &amp; video</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Platinum%20Wedding%20seharga%20Rp2.950.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
-        <div class="pkg">
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Luxury</div>
-              <span class="pkg-tag">Sentuhan sinematik</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>4.000.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magazine isi 100 foto</li>
-            <li>2 foto ukuran 16" + bingkai</li>
-            <li>4 foto ukuran 12" + bingkai</li>
-            <li>Foto edit maks. 350 foto</li>
-            <li>Video sinematik durasi 1 menit lebih</li>
-            <li>1 flashdisk</li>
-            <li>File ori &amp; edit dikirim via link</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Luxury%20Wedding%20seharga%20Rp4.000.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
-        <div class="pkg">
-          <div class="pkg-top">
-            <div>
-              <div class="pkg-name">Exclusive</div>
-              <span class="pkg-tag">Paket paling lengkap</span>
-            </div>
-            <div class="pkg-price"><sup>Rp</sup>5.350.000</div>
-          </div>
-          <ul class="feat">
-            <li>Foto sampai selesai acara</li>
-            <li>Album magazine isi 100 foto</li>
-            <li>3 foto ukuran 16" + bingkai</li>
-            <li>5 foto ukuran 12" + bingkai</li>
-            <li>Foto edit maks. 400 foto</li>
-            <li>Video sinematik durasi 1–3 menit</li>
-            <li>Video dokumentasi 2–3 jam lebih</li>
-            <li>File ori &amp; edit dikirim via link, durasi 3 bulan</li>
-            <li>1 flashdisk berisi foto &amp; video</li>
-          </ul>
-          <a class="order-btn" target="_blank" rel="noopener" href="https://wa.me/6285117071704?text=Halo%20Kaone%20Motret%2C%20saya%20ingin%20memesan%20Paket%20Exclusive%20Wedding%20seharga%20Rp5.350.000">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-            Pesan Paket Ini
-          </a>
-        </div>
-
+    <div class="gen-panel" data-gen-panel="paste">
+      <div class="field">
+        <label for="gen-judul-paste">Judul Gambar (opsional)</label>
+        <input type="text" id="gen-judul-paste" placeholder="Kosongkan untuk memakai judul dari teks, contoh: Wedding Andi & Sari">
       </div>
-
-      <div class="rule"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
-
-      <div class="section-head">
-        <h2>Tambahan</h2>
-        <p class="section-sub">Add&#8209;On</p>
+      <div class="field">
+        <label for="gen-paste-text">Tempel seluruh teks pesan WhatsApp klien di sini</label>
+        <textarea id="gen-paste-text" rows="10" placeholder="Tempel teks pesan yang dikirim/diterima di WhatsApp di sini, format: Label: isi (satu baris per data)"></textarea>
+        <span class="hint">Format yang dikenali sama seperti pesan otomatis dari formulir: baris "*Judul Grup*" untuk kelompok data, dan "Label: isi" untuk tiap data.</span>
       </div>
+      <button type="button" class="btn" id="gen-buat-dari-teks">Buat Gambar dari Teks</button>
+    </div>
 
-      <div class="addons">
-        <div class="addon-row">
-          <span class="addon-name">Video Shooting Dokumentasi</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>1.000.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Cinematic</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>800.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Cetak Foto 16" + Bingkai</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>200.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Cetak Foto 12" + Bingkai</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>70.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Album 1 Roll</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>150.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Flashdisk 8 GB</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>80.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Flashdisk 16 GB</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>95.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Flashdisk 32 GB</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>110.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Flashdisk 64 GB</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>135.000</span>
-        </div>
-        <div class="addon-row">
-          <span class="addon-name">Flashdisk 128 GB</span>
-          <span class="addon-dots"></span>
-          <span class="addon-price"><sup>Rp</sup>235.000</span>
-        </div>
+    <div class="gen-panel" data-gen-panel="excel" style="display:none;">
+      <div class="field">
+        <label for="gen-excel-file">Upload file Excel/CSV hasil export Google Spreadsheet</label>
+        <input type="file" id="gen-excel-file" accept=".xlsx,.xls,.csv">
+        <span class="hint">Baris pertama file harus berisi nama-nama kolom (header), sama seperti kolom di Google Spreadsheet backup.</span>
       </div>
-
-      <div class="rule"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
-
-      <div class="section-head">
-        <h2>Syarat &amp; Ketentuan</h2>
-        <p class="section-sub">Term &amp; Conditions</p>
+      <div class="field" id="gen-excel-row-wrap" style="display:none;">
+        <label for="gen-excel-row">Pilih Baris Data Klien</label>
+        <select id="gen-excel-row"></select>
       </div>
+      <button type="button" class="btn" id="gen-buat-dari-excel" disabled>Buat Gambar dari Excel</button>
+    </div>
 
-      <ol class="terms">
-        <li class="term-block">
-          <span class="term-num"></span>
-          <div class="term-body">
-            <p class="term-title">Pemesanan &amp; Pelunasan<span>Booking &amp; Payment</span></p>
-            <ul class="term-sub">
-              <li>Pemesanan tanggal pernikahan hanya dianggap sah apabila klien telah membayar Booking Fee (Uang Muka) sesuai kesepakatan. Tanpa adanya Booking Fee, tanggal tersebut tetap bersifat terbuka untuk klien lain.</li>
-              <li>Pelunasan sisa pembayaran wajib dilakukan selambat-lambatnya pada hari pelaksanaan acara, sebelum tim meninggalkan lokasi.</li>
-              <li>Apabila terjadi pembatalan sepihak dari pihak klien, Booking Fee yang telah dibayarkan tidak dapat dikembalikan.</li>
-            </ul>
+    <div id="gen-preview" style="margin-top:2.4rem; display:none;">
+      <h3 style="font-size:1rem; margin-bottom:0.8rem; color:var(--maroon-deep);">Pratinjau Gambar</h3>
+      <img id="gen-preview-img" alt="Pratinjau gambar biodata">
+      <div class="submit-row" style="margin-top:1rem;">
+        <button type="button" class="btn" id="gen-download-btn">📥 Unduh Gambar</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ FORM: WEDDING & PATUAEKKON ============ -->
+<main id="wedding" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Formulir Biodata</span>
+    <h2 class="form-title">Wedding &amp; Patuaekkon</h2>
+    <p class="form-sub">Lengkapi data di bawah ini. Setelah dikirim, data akan tersusun rapi dan langsung terkirim ke WhatsApp tim Kaone Studio.</p>
+
+    <form id="form-wedding" novalidate>
+      <fieldset>
+        <legend>Data Pemesan</legend>
+        <div class="field">
+          <label for="w-nama">Nama Lengkap <span class="required-mark">*</span></label>
+          <input type="text" id="w-nama" name="w-nama" data-label="Nama Lengkap" placeholder="Nama Anda" required>
+        </div>
+        <div class="field">
+          <label for="w-wa">No. WhatsApp <span class="required-mark">*</span></label>
+          <input type="tel" id="w-wa" name="w-wa" data-label="No. WhatsApp" placeholder="Contoh: 0812xxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paket</legend>
+        <div class="field">
+          <label for="w-paket">Nama Paket <span class="required-mark">*</span></label>
+          <input type="text" id="w-paket" name="w-paket" data-label="Nama Paket" placeholder="Contoh: Paket Gold" required>
+        </div>
+        <div class="field">
+          <label for="w-harga">Harga Paket <span class="required-mark">*</span></label>
+          <input type="number" id="w-harga" name="w-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 6500000" min="0" step="10000" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Mempelai</legend>
+        <div class="field">
+          <label for="w-pasangan">Nama Kedua Mempelai <span class="required-mark">*</span></label>
+          <input type="text" id="w-pasangan" name="w-pasangan" data-label="Nama Kedua Mempelai" placeholder="Contoh: Andi &amp; Sari" required>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="w-ig-wanita">Instagram Pengantin Wanita</label>
+            <input type="text" id="w-ig-wanita" name="w-ig-wanita" data-label="Instagram Pengantin Wanita" placeholder="@username">
           </div>
-        </li>
-
-        <li class="term-block">
-          <span class="term-num"></span>
-          <div class="term-body">
-            <p class="term-title">Biaya Operasional<span>Accommodation</span></p>
-            <ul class="term-sub">
-              <li>Tarif paket belum termasuk biaya operasional/transportasi untuk lokasi di luar area jangkauan utama. Untuk wilayah tertentu, dikenakan biaya akomodasi tambahan sebesar Rp200.000.</li>
-            </ul>
+          <div class="field">
+            <label for="w-ig-pria">Instagram Pengantin Pria</label>
+            <input type="text" id="w-ig-pria" name="w-ig-pria" data-label="Instagram Pengantin Pria" placeholder="@username">
           </div>
-        </li>
+        </div>
+      </fieldset>
 
-        <li class="term-block">
-          <span class="term-num"></span>
-          <div class="term-body">
-            <p class="term-title">Hak Cipta &amp; Promosi<span>Copyright &amp; Promotion</span></p>
-            <ul class="term-sub">
-              <li>Hak Cipta (Copyright) atas seluruh hasil foto dan video secara mutlak tetap menjadi milik Kaone Motret.</li>
-              <li>Seluruh hasil foto dapat digunakan oleh Kaone Motret untuk kebutuhan promosi, portofolio, pameran, maupun sampel cetak studio.</li>
-              <li>Kaone Motret memiliki kebebasan penuh untuk memposting atau tidak memposting hasil foto ke media sosial.</li>
-              <li>Kami berhak mengunggah hasil karya kapan saja, termasuk sebelum pihak pengantin mempostingnya, kecuali ada permintaan atau perjanjian tertulis khusus sebelumnya dari pihak klien.</li>
-            </ul>
+      <fieldset>
+        <legend>Waktu &amp; Lokasi</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="w-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
+            <input type="date" id="w-tanggal" name="w-tanggal" data-label="Tanggal Acara" required>
           </div>
-        </li>
-
-        <li class="term-block">
-          <span class="term-num"></span>
-          <div class="term-body">
-            <p class="term-title">Ketentuan File Digital &amp; Watermark<span>Digital File &amp; Watermark Policy</span></p>
-            <ul class="term-sub">
-              <li>Seluruh file digital awal yang diberikan akan dilengkapi dengan tanda air (watermark).</li>
-              <li>Penghapusan watermark hanya akan dilakukan berdasarkan permintaan langsung dari pihak klien pada file hasil akhir.</li>
-              <li>Klien diberikan hak penggunaan (Usage Rights) file untuk kepentingan pribadi (media sosial personal, album keluarga), namun tidak diizinkan memperjualbelikan foto kepada pihak ketiga tanpa izin tertulis.</li>
-            </ul>
+          <div class="field">
+            <label for="w-waktu">Waktu Acara <span class="required-mark">*</span></label>
+            <input type="time" id="w-waktu" name="w-waktu" data-label="Waktu Acara" required>
           </div>
-        </li>
-
-        <li class="term-block">
-          <span class="term-num"></span>
-          <div class="term-body">
-            <p class="term-title">Batas Waktu Storage &amp; Cetak<span>Timeline &amp; Backup</span></p>
-            <ul class="term-sub">
-              <li>Proses kurasi, editing, hingga penyelesaian album dan bingkai fisik membutuhkan waktu kerja sekitar 3–5 minggu.</li>
-              <li>Penyimpanan digital: file asli dan hasil edit pada tautan cloud storage disimpan di server kami selama 3 bulan. Klien diwajibkan untuk mengunduh dan menyimpan cadangan (backup) ke penyimpanan pribadi sebelum batas waktu tersebut habis.</li>
-            </ul>
+        </div>
+        <div class="field">
+          <label for="w-alamat">Alamat Acara <span class="required-mark">*</span></label>
+          <textarea id="w-alamat" name="w-alamat" data-label="Alamat Acara" placeholder="Alamat lengkap lokasi acara" required></textarea>
+        </div>
+        <div class="field">
+          <label for="w-maps">Maps Acara</label>
+          <input type="text" id="w-maps" name="w-maps" data-label="Maps Acara" placeholder="Link Google Maps lokasi acara">
+          <div class="maps-actions">
+            <button type="button" class="btn-mini" data-geoloc-target="w-maps">📍 Pakai Lokasi Saat Ini</button>
+            <button type="button" class="btn-mini" data-pickmap-target="w-maps">🗺️ Pilih di Peta</button>
           </div>
-        </li>
-      </ol>
+        </div>
+      </fieldset>
 
-      <div class="rule"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
-
-      <footer>
-        <p class="note">Harga dapat berubah sewaktu-waktu &middot; syarat &amp; ketentuan berlaku</p>
-        <div class="contact">
-          Kaone Motret
-          <span>
-            <a href="https://wa.me/6285117071704" target="_blank" rel="noopener">WhatsApp 0851-1707-1704</a>
-            &nbsp;&middot;&nbsp;
-            <a href="https://instagram.com/kaonemotret" target="_blank" rel="noopener">Instagram @kaonemotret</a>
+      <fieldset>
+        <legend>Detail Acara</legend>
+        <div class="field">
+          <label for="w-adat">Adat/Konsep Pakaian</label>
+          <input type="text" id="w-adat" name="w-adat" data-label="Adat/Konsep Pakaian" placeholder="Contoh: Adat Batak, Modern, Rustic, dll.">
+        </div>
+        <div class="field">
+          <label for="w-vendor">Instagram Semua Vendor</label>
+          <textarea id="w-vendor" name="w-vendor" data-label="Instagram Semua Vendor" placeholder="Contoh: MUA @..., Dekorasi @..., WO @..."></textarea>
+        </div>
+        <div class="field">
+          <label>Pemilihan Foto</label>
+          <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
+          <span class="radio-row">
+            <label><input type="radio" name="w-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
+            <label><input type="radio" name="w-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto"> Pengantin</label>
           </span>
         </div>
-      </footer>
-
-    </div>
-  </div>
-  </div>
-
-  <div class="modal-overlay" id="bookingModal">
-    <div class="modal-box">
-      <button type="button" class="modal-close" aria-label="Tutup" onclick="document.getElementById('bookingModal').classList.remove('open')">&times;</button>
-      <p class="modal-title">Formulir Pemesanan</p>
-      <p class="modal-sub">Isi data di bawah ini, lalu kirim langsung ke WhatsApp kami</p>
-
-      <form id="bookingForm">
-        <div class="form-field">
-          <label for="bkName">1. Nama Lengkap</label>
-          <input type="text" id="bkName" placeholder="Nama Anda" required>
+        <div class="field">
+          <label for="w-catatan">Catatan Penting Untuk Fotografer</label>
+          <textarea id="w-catatan" name="w-catatan" data-label="Catatan Penting Untuk Fotografer" placeholder="Contoh: family portrait wajib, request pose tertentu, dll."></textarea>
         </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label for="bkPhone">2. No. WhatsApp</label>
-          <input type="tel" id="bkPhone" placeholder="Contoh: 0812xxxxxxx" required>
+      <fieldset>
+        <legend>Pembayaran</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="w-voucher">Kode Voucher</label>
+            <input type="text" id="w-voucher" name="w-voucher" data-label="Kode Voucher" class="js-voucher" placeholder="Jika ada">
+          </div>
+          <div class="field">
+            <label for="w-dp">DP (Uang Muka)</label>
+            <input type="number" id="w-dp" name="w-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Nominal DP, contoh: 500000" min="0" step="10000">
+          </div>
         </div>
+        <div class="summary-box">
+          <div class="summary-row"><span>Total Biaya</span><strong data-sum="total">Rp 0</strong></div>
+          <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
+          <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
+          <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+        </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label for="bkPackage">3. Pilih Paket</label>
-          <select id="bkPackage" required>
-            <option value="" disabled selected>Pilih salah satu paket</option>
-            <option value="Reguler" data-price="1150000">Reguler &mdash; Rp1.150.000</option>
-            <option value="Premium" data-price="1350000">Premium &mdash; Rp1.350.000</option>
-            <option value="Signature" data-price="1850000">Signature &mdash; Rp1.850.000</option>
-            <option value="Platinum" data-price="2950000">Platinum &mdash; Rp2.950.000</option>
-            <option value="Luxury" data-price="4000000">Luxury &mdash; Rp4.000.000</option>
-            <option value="Exclusive" data-price="5350000">Exclusive &mdash; Rp5.350.000</option>
+      <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+        </div>
+        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- ============ FORM: MARGONDANG ============ -->
+<main id="margondang" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Formulir Biodata</span>
+    <h2 class="form-title">Margondang</h2>
+    <p class="form-sub">Lengkapi data acara margondang Anda agar tim kami bisa mempersiapkan dokumentasi terbaik.</p>
+
+    <form id="form-margondang" novalidate>
+      <fieldset>
+        <legend>Data Pemesan</legend>
+        <div class="field">
+          <label for="m-nama">Nama Lengkap <span class="required-mark">*</span></label>
+          <input type="text" id="m-nama" name="m-nama" data-label="Nama Lengkap" required>
+        </div>
+        <div class="field">
+          <label for="m-wa">No. WhatsApp <span class="required-mark">*</span></label>
+          <input type="tel" id="m-wa" name="m-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paket</legend>
+        <div class="field">
+          <label for="m-paket">Jenis Paket <span class="required-mark">*</span></label>
+          <input type="text" id="m-paket" name="m-paket" data-label="Jenis Paket" placeholder="Contoh: Paket Reguler" required>
+        </div>
+        <div class="field">
+          <label for="m-harga">Harga Paket <span class="required-mark">*</span></label>
+          <input type="number" id="m-harga" name="m-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 3500000" min="0" step="10000" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Mempelai</legend>
+        <div class="field">
+          <label for="m-pasangan">Nama Kedua Mempelai <span class="required-mark">*</span></label>
+          <input type="text" id="m-pasangan" name="m-pasangan" data-label="Nama Kedua Mempelai" placeholder="Contoh: Rian &amp; Sarah" required>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="m-ig-wanita">Instagram Pengantin Wanita</label>
+            <input type="text" id="m-ig-wanita" name="m-ig-wanita" data-label="Instagram Pengantin Wanita" placeholder="@namapengguna">
+          </div>
+          <div class="field">
+            <label for="m-ig-pria">Instagram Pengantin Pria</label>
+            <input type="text" id="m-ig-pria" name="m-ig-pria" data-label="Instagram Pengantin Pria" placeholder="@namapengguna">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Waktu &amp; Lokasi</legend>
+        <div class="field">
+          <label for="m-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
+          <input type="date" id="m-tanggal" name="m-tanggal" data-label="Tanggal Acara" required>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="m-waktu-mulai">Waktu Mulai Acara <span class="required-mark">*</span></label>
+            <input type="time" id="m-waktu-mulai" name="m-waktu-mulai" data-label="Waktu Mulai Acara" required>
+          </div>
+          <div class="field">
+            <label for="m-waktu-selesai">Waktu Selesai Acara (Perkiraan)</label>
+            <input type="time" id="m-waktu-selesai" name="m-waktu-selesai" data-label="Waktu Selesai Acara">
+          </div>
+        </div>
+        <div class="field">
+          <label for="m-alamat">Alamat Acara <span class="required-mark">*</span></label>
+          <textarea id="m-alamat" name="m-alamat" data-label="Alamat Acara" required></textarea>
+        </div>
+        <div class="field">
+          <label for="m-maps">Maps Acara</label>
+          <input type="text" id="m-maps" name="m-maps" data-label="Maps Acara" placeholder="Tempel link Google Maps di sini, atau gunakan tombol di bawah">
+          <div class="maps-actions">
+            <button type="button" class="btn-mini" data-geoloc-target="m-maps">📍 Lokasi Saat Ini</button>
+            <button type="button" class="btn-mini" data-pickmap-target="m-maps">🗺️ Pilih di Peta</button>
+          </div>
+          <span class="hint">Gunakan "Lokasi Saat Ini" untuk mengambil titik GPS langsung, atau "Pilih di Peta" untuk menggeser pin ke lokasi acara secara manual.</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Detail Acara</legend>
+        <div class="field">
+          <label for="m-vendor">Instagram Semua Vendor</label>
+          <textarea id="m-vendor" name="m-vendor" data-label="Instagram Semua Vendor" placeholder="MUA, katering, dekorasi, dll."></textarea>
+        </div>
+        <div class="field">
+          <label>Pemilihan Foto</label>
+          <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
+          <span class="radio-row">
+            <label><input type="radio" name="m-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
+            <label><input type="radio" name="m-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto"> Pengantin</label>
+          </span>
+        </div>
+        <div class="field">
+          <label for="m-catatan">Catatan Penting Untuk Fotografer</label>
+          <textarea id="m-catatan" name="m-catatan" data-label="Catatan Penting Untuk Fotografer"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pembayaran</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="m-voucher">Kode Voucher</label>
+            <input type="text" id="m-voucher" name="m-voucher" data-label="Kode Voucher" class="js-voucher">
+          </div>
+          <div class="field">
+            <label for="m-dp">DP</label>
+            <input type="number" id="m-dp" name="m-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-row"><span>Total Biaya</span><strong data-sum="total">Rp 0</strong></div>
+          <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
+          <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
+          <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+        </div>
+      </fieldset>
+
+      <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+        </div>
+        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- ============ FORM: MANGAYUN / AQIQAH ============ -->
+<main id="mangayun" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Formulir Biodata</span>
+    <h2 class="form-title">Mangayun / Aqiqah</h2>
+    <p class="form-sub">Ceritakan sedikit tentang si kecil, agar momen pertamanya bisa kami abadikan dengan tepat.</p>
+
+    <form id="form-mangayun" novalidate>
+      <fieldset>
+        <legend>Data Pemesan</legend>
+        <div class="field">
+          <label for="ay-ortu">Nama Orang Tua <span class="required-mark">*</span></label>
+          <input type="text" id="ay-ortu" name="ay-ortu" data-label="Nama Orang Tua" required>
+        </div>
+        <div class="field">
+          <label for="ay-wa">No. WhatsApp <span class="required-mark">*</span></label>
+          <input type="tel" id="ay-wa" name="ay-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paket</legend>
+        <div class="field">
+          <label for="ay-paket">Nama Paket <span class="required-mark">*</span></label>
+          <input type="text" id="ay-paket" name="ay-paket" data-label="Nama Paket" placeholder="Contoh: Paket Standar" required>
+        </div>
+        <div class="field">
+          <label for="ay-harga">Harga Paket <span class="required-mark">*</span></label>
+          <input type="number" id="ay-harga" name="ay-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 2000000" min="0" step="10000" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Bayi &amp; Acara</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="ay-bayi">Nama Bayi <span class="required-mark">*</span></label>
+            <input type="text" id="ay-bayi" name="ay-bayi" data-label="Nama Bayi" required>
+          </div>
+          <div class="field">
+            <label for="ay-lahir">Tanggal Lahir Bayi <span class="required-mark">*</span></label>
+            <input type="date" id="ay-lahir" name="ay-lahir" data-label="Tanggal Lahir Bayi" required>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="ay-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
+            <input type="date" id="ay-tanggal" name="ay-tanggal" data-label="Tanggal Acara" required>
+          </div>
+          <div class="field">
+            <label for="ay-waktu">Waktu Acara <span class="required-mark">*</span></label>
+            <input type="time" id="ay-waktu" name="ay-waktu" data-label="Waktu Acara" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="ay-alamat">Alamat Acara <span class="required-mark">*</span></label>
+          <textarea id="ay-alamat" name="ay-alamat" data-label="Alamat Acara" required></textarea>
+        </div>
+        <div class="field">
+          <label for="ay-maps">Maps Acara</label>
+          <input type="text" id="ay-maps" name="ay-maps" data-label="Maps Acara" placeholder="Link Google Maps lokasi acara">
+          <div class="maps-actions">
+            <button type="button" class="btn-mini" data-geoloc-target="ay-maps">📍 Lokasi Saat Ini</button>
+            <button type="button" class="btn-mini" data-pickmap-target="ay-maps">🗺️ Pilih di Peta</button>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Catatan</legend>
+        <div class="field">
+          <label>Pemilihan Foto</label>
+          <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
+          <span class="radio-row">
+            <label><input type="radio" name="ay-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
+            <label><input type="radio" name="ay-pemilihan-foto" value="Orang Tua" data-label="Pemilihan Foto"> Orang Tua</label>
+          </span>
+        </div>
+        <div class="field">
+          <label for="ay-catatan">Catatan Tambahan</label>
+          <textarea id="ay-catatan" name="ay-catatan" data-label="Catatan"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pembayaran</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="ay-voucher">Kode Voucher</label>
+            <input type="text" id="ay-voucher" name="ay-voucher" data-label="Kode Voucher" class="js-voucher">
+          </div>
+          <div class="field">
+            <label for="ay-dp">DP (Uang Muka)</label>
+            <input type="number" id="ay-dp" name="ay-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-row"><span>Total Biaya</span><strong data-sum="total">Rp 0</strong></div>
+          <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
+          <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
+          <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+        </div>
+      </fieldset>
+
+      <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+        </div>
+        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- ============ FORM: WISUDA ============ -->
+<main id="wisuda" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Formulir Biodata</span>
+    <h2 class="form-title">Wisuda</h2>
+    <p class="form-sub">Rayakan hasil perjuangan Anda dengan dokumentasi yang layak dikenang.</p>
+
+    <form id="form-wisuda" novalidate>
+      <fieldset>
+        <legend>Data Pemesan</legend>
+        <div class="field">
+          <label for="s-nama">Nama Wisudawan/i <span class="required-mark">*</span></label>
+          <input type="text" id="s-nama" name="s-nama" data-label="Nama Wisudawan/i" required>
+        </div>
+        <div class="field">
+          <label for="s-wa">No. WhatsApp <span class="required-mark">*</span></label>
+          <input type="tel" id="s-wa" name="s-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paket</legend>
+        <div class="field">
+          <label for="s-paket">Nama Paket <span class="required-mark">*</span></label>
+          <input type="text" id="s-paket" name="s-paket" data-label="Nama Paket" placeholder="Contoh: Paket Plus" required>
+        </div>
+        <div class="field">
+          <label for="s-harga">Harga Paket <span class="required-mark">*</span></label>
+          <input type="number" id="s-harga" name="s-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 900000" min="0" step="10000" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Acara</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="s-kampus">Universitas / Institusi</label>
+            <input type="text" id="s-kampus" name="s-kampus" data-label="Universitas/Institusi">
+          </div>
+          <div class="field">
+            <label for="s-jenjang">Jenjang</label>
+            <select id="s-jenjang" name="s-jenjang" data-label="Jenjang">
+              <option value="">Pilih jenjang</option>
+              <option value="D3">D3</option>
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+              <option value="S3">S3</option>
+            </select>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="s-tanggal">Tanggal Wisuda <span class="required-mark">*</span></label>
+            <input type="date" id="s-tanggal" name="s-tanggal" data-label="Tanggal Wisuda" required>
+          </div>
+          <div class="field">
+            <label for="s-waktu">Waktu Acara <span class="required-mark">*</span></label>
+            <input type="time" id="s-waktu" name="s-waktu" data-label="Waktu Acara" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-lokasi">Lokasi (Kampus/Venue Foto) <span class="required-mark">*</span></label>
+          <textarea id="s-lokasi" name="s-lokasi" data-label="Lokasi" required></textarea>
+        </div>
+        <div class="field">
+          <span class="check-row">
+            <label><input type="checkbox" value="Sesi di area kampus" data-label="Sesi Diminati"> Sesi di area kampus</label>
+            <label><input type="checkbox" id="s-sesi-outdoor" value="Sesi outdoor" data-label="Sesi Diminati"> Sesi outdoor</label>
+          </span>
+        </div>
+        <div class="field" id="s-outdoor-extra" style="display:none;">
+          <label for="s-lokasi-outdoor">Lokasi Foto Outdoor</label>
+          <textarea id="s-lokasi-outdoor" name="s-lokasi-outdoor" data-label="Lokasi Foto Outdoor" placeholder="Alamat lengkap lokasi foto outdoor"></textarea>
+          <label for="s-maps-outdoor" style="margin-top:0.8rem;">Maps Lokasi Foto Outdoor</label>
+          <input type="text" id="s-maps-outdoor" name="s-maps-outdoor" data-label="Maps Lokasi Foto Outdoor" placeholder="Link Google Maps lokasi foto outdoor">
+          <div class="maps-actions">
+            <button type="button" class="btn-mini" data-geoloc-target="s-maps-outdoor">📍 Lokasi Saat Ini</button>
+            <button type="button" class="btn-mini" data-pickmap-target="s-maps-outdoor">🗺️ Pilih di Peta</button>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Catatan</legend>
+        <div class="field">
+          <label for="s-catatan">Catatan Tambahan</label>
+          <textarea id="s-catatan" name="s-catatan" data-label="Catatan"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pembayaran</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="s-voucher">Kode Voucher</label>
+            <input type="text" id="s-voucher" name="s-voucher" data-label="Kode Voucher" class="js-voucher">
+          </div>
+          <div class="field">
+            <label for="s-dp">DP (Uang Muka)</label>
+            <input type="number" id="s-dp" name="s-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-row"><span>Total Biaya</span><strong data-sum="total">Rp 0</strong></div>
+          <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
+          <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
+          <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+        </div>
+      </fieldset>
+
+      <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+        </div>
+        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- ============ FORM: UNDANGAN DIGITAL ============ -->
+<main id="undangan" class="view">
+  <div class="form-page">
+    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+    <span class="eyebrow">Formulir Biodata</span>
+    <h2 class="form-title">Undangan Digital</h2>
+    <p class="form-sub">Ceritakan acara Anda, dan biarkan kami merancang undangan digital yang mewakili momen Anda.</p>
+
+    <form id="form-undangan" novalidate>
+      <fieldset>
+        <legend>Jenis Undangan</legend>
+        <div class="field">
+          <label for="u-jenis-undangan">Jenis Undangan <span class="required-mark">*</span></label>
+          <select id="u-jenis-undangan" name="u-jenis-undangan" data-label="Jenis Undangan" required>
+            <option value="" disabled selected>Pilih jenis undangan</option>
+            <option value="Wedding">Wedding</option>
+            <option value="Patuaekkon">Patuaekkon</option>
+            <option value="Margondang">Margondang</option>
+            <option value="Mangayun/Aqiqah">Mangayun / Aqiqah</option>
+            <option value="Khitan">Khitan</option>
+            <option value="Ulang Tahun">Ulang Tahun</option>
+            <option value="Lainnya">Lainnya</option>
           </select>
         </div>
+        <div class="field" id="u-jenis-lainnya-wrap" style="display:none;">
+          <label for="u-jenis-lainnya">Sebutkan Jenis Undangan</label>
+          <input type="text" id="u-jenis-lainnya" name="u-jenis-lainnya" data-label="Jenis Undangan (Lainnya)" placeholder="Tuliskan jenis acara Anda">
+        </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label>4. Pilih Paket Add&#8209;On (Jika Ada)</label>
-          <button type="button" class="addon-toggle" id="addonToggle" onclick="toggleAddons()">
-            <span id="addonToggleText">Tampilkan Pilihan Add&#8209;On</span>
-            <svg id="addonToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="addon-checks" id="addonChecks" hidden>
-            <label class="addon-check"><input type="checkbox" value="Video Shooting Dokumentasi" data-price="1000000"><span>Video Shooting Dokumentasi <em>Rp1.000.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Cinematic" data-price="800000"><span>Cinematic <em>Rp800.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Cetak Foto 16&quot; + Bingkai" data-price="200000"><span>Cetak Foto 16" + Bingkai <em>Rp200.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Cetak Foto 12&quot; + Bingkai" data-price="70000"><span>Cetak Foto 12" + Bingkai <em>Rp70.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Album 1 Roll" data-price="150000"><span>Album 1 Roll <em>Rp150.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Flashdisk 8 GB" data-price="80000"><span>Flashdisk 8 GB <em>Rp80.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Flashdisk 16 GB" data-price="95000"><span>Flashdisk 16 GB <em>Rp95.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Flashdisk 32 GB" data-price="110000"><span>Flashdisk 32 GB <em>Rp110.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Flashdisk 64 GB" data-price="135000"><span>Flashdisk 64 GB <em>Rp135.000</em></span></label>
-            <label class="addon-check"><input type="checkbox" value="Flashdisk 128 GB" data-price="235000"><span>Flashdisk 128 GB <em>Rp235.000</em></span></label>
+      <fieldset>
+        <legend>Data Pemesan</legend>
+        <div class="field">
+          <label for="u-pj">Nama Penanggung Jawab <span class="required-mark">*</span></label>
+          <input type="text" id="u-pj" name="u-pj" data-label="Penanggung Jawab" required>
+        </div>
+        <div class="field">
+          <label for="u-wa">No. WhatsApp <span class="required-mark">*</span></label>
+          <input type="tel" id="u-wa" name="u-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paket</legend>
+        <div class="field">
+          <label for="u-paket">Nama Paket <span class="required-mark">*</span></label>
+          <input type="text" id="u-paket" name="u-paket" data-label="Nama Paket" placeholder="Contoh: Paket Elegant" required>
+        </div>
+        <div class="field">
+          <label for="u-harga">Harga Paket <span class="required-mark">*</span></label>
+          <input type="number" id="u-harga" name="u-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 300000" min="0" step="10000" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Acara</legend>
+        <div class="field">
+          <label for="u-nama">Nama Acara</label>
+          <input type="text" id="u-nama" name="u-nama" data-label="Nama Acara">
+        </div>
+        <div class="field">
+          <label for="u-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
+          <input type="date" id="u-tanggal" name="u-tanggal" data-label="Tanggal Acara" required>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="u-tema">Tema / Warna yang Diinginkan</label>
+            <input type="text" id="u-tema" name="u-tema" data-label="Tema/Warna">
+          </div>
+          <div class="field">
+            <label for="u-tamu">Estimasi Jumlah Tamu / Undangan</label>
+            <input type="text" id="u-tamu" name="u-tamu" data-label="Estimasi Tamu">
           </div>
         </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label for="bkCouple">5. Nama Kedua Mempelai</label>
-          <input type="text" id="bkCouple" placeholder="Contoh: Andi &amp; Sari">
+      <fieldset>
+        <legend>Fitur Tambahan</legend>
+        <div class="field">
+          <span class="check-row">
+            <label><input type="checkbox" value="RSVP Online" data-label="Fitur Tambahan"> RSVP Online</label>
+            <label><input type="checkbox" value="Amplop Digital" data-label="Fitur Tambahan"> Amplop Digital</label>
+            <label><input type="checkbox" value="Musik Latar" data-label="Fitur Tambahan"> Musik Latar</label>
+            <label><input type="checkbox" value="Galeri Foto" data-label="Fitur Tambahan"> Galeri Foto</label>
+            <label><input type="checkbox" value="Peta Lokasi" data-label="Fitur Tambahan"> Peta Lokasi</label>
+            <label><input type="checkbox" value="Hitung Mundur" data-label="Fitur Tambahan"> Hitung Mundur</label>
+          </span>
         </div>
-
-        <div class="form-field">
-          <label for="bkIgBride">6. Instagram Pengantin Wanita</label>
-          <input type="text" id="bkIgBride" placeholder="@username">
+        <div class="field">
+          <label for="u-deadline">Kapan Undangan Dibutuhkan?</label>
+          <input type="date" id="u-deadline" name="u-deadline" data-label="Deadline Dibutuhkan">
         </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label for="bkIgGroom">7. Instagram Pengantin Pria</label>
-          <input type="text" id="bkIgGroom" placeholder="@username">
-        </div>
-
-        <div class="form-field">
-          <label for="bkDate">8. Tanggal Acara</label>
-          <input type="date" id="bkDate">
-        </div>
-
-        <div class="form-field">
-          <label for="bkTime">9. Waktu Acara</label>
-          <input type="time" id="bkTime">
-        </div>
-
-        <div class="form-field">
-          <label for="bkAddress">10. Alamat Acara</label>
-          <input type="text" id="bkAddress" placeholder="Alamat lengkap lokasi acara">
-        </div>
-
-        <div class="form-field">
-          <label for="bkMaps">11. Maps Acara</label>
-          <input type="text" id="bkMaps" placeholder="Link Google Maps lokasi acara">
-          <div class="maps-actions">
-            <button type="button" class="maps-btn" onclick="useCurrentLocation()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-6.5 7-11.5A7 7 0 1 0 5 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
-              Pakai Lokasi Saat Ini
-            </button>
-            <a class="maps-btn" href="https://www.google.com/maps" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-              Buka Google Maps
-            </a>
+      <fieldset>
+        <legend>Pembayaran</legend>
+        <div class="two-col">
+          <div class="field">
+            <label for="u-voucher">Kode Voucher</label>
+            <input type="text" id="u-voucher" name="u-voucher" data-label="Kode Voucher" class="js-voucher">
           </div>
-          <p id="mapsStatus" class="maps-status"></p>
+          <div class="field">
+            <label for="u-dp">DP (Uang Muka)</label>
+            <input type="number" id="u-dp" name="u-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 100000" min="0" step="10000">
+          </div>
         </div>
-
-        <div class="form-field">
-          <label for="bkConcept">12. Adat/Konsep Pakaian</label>
-          <input type="text" id="bkConcept" placeholder="Contoh: Adat Batak, Modern, Rustic, dll.">
+        <div class="summary-box">
+          <div class="summary-row"><span>Total Biaya</span><strong data-sum="total">Rp 0</strong></div>
+          <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
+          <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
+          <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
         </div>
+      </fieldset>
 
-        <div class="form-field">
-          <label for="bkVendors">13. Instagram Semua Vendor</label>
-          <textarea id="bkVendors" placeholder="Contoh: MUA @..., Dekorasi @..., WO @..."></textarea>
+      <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
         </div>
+        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+      </div>
+    </form>
+  </div>
+</main>
 
-        <div class="form-field">
-          <label for="bkNote">14. Catatan Penting Untuk Fotografer</label>
-          <textarea id="bkNote" placeholder="Contoh: family portrait wajib, request pose tertentu, dll."></textarea>
-        </div>
+<div class="ulos-band" aria-hidden="true"></div>
 
-        <div class="form-field">
-          <label for="bkDp">15. DP (Uang Muka)</label>
-          <input type="number" id="bkDp" placeholder="Nominal DP, contoh: 500000" min="0" step="1000">
-        </div>
-
-        <div class="total-box">
-          <div class="total-row"><span>Total Biaya</span><strong id="totalDisplay">Rp0</strong></div>
-          <div class="total-row"><span>DP</span><strong id="dpDisplay">Rp0</strong></div>
-          <div class="total-row total-row-final"><span>Sisa Pembayaran</span><strong id="remainingDisplay">Rp0</strong></div>
-        </div>
-
-        <button type="submit" class="form-submit">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.7 8.23 8.23 0 4.54-3.7 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.24.24-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.24-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-          Kirim Data ke WhatsApp
-        </button>
-        <p class="form-note">Anda akan diarahkan ke WhatsApp untuk mengirim data ini ke Kaone Motret</p>
-      </form>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h4>Kaone Studio</h4>
+      <p>Menjaga cerita Anda tetap hidup, satu momen sekaligus.</p>
+    </div>
+    <div class="footer-contact">
+      <h4>Kontak</h4>
+      <ul class="footer-links">
+        <li><a href="https://wa.me/6285117071704" target="_blank" rel="noopener" class="js-wa-footer-link">WhatsApp — 0851-1707-1704</a></li>
+        <li><a href="https://instagram.com/kaonestudio" target="_blank" rel="noopener">@kaonestudio</a></li>
+        <li><a href="https://instagram.com/kaonemotret" target="_blank" rel="noopener">@kaonemotret</a></li>
+      </ul>
+    </div>
+    <div class="footer-links-wrap">
+      <h4>Rekan Kami</h4>
+      <ul class="footer-links">
+        <li><a href="https://instagram.com/bertaut.id" target="_blank" rel="noopener">@bertaut.id</a></li>
+        <li><a href="https://instagram.com/alunara" target="_blank" rel="noopener">@alunara</a></li>
+        <li><a href="https://instagram.com/buktisarjana" target="_blank" rel="noopener">@buktisarjana</a></li>
+      </ul>
     </div>
   </div>
+  <div class="copyright">© 2026 Kaone Studio. All rights reserved.</div>
+</footer>
 
-  <script>
-    var packagePrices = {
-      Reguler: 1150000,
-      Premium: 1350000,
-      Signature: 1850000,
-      Platinum: 2950000,
-      Luxury: 4000000,
-      Exclusive: 5350000
-    };
+<!-- ============ MODAL: PILIH LOKASI DI PETA ============ -->
+<div class="modal-overlay" id="mapModal" aria-hidden="true">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Pilih Lokasi di Peta</h3>
+      <button type="button" class="modal-close" id="mapModalClose" aria-label="Tutup">✕</button>
+    </div>
+    <p class="modal-hint">Klik di area peta atau geser pin ke titik lokasi acara Anda, lalu tekan "Gunakan Lokasi Ini".</p>
+    <div class="map-canvas" id="mapCanvas">
+      <div class="map-status" id="mapStatus">Memuat peta…</div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="mapCancelBtn">Batal</button>
+      <button type="button" class="btn" id="mapConfirmBtn">Gunakan Lokasi Ini</button>
+    </div>
+  </div>
+</div>
 
-    function formatRupiah(num){
-      num = Math.max(0, Math.round(num || 0));
-      return 'Rp' + num.toLocaleString('id-ID');
+<script>
+(function(){
+
+  /* =========================================================
+     KONFIGURASI PUSAT — ubah di sini saja, otomatis berlaku
+     di semua formulir, footer, dan pesan WhatsApp.
+  ========================================================= */
+  var KAONE_CONFIG = {
+    // Nomor WhatsApp tujuan, format internasional tanpa tanda "+" (contoh: 62851xxxxxxx)
+    waNumber: '6285117071704',
+    // URL Web App Google Apps Script untuk backup otomatis ke Google Spreadsheet.
+    // Cara mendapatkan URL ini ada di file panduan terpisah (GOOGLE-SHEET-SETUP.md).
+    // Selama masih bertuliskan 'PASTE_URL_...', backup ke spreadsheet otomatis dilewati (fitur lain tetap jalan normal).
+    sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzLsg4jJTUyc5xfZSRHP-OXIJic0UpiFNeYxkB2uXr2_4Tc89MbGdiC4lManszAstyuTg/exec'
+  };
+
+  function formatPhoneDisplay(waNumber){
+    var digits = String(waNumber || '').replace(/^\+?62/, '');
+    var m = digits.match(/^(\d{3})(\d{4})(\d+)$/);
+    return m ? ('+62 ' + m[1] + '-' + m[2] + '-' + m[3]) : ('+62 ' + digits);
+  }
+
+  function normalizePhone(v){
+    return String(v || '').replace(/[\s-]/g, '');
+  }
+  function isValidPhone(v){
+    return /^(\+62|62|0)8[0-9]{8,11}$/.test(normalizePhone(v));
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var waDisplay = formatPhoneDisplay(KAONE_CONFIG.waNumber);
+    document.querySelectorAll('.js-wa-phone').forEach(function(el){ el.textContent = waDisplay; });
+    var footerLink = document.querySelector('.js-wa-footer-link');
+    if(footerLink){
+      footerLink.href = 'https://wa.me/' + KAONE_CONFIG.waNumber;
+      footerLink.textContent = 'WhatsApp — ' + waDisplay;
     }
+  });
 
-    function getSelectedAddons(){
-      var boxes = document.querySelectorAll('.addon-check input[type="checkbox"]:checked');
-      var list = [];
-      boxes.forEach(function(b){
-        list.push({ name: b.value, price: parseInt(b.getAttribute('data-price'), 10) || 0 });
-      });
-      return list;
-    }
-
-    function recalcTotal(){
-      var pkgSelect = document.getElementById('bkPackage');
-      var pkgPrice = 0;
-      if(pkgSelect.selectedIndex > -1){
-        var opt = pkgSelect.options[pkgSelect.selectedIndex];
-        pkgPrice = parseInt(opt.getAttribute('data-price'), 10) || 0;
-      }
-      var addonTotal = getSelectedAddons().reduce(function(sum, a){ return sum + a.price; }, 0);
-      var total = pkgPrice + addonTotal;
-      var dp = parseInt(document.getElementById('bkDp').value, 10) || 0;
-      var remaining = total - dp;
-
-      document.getElementById('totalDisplay').textContent = formatRupiah(total);
-      document.getElementById('dpDisplay').textContent = formatRupiah(dp);
-      document.getElementById('remainingDisplay').textContent = formatRupiah(remaining);
-    }
-
-    document.getElementById('bkPackage').addEventListener('change', recalcTotal);
-    document.getElementById('bkDp').addEventListener('input', recalcTotal);
-    document.querySelectorAll('.addon-check input[type="checkbox"]').forEach(function(cb){
-      cb.addEventListener('change', recalcTotal);
+  /* =========================================================
+     ROUTING (hash-based single page navigation)
+  ========================================================= */
+  var views = document.querySelectorAll('.view');
+  function showView(hash){
+    var id = (hash && hash !== '#') ? hash.replace('#','') : 'splash';
+    var found = false;
+    views.forEach(function(v){
+      if(v.id === id){ v.classList.add('active'); found = true; }
+      else { v.classList.remove('active'); }
     });
+    if(!found){ document.getElementById('splash').classList.add('active'); }
+    window.scrollTo({top:0, behavior:(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')});
+  }
+  window.addEventListener('hashchange', function(){ showView(location.hash); });
+  showView(location.hash);
 
-    function toggleAddons(){
-      var box = document.getElementById('addonChecks');
-      var btn = document.getElementById('addonToggle');
-      var text = document.getElementById('addonToggleText');
-      var isHidden = box.hasAttribute('hidden');
-      if(isHidden){
-        box.removeAttribute('hidden');
-        btn.classList.add('open');
-        text.textContent = 'Sembunyikan Pilihan Add-On';
-      } else {
-        box.setAttribute('hidden', '');
-        btn.classList.remove('open');
-        text.textContent = 'Tampilkan Pilihan Add-On';
-      }
+  /* =========================================================
+     VOUCHER — kode voucher TIDAK lagi disimpan di file HTML ini
+     (siapa pun bisa membaca isi file HTML lewat "View Page Source",
+     jadi daftar kode di sini tidak pernah benar-benar rahasia).
+     Kode voucher sekarang dikelola di tab "Voucher" pada Google
+     Spreadsheet Anda, dan diperiksa lewat Google Apps Script setiap
+     klien mengetik kode. Lihat Code.gs untuk detail & panduan edit.
+  ========================================================= */
+
+  function formatRupiah(n){
+    n = Math.round(n) || 0;
+    return 'Rp ' + n.toLocaleString('id-ID');
+  }
+
+  /* =========================================================
+     KALKULASI OTOMATIS: total (dari Harga Paket manual), diskon, dp, sisa
+     Diskon HANYA dihitung setelah kode voucher divalidasi ke server
+     (Google Apps Script) — bukan dari daftar kode di JavaScript.
+  ========================================================= */
+  function wirePricing(formEl){
+    if(!formEl) return;
+    var harga = formEl.querySelector('.js-harga');
+    var voucher = formEl.querySelector('.js-voucher');
+    var dp = formEl.querySelector('.js-dp');
+    var sumTotal = formEl.querySelector('[data-sum="total"]');
+    var sumDiskon = formEl.querySelector('[data-sum="diskon"]');
+    var sumDp = formEl.querySelector('[data-sum="dp"]');
+    var sumSisa = formEl.querySelector('[data-sum="sisa"]');
+    if(!harga) return;
+
+    // Sisipkan otomatis keterangan status pengecekan kode voucher di bawah kolomnya
+    var voucherStatus = null;
+    if(voucher){
+      voucherStatus = document.createElement('span');
+      voucherStatus.className = 'hint';
+      voucherStatus.style.display = 'block';
+      voucherStatus.style.marginTop = '0.35rem';
+      voucher.insertAdjacentElement('afterend', voucherStatus);
     }
 
-    function useCurrentLocation(){
-      var status = document.getElementById('mapsStatus');
-      if(!navigator.geolocation){
-        status.textContent = 'Perangkat/browser tidak mendukung deteksi lokasi. Silakan tempel link manual dari Google Maps.';
+    var appliedDiscount = 0;   // hasil terverifikasi dari server (bukan sekadar tebakan browser)
+    var voucherToken = 0;      // mencegah hasil pengecekan lama "menimpa" hasil yang lebih baru
+    var voucherTimer = null;
+
+    function recalc(){
+      var total = parseInt(harga.value, 10) || 0;
+      var dpVal = parseInt((dp && dp.value), 10) || 0;
+      var diskon = Math.min(appliedDiscount, total);
+      var sisa = total - diskon - dpVal;
+      if(sisa < 0) sisa = 0;
+
+      if(sumTotal) sumTotal.textContent = formatRupiah(total);
+      if(sumDiskon) sumDiskon.textContent = '- ' + formatRupiah(diskon);
+      if(sumDp) sumDp.textContent = formatRupiah(dpVal);
+      if(sumSisa) sumSisa.textContent = formatRupiah(sisa);
+    }
+
+    function setVoucherStatus(text, color){
+      if(!voucherStatus) return;
+      voucherStatus.textContent = text;
+      voucherStatus.style.color = color || 'var(--ink-soft)';
+    }
+
+    function checkVoucher(){
+      var kode = ((voucher && voucher.value) || '').trim().toUpperCase();
+      voucherToken++;
+      var myToken = voucherToken;
+
+      if(!kode){
+        appliedDiscount = 0;
+        setVoucherStatus('');
+        recalc();
         return;
       }
-      status.textContent = 'Mendeteksi lokasi Anda...';
-      navigator.geolocation.getCurrentPosition(function(pos){
-        var lat = pos.coords.latitude;
-        var lng = pos.coords.longitude;
-        var link = 'https://www.google.com/maps?q=' + lat + ',' + lng;
-        document.getElementById('bkMaps').value = link;
-        status.textContent = 'Lokasi saat ini berhasil ditambahkan.';
-      }, function(){
-        status.textContent = 'Gagal mengambil lokasi. Pastikan izin lokasi diaktifkan, atau tempel link manual dari Google Maps.';
+
+      if(!KAONE_CONFIG.sheetWebAppUrl || KAONE_CONFIG.sheetWebAppUrl.indexOf('PASTE_URL') !== -1){
+        appliedDiscount = 0;
+        setVoucherStatus('Pengecekan kode voucher belum aktif (server belum terhubung).', 'var(--maroon)');
+        recalc();
+        return;
+      }
+
+      setVoucherStatus('Memeriksa kode voucher…');
+
+      var total = parseInt(harga.value, 10) || 0;
+      var checkUrl = KAONE_CONFIG.sheetWebAppUrl + '?action=checkVoucher&code=' + encodeURIComponent(kode);
+
+      fetch(checkUrl).then(function(res){ return res.json(); }).then(function(data){
+        if(myToken !== voucherToken) return; // sudah diketik ulang sebelum respons ini datang
+        if(data && data.valid){
+          appliedDiscount = data.type === 'percent' ? Math.round(total * data.value / 100) : data.value;
+          setVoucherStatus(
+            '✓ Kode valid — diskon ' + (data.type === 'percent' ? (data.value + '%') : formatRupiah(data.value)),
+            '#3a7a4a'
+          );
+        } else {
+          appliedDiscount = 0;
+          setVoucherStatus('✗ Kode voucher tidak ditemukan / tidak aktif.', 'var(--maroon)');
+        }
+        recalc();
+      }).catch(function(){
+        if(myToken !== voucherToken) return;
+        appliedDiscount = 0;
+        setVoucherStatus('Gagal memeriksa kode (periksa koneksi internet Anda).', 'var(--maroon)');
+        recalc();
       });
     }
 
-    document.getElementById('bookingModal').addEventListener('click', function(e){
-      if(e.target === this){ this.classList.remove('open'); }
+    harga.addEventListener('input', function(){
+      recalc();
+      if(voucher && voucher.value.trim()){
+        clearTimeout(voucherTimer);
+        voucherTimer = setTimeout(checkVoucher, 400);
+      }
+    });
+    if(dp) dp.addEventListener('input', recalc);
+    if(voucher){
+      voucher.addEventListener('input', function(){
+        clearTimeout(voucherTimer);
+        voucherTimer = setTimeout(checkVoucher, 500);
+      });
+    }
+    recalc();
+  }
+
+  wirePricing(document.getElementById('form-wedding'));
+  wirePricing(document.getElementById('form-margondang'));
+  wirePricing(document.getElementById('form-mangayun'));
+  wirePricing(document.getElementById('form-wisuda'));
+  wirePricing(document.getElementById('form-undangan'));
+
+  /* Tampilkan kolom manual saat Jenis Undangan = Lainnya */
+  var jenisUndanganSelect = document.getElementById('u-jenis-undangan');
+  var jenisLainnyaWrap = document.getElementById('u-jenis-lainnya-wrap');
+  if(jenisUndanganSelect && jenisLainnyaWrap){
+    jenisUndanganSelect.addEventListener('change', function(){
+      var isLainnya = jenisUndanganSelect.value === 'Lainnya';
+      jenisLainnyaWrap.style.display = isLainnya ? 'block' : 'none';
+      if(!isLainnya){
+        var manualInput = document.getElementById('u-jenis-lainnya');
+        if(manualInput) manualInput.value = '';
+      }
+    });
+  }
+
+  /* Tampilkan kolom Lokasi Foto Outdoor & Maps hanya jika "Sesi outdoor" dicentang */
+  var sesiOutdoorCheckbox = document.getElementById('s-sesi-outdoor');
+  var outdoorExtra = document.getElementById('s-outdoor-extra');
+  if(sesiOutdoorCheckbox && outdoorExtra){
+    sesiOutdoorCheckbox.addEventListener('change', function(){
+      outdoorExtra.style.display = sesiOutdoorCheckbox.checked ? 'block' : 'none';
+      if(!sesiOutdoorCheckbox.checked){
+        var loc = document.getElementById('s-lokasi-outdoor');
+        var maps = document.getElementById('s-maps-outdoor');
+        if(loc) loc.value = '';
+        if(maps) maps.value = '';
+      }
+    });
+  }
+
+  /* =========================================================
+     LOKASI: geolocation & peta pilih-lokasi (Leaflet + OpenStreetMap,
+     gratis tanpa API key — pin marker pakai SVG buatan sendiri)
+  ========================================================= */
+  var lastGeo = null;
+  var DEFAULT_CENTER = [3.5952, 98.6722]; // Medan, Sumatera Utara
+
+  function handleGeoloc(targetId){
+    if(!navigator.geolocation){
+      alert('Perangkat/browser Anda tidak mendukung fitur GPS.');
+      return;
+    }
+    if(window.isSecureContext === false){
+      alert('Fitur GPS hanya bisa berjalan jika halaman ini diakses lewat website (https://), bukan dibuka langsung sebagai file dari HP. Silakan upload file ini ke hosting/website terlebih dahulu, atau isi Maps Acara secara manual / lewat tombol "Pilih di Peta".');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      lastGeo = { lat:lat, lng:lng };
+      var input = document.getElementById(targetId);
+      if(input) input.value = 'https://www.google.com/maps?q=' + lat.toFixed(6) + ',' + lng.toFixed(6);
+    }, function(err){
+      var msg = 'Tidak dapat mengambil lokasi.';
+      if(err && err.code === 1){
+        msg = 'Akses lokasi ditolak. Aktifkan izin lokasi untuk browser ini di pengaturan HP, lalu coba lagi.';
+      } else if(err && err.code === 2){
+        msg = 'Lokasi tidak tersedia saat ini. Pastikan GPS/Lokasi pada HP sedang aktif.';
+      } else if(err && err.code === 3){
+        msg = 'Waktu pengambilan lokasi habis. Pastikan sinyal GPS cukup baik lalu coba lagi.';
+      } else {
+        msg = 'Tidak dapat mengambil lokasi. Ini biasanya terjadi jika halaman dibuka sebagai file lokal, bukan lewat website (https://). Silakan gunakan tombol "Pilih di Peta" atau isi link Maps secara manual.';
+      }
+      alert(msg);
+    }, { enableHighAccuracy:true, timeout:10000 });
+  }
+
+  var pinSvgHtml = '<svg width="34" height="34" viewBox="0 0 24 34" xmlns="http://www.w3.org/2000/svg">'
+    + '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 22 12 22s12-13 12-22C24 5.4 18.6 0 12 0z" fill="#a3324a"/>'
+    + '<circle cx="12" cy="12" r="5" fill="#fffdf8"/></svg>';
+
+  var mapModal = document.getElementById('mapModal');
+  var mapStatus = document.getElementById('mapStatus');
+  var currentMapTargetId = null;
+  var leafletMap = null;
+  var leafletMarker = null;
+
+  function ensureLeafletMap(){
+    if(leafletMap || typeof L === 'undefined') return;
+    var pinIcon = L.divIcon({
+      className:'custom-pin-icon',
+      html:pinSvgHtml,
+      iconSize:[34,34],
+      iconAnchor:[17,34]
+    });
+    leafletMap = L.map('mapCanvas', { attributionControl:true }).setView(DEFAULT_CENTER, 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19,
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).on('load', function(){
+      if(mapStatus) mapStatus.classList.add('hidden');
+    }).addTo(leafletMap);
+    leafletMarker = L.marker(DEFAULT_CENTER, { icon:pinIcon, draggable:true }).addTo(leafletMap);
+    leafletMap.on('click', function(e){ leafletMarker.setLatLng(e.latlng); });
+  }
+
+  function openMapModal(targetId){
+    currentMapTargetId = targetId;
+    if(mapStatus) mapStatus.classList.remove('hidden');
+    mapModal.classList.add('open');
+    mapModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    ensureLeafletMap();
+
+    var center = lastGeo ? [lastGeo.lat, lastGeo.lng] : DEFAULT_CENTER;
+    setTimeout(function(){
+      if(!leafletMap) return;
+      leafletMap.invalidateSize();
+      leafletMap.setView(center, 16);
+      leafletMarker.setLatLng(center);
+      if(mapStatus) mapStatus.classList.add('hidden');
+    }, 150);
+  }
+
+  function closeMapModal(){
+    mapModal.classList.remove('open');
+    mapModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    currentMapTargetId = null;
+  }
+
+  document.getElementById('mapConfirmBtn').addEventListener('click', function(){
+    if(!leafletMarker) { closeMapModal(); return; }
+    var pos = leafletMarker.getLatLng();
+    var lat = pos.lat.toFixed(6);
+    var lng = pos.lng.toFixed(6);
+    var link = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+    if(currentMapTargetId){
+      var input = document.getElementById(currentMapTargetId);
+      if(input) input.value = link;
+    }
+    closeMapModal();
+  });
+  document.getElementById('mapCancelBtn').addEventListener('click', closeMapModal);
+  document.getElementById('mapModalClose').addEventListener('click', closeMapModal);
+  mapModal.addEventListener('click', function(e){ if(e.target === mapModal) closeMapModal(); });
+
+  document.addEventListener('click', function(e){
+    var geoBtn = e.target.closest('[data-geoloc-target]');
+    if(geoBtn){ handleGeoloc(geoBtn.getAttribute('data-geoloc-target')); return; }
+    var mapBtn = e.target.closest('[data-pickmap-target]');
+    if(mapBtn){ openMapModal(mapBtn.getAttribute('data-pickmap-target')); return; }
+  });
+
+
+  /* =========================================================
+     KIRIM KE WHATSAPP — pesan rapi, dikelompokkan, tanpa nomor urut
+     + gambar ringkasan biodata otomatis terunduh (bertema per formulir)
+  ========================================================= */
+  var THEME_META = {
+    wedding:    { title:'Wedding & Patuaekkon', bg:'#f7eef3', accent:'#8a3a63', accentDeep:'#5c2542', font:'Fraunces' },
+    margondang: { title:'Margondang',           bg:'#fbf0e3', accent:'#c2611f', accentDeep:'#8f4212', font:'Playfair Display' },
+    mangayun:   { title:'Mangayun / Aqiqah',    bg:'#eef5ec', accent:'#4f7a5a', accentDeep:'#345842', font:'Quicksand' },
+    wisuda:     { title:'Wisuda',                bg:'#eef2f8', accent:'#1c3b63', accentDeep:'#12283f', font:'Cormorant Garamond' },
+    undangan:   { title:'Undangan Digital',      bg:'#e6f4f6', accent:'#2a94ae', accentDeep:'#1c6d80', font:'Poppins' }
+  };
+
+  function buildFieldGroups(formEl){
+    var groups = [];
+    formEl.querySelectorAll('fieldset').forEach(function(fs){
+      var legendEl = fs.querySelector('legend');
+      var legendText = legendEl ? legendEl.textContent.trim() : '';
+      var lines = [];
+      var checkGroups = {};
+
+      fs.querySelectorAll('[data-label]').forEach(function(el){
+        var label = el.dataset.label;
+        if(el.type === 'checkbox'){
+          if(!checkGroups[label]) checkGroups[label] = [];
+          if(el.checked) checkGroups[label].push(el.value);
+        } else if(el.type === 'radio'){
+          if(el.checked) lines.push({ label:label, value:el.value });
+        } else {
+          var val = (el.value || '').trim();
+          if(val) lines.push({ label:label, value:val });
+        }
+      });
+
+      Object.keys(checkGroups).forEach(function(label){
+        if(checkGroups[label].length) lines.push({ label:label, value:checkGroups[label].join(', ') });
+      });
+
+      if(lines.length) groups.push({ legend:legendText, lines:lines });
+    });
+    return groups;
+  }
+
+  function getSummaryRows(formEl){
+    var rows = [];
+    var box = formEl.querySelector('.summary-box');
+    if(!box) return rows;
+    box.querySelectorAll('.summary-row').forEach(function(row){
+      rows.push({
+        label: row.querySelector('span').textContent.trim(),
+        value: row.querySelector('strong').textContent.trim(),
+        grand: row.classList.contains('grand')
+      });
+    });
+    return rows;
+  }
+
+  function buildMessage(formEl, judul){
+    var out = [];
+    out.push('*FORMULIR BIODATA - ' + judul.toUpperCase() + '*');
+    out.push('');
+
+    buildFieldGroups(formEl).forEach(function(g){
+      if(g.legend) out.push('*' + g.legend + '*');
+      g.lines.forEach(function(l){ out.push(l.label + ': ' + l.value); });
+      out.push('');
     });
 
-    document.getElementById('bookingForm').addEventListener('submit', function(e){
+    var summaryRows = getSummaryRows(formEl);
+    if(summaryRows.length){
+      out.push('*Rincian Biaya*');
+      summaryRows.forEach(function(r){ out.push(r.label + ': ' + r.value); });
+      out.push('');
+    }
+
+    out.push('Terima kasih.');
+    return out.join('\n');
+  }
+
+  /* =========================================================
+     BACKUP OTOMATIS KE GOOGLE SPREADSHEET
+     Data lengkap (tidak dipotong) dikirim ke Google Apps Script
+     sebagai jaring pengaman, terlepas dari apakah pesan WhatsApp
+     ke klien terpotong atau berhasil terkirim.
+     Lihat panduan setup di GOOGLE-SHEET-SETUP.md.
+  ========================================================= */
+  function buildFlatFields(formEl){
+    var flat = {};
+    buildFieldGroups(formEl).forEach(function(g){
+      g.lines.forEach(function(l){
+        flat[l.label] = (flat[l.label] !== undefined) ? (flat[l.label] + ' | ' + l.value) : l.value;
+      });
+    });
+    getSummaryRows(formEl).forEach(function(r){ flat[r.label] = r.value; });
+    return flat;
+  }
+
+  function sendBackupToSheet(formEl, formKey, judul){
+    if(!KAONE_CONFIG.sheetWebAppUrl || KAONE_CONFIG.sheetWebAppUrl.indexOf('PASTE_URL') !== -1){
+      console.warn('Backup ke Google Spreadsheet dilewati: sheetWebAppUrl belum diisi di KAONE_CONFIG.');
+      return;
+    }
+    var payload = {
+      formKey: formKey,
+      formTitle: judul,
+      submittedAt: new Date().toISOString(),
+      fields: buildFlatFields(formEl)
+    };
+    try{
+      fetch(KAONE_CONFIG.sheetWebAppUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).catch(function(err){ console.error('Backup ke Spreadsheet gagal (jaringan):', err); });
+    }catch(err){ console.error('Backup ke Spreadsheet gagal:', err); }
+  }
+
+  function wrapText(ctx, text, maxWidth){
+    var words = String(text).split(' ');
+    var lines = [];
+    var current = '';
+    words.forEach(function(w){
+      var test = current ? current + ' ' + w : w;
+      if(ctx.measureText(test).width > maxWidth && current){
+        lines.push(current);
+        current = w;
+      } else {
+        current = test;
+      }
+    });
+    if(current) lines.push(current);
+    return lines.length ? lines : [''];
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  async function generateBiodataImage(formEl, themeKey, judul){
+    var groups = buildFieldGroups(formEl);
+    var summaryRows = getSummaryRows(formEl);
+    return renderBiodataCard(themeKey, judul, groups, summaryRows);
+  }
+
+  // Fungsi inti penggambar kartu — dipakai oleh formulir (generateBiodataImage)
+  // MAUPUN oleh Generator Mandiri (dari teks WA yang ditempel / dari Excel).
+  async function renderBiodataCard(themeKey, judul, groups, summaryRows){
+    var theme = THEME_META[themeKey] || THEME_META.wedding;
+    groups = groups || [];
+    summaryRows = summaryRows || [];
+
+    try{
+      await Promise.all([
+        document.fonts.load('700 13px "JetBrains Mono"'),
+        document.fonts.load('400 16px Manrope'),
+        document.fonts.load('700 16px Manrope'),
+        document.fonts.load('600 16px Manrope'),
+        document.fonts.load('500 46px "' + theme.font + '"')
+      ]);
+      await document.fonts.ready;
+    } catch(e){ /* lanjut walau font belum sempat termuat */ }
+
+    var W = 1000;
+    var padX = 64;
+    var contentW = W - padX * 2;
+    var measure = document.createElement('canvas').getContext('2d');
+
+    var y = 250; // tinggi header
+    y += 44;     // padding atas kartu
+    var plan = [];
+
+    groups.forEach(function(g){
+      if(g.legend){
+        plan.push({ type:'legend', text:g.legend, y:y });
+        y += 34;
+      }
+      g.lines.forEach(function(l){
+        measure.font = '700 16px Manrope, sans-serif';
+        var labelW = measure.measureText(l.label + ':').width;
+        measure.font = '400 16px Manrope, sans-serif';
+        var singleLineMaxW = contentW - labelW - 14;
+        var wrapped = wrapText(measure, l.value, Math.max(singleLineMaxW, contentW * 0.42));
+        var singleLine = wrapped.length <= 1 && measure.measureText(wrapped[0] || '').width <= singleLineMaxW;
+        plan.push({ type:'field', label:l.label, lines:wrapped, y:y, singleLine:singleLine, labelW:labelW });
+        y += singleLine ? 34 : (18 + wrapped.length * 22 + 6);
+      });
+      y += 16;
+    });
+
+    if(summaryRows.length){
+      var boxTop = y;
+      var boxH = 30 + summaryRows.length * 36 + 16;
+      plan.push({ type:'summary', rows:summaryRows, y:boxTop, h:boxH });
+      y = boxTop + boxH + 16;
+    }
+
+    y += 44; // padding bawah kartu
+    var cardBottom = y;
+    var footerH = 120;
+    var totalH = cardBottom + footerH;
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var canvas = document.createElement('canvas');
+    canvas.width = W * dpr;
+    canvas.height = totalH * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = theme.bg;
+    ctx.fillRect(0, 0, W, totalH);
+
+    var headerH = 250;
+    var grad = ctx.createLinearGradient(0, 0, W, headerH);
+    grad.addColorStop(0, theme.accentDeep);
+    grad.addColorStop(1, theme.accent);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, headerH);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '700 13px "JetBrains Mono", monospace';
+    ctx.fillText('K A O N E   S T U D I O', padX, 56);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '500 44px "' + theme.font + '", serif';
+    ctx.fillText(judul, padX, 122);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.font = '400 16px Manrope, sans-serif';
+    ctx.fillText('Formulir Biodata Klien', padX, 152);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '400 13px "JetBrains Mono", monospace';
+    var tanggalCetak = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+    ctx.fillText(tanggalCetak, padX, 194);
+
+    var cardTop = headerH - 24;
+    var cardH = cardBottom - cardTop;
+    roundRect(ctx, padX - 24, cardTop, W - (padX - 24) * 2, cardH, 18);
+    ctx.fillStyle = '#fffdf8';
+    ctx.fill();
+
+    plan.forEach(function(item){
+      if(item.type === 'legend'){
+        ctx.fillStyle = theme.accent;
+        ctx.font = '700 12px "JetBrains Mono", monospace';
+        ctx.fillText(item.text.toUpperCase(), padX, item.y);
+        ctx.strokeStyle = 'rgba(43,36,30,0.12)';
+        ctx.beginPath();
+        ctx.moveTo(padX, item.y + 10);
+        ctx.lineTo(padX + contentW, item.y + 10);
+        ctx.stroke();
+      } else if(item.type === 'field'){
+        ctx.fillStyle = '#2b241e';
+        ctx.font = '700 16px Manrope, sans-serif';
+        ctx.fillText(item.label + ':', padX, item.y + 16);
+        ctx.font = '400 16px Manrope, sans-serif';
+        ctx.fillStyle = '#4a4038';
+        if(item.singleLine){
+          ctx.fillText(item.lines[0] || '', padX + item.labelW + 10, item.y + 16);
+        } else {
+          item.lines.forEach(function(ln, idx){
+            ctx.fillText(ln, padX, item.y + 16 + 22 + idx * 22);
+          });
+        }
+      } else if(item.type === 'summary'){
+        roundRect(ctx, padX, item.y, contentW, item.h, 12);
+        ctx.fillStyle = theme.bg;
+        ctx.fill();
+        var ry = item.y + 34;
+        item.rows.forEach(function(r){
+          ctx.font = r.grand ? '700 18px Manrope, sans-serif' : '400 15px Manrope, sans-serif';
+          ctx.fillStyle = r.grand ? theme.accentDeep : '#4a4038';
+          ctx.fillText(r.label, padX + 20, ry);
+          ctx.font = r.grand ? '700 18px Manrope, sans-serif' : '700 15px Manrope, sans-serif';
+          var valW = ctx.measureText(r.value).width;
+          ctx.fillText(r.value, padX + contentW - 20 - valW, ry);
+          ry += 36;
+        });
+      }
+    });
+
+    var footerY = cardBottom;
+    var fgrad = ctx.createLinearGradient(0, footerY, W, footerY + footerH);
+    fgrad.addColorStop(0, theme.accent);
+    fgrad.addColorStop(1, theme.accentDeep);
+    ctx.fillStyle = fgrad;
+    ctx.fillRect(0, footerY, W, footerH);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '600 16px Manrope, sans-serif';
+    ctx.fillText('WhatsApp ' + formatPhoneDisplay(KAONE_CONFIG.waNumber) + '   •   @kaonestudio', W / 2, footerY + 50);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.font = '400 12px "JetBrains Mono", monospace';
+    ctx.fillText('FOTOGRAFER · VIDEOGRAFER · UNDANGAN DIGITAL · WCC', W / 2, footerY + 78);
+    ctx.fillText('© 2026 Kaone Studio', W / 2, footerY + 102);
+    ctx.textAlign = 'left';
+
+    return new Promise(function(resolve){
+      canvas.toBlob(function(blob){ resolve(blob); }, 'image/png', 0.95);
+    });
+  }
+
+  function downloadBlob(blob, filename){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function showToast(message, duration){
+    var toast = document.createElement('div');
+    toast.className = 'kaone-toast';
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function(){ toast.classList.add('show'); });
+    setTimeout(function(){
+      toast.classList.remove('show');
+      setTimeout(function(){ toast.remove(); }, 300);
+    }, duration || 5500);
+  }
+
+  var forms = [
+    { id:'form-wedding', judul:'Wedding & Patuaekkon', key:'wedding' },
+    { id:'form-margondang', judul:'Margondang', key:'margondang' },
+    { id:'form-mangayun', judul:'Mangayun / Aqiqah', key:'mangayun' },
+    { id:'form-wisuda', judul:'Wisuda', key:'wisuda' },
+    { id:'form-undangan', judul:'Undangan Digital', key:'undangan' }
+  ];
+
+  function checkPhoneField(formEl){
+    var waInput = formEl.querySelector('input[type="tel"]');
+    if(waInput && waInput.value && !isValidPhone(waInput.value)){
+      waInput.setCustomValidity('Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx.');
+      formEl.reportValidity();
+      waInput.setCustomValidity('');
+      waInput.focus();
+      return false;
+    }
+    return true;
+  }
+
+  forms.forEach(function(f){
+    var formEl = document.getElementById(f.id);
+    if(!formEl) return;
+
+    var downloadBtn = formEl.querySelector('.btn-unduh-gambar');
+    var sendBtn = formEl.querySelector('.btn-kirim-wa');
+    formEl.dataset.imageReady = '0';
+
+    // Jika data formulir diubah lagi setelah gambar diunduh, wajibkan unduh ulang
+    // supaya gambar yang dikirim ke klien selalu sesuai data terbaru.
+    function resetImageReady(){
+      if(formEl.dataset.imageReady === '1'){
+        formEl.dataset.imageReady = '0';
+        if(sendBtn) sendBtn.disabled = true;
+        if(downloadBtn) downloadBtn.textContent = '📥 1. Unduh Gambar Ringkasan';
+      }
+    }
+    formEl.addEventListener('input', resetImageReady);
+    formEl.addEventListener('change', resetImageReady);
+
+    if(downloadBtn){
+      downloadBtn.addEventListener('click', function(){
+        if(!formEl.reportValidity()) return;
+        if(!checkPhoneField(formEl)) return;
+
+        downloadBtn.disabled = true;
+        var originalLabel = downloadBtn.textContent;
+        downloadBtn.textContent = 'Membuat gambar…';
+
+        generateBiodataImage(formEl, f.key, f.judul).then(function(blob){
+          var filename = 'biodata-' + f.key + '-' + Date.now() + '.png';
+          downloadBlob(blob, filename);
+          formEl.dataset.imageReady = '1';
+          if(sendBtn) sendBtn.disabled = false;
+          downloadBtn.textContent = '✅ Sudah Diunduh (klik lagi jika data berubah)';
+          showToast('Gambar ringkasan sudah terunduh. Sekarang tekan tombol "Kirim via WhatsApp".', 6000);
+        }).catch(function(err){
+          console.error('Gagal membuat gambar ringkasan:', err);
+          downloadBtn.textContent = originalLabel;
+          showToast('Gagal membuat gambar ringkasan. Silakan coba lagi.', 6000);
+        }).then(function(){
+          downloadBtn.disabled = false;
+        });
+      });
+    }
+
+    formEl.addEventListener('submit', function(e){
       e.preventDefault();
 
-      var name = document.getElementById('bkName').value.trim();
-      var phone = document.getElementById('bkPhone').value.trim();
-      var pkgSelect = document.getElementById('bkPackage');
-      var pkgOpt = pkgSelect.options[pkgSelect.selectedIndex];
-      var pkgName = pkgSelect.value;
-      var pkgPrice = pkgOpt ? (parseInt(pkgOpt.getAttribute('data-price'), 10) || 0) : 0;
-      var addons = getSelectedAddons();
-      var couple = document.getElementById('bkCouple').value.trim();
-      var igBride = document.getElementById('bkIgBride').value.trim();
-      var igGroom = document.getElementById('bkIgGroom').value.trim();
-      var date = document.getElementById('bkDate').value;
-      var time = document.getElementById('bkTime').value;
-      var address = document.getElementById('bkAddress').value.trim();
-      var maps = document.getElementById('bkMaps').value.trim();
-      var concept = document.getElementById('bkConcept').value.trim();
-      var vendors = document.getElementById('bkVendors').value.trim();
-      var note = document.getElementById('bkNote').value.trim();
-      var dp = parseInt(document.getElementById('bkDp').value, 10) || 0;
+      // Cegah double-submit: klik ganda / klik cepat berulang tidak akan
+      // membuka beberapa tab WhatsApp atau mengirim backup dobel ke sheet.
+      if(formEl.dataset.submitting === '1') return;
 
-      var addonTotal = addons.reduce(function(sum, a){ return sum + a.price; }, 0);
-      var total = pkgPrice + addonTotal;
-      var remaining = total - dp;
+      if(!formEl.reportValidity()) return;
+      if(!checkPhoneField(formEl)) return;
 
-      var lines = [
-        'Halo Kaone Motret, saya ingin memesan paket foto wedding dengan data berikut:',
-        '',
-        'Nama Lengkap: ' + name,
-        'No. WhatsApp: ' + phone,
-        'Paket: ' + pkgName + ' (' + formatRupiah(pkgPrice) + ')',
-        'Add-On: ' + (addons.length ? addons.map(function(a){ return a.name + ' (' + formatRupiah(a.price) + ')'; }).join(', ') : 'Tidak ada'),
-        'Nama Kedua Mempelai: ' + (couple || '-'),
-        'Instagram Pengantin Wanita: ' + (igBride || '-'),
-        'Instagram Pengantin Pria: ' + (igGroom || '-')
-      ];
-
-      if(date){
-        var d = new Date(date + 'T00:00:00');
-        lines.push('Tanggal Acara: ' + d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }));
-      } else {
-        lines.push('Tanggal Acara: -');
+      if(formEl.dataset.imageReady !== '1'){
+        showToast('Silakan unduh gambar ringkasan biodata dahulu (tombol 1) sebelum mengirim ke WhatsApp.', 6000);
+        return;
       }
-      lines.push('Waktu Acara: ' + (time || '-'));
-      lines.push('Alamat Acara: ' + (address || '-'));
-      lines.push('Maps Acara: ' + (maps || '-'));
-      lines.push('Adat/Konsep Pakaian: ' + (concept || '-'));
-      lines.push('Instagram Semua Vendor: ' + (vendors || '-'));
-      lines.push('Catatan Penting Untuk Fotografer: ' + (note || '-'));
-      lines.push('DP: ' + formatRupiah(dp));
-      lines.push('');
-      lines.push('Total Biaya: ' + formatRupiah(total));
-      lines.push('Sisa Pembayaran: ' + formatRupiah(remaining));
 
-      var message = encodeURIComponent(lines.join('\n'));
-      window.open('https://wa.me/6285117071704?text=' + message, '_blank');
+      formEl.dataset.submitting = '1';
+      if(sendBtn) sendBtn.disabled = true;
+
+      // Backup lengkap (tidak terpotong) ke Google Spreadsheet — berjalan paralel,
+      // tidak menunggu dan tidak menghambat proses membuka WhatsApp.
+      sendBackupToSheet(formEl, f.key, f.judul);
+
+      var msg = buildMessage(formEl, f.judul);
+      var url = 'https://wa.me/' + KAONE_CONFIG.waNumber + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+
+      showToast(
+        'Jangan lupa lampirkan (attach) gambar ringkasan yang sudah diunduh tadi di chat WhatsApp yang terbuka.',
+        8000
+      );
+
+      // Buka kunci lagi setelah beberapa detik, untuk jaga-jaga jika klien
+      // tidak sengaja menutup tab WhatsApp dan perlu membukanya ulang.
+      setTimeout(function(){
+        formEl.dataset.submitting = '0';
+        if(sendBtn && formEl.dataset.imageReady === '1') sendBtn.disabled = false;
+      }, 3000);
     });
-  </script>
+  });
+
+  /* =========================================================
+     GENERATOR GAMBAR MANDIRI — dari teks WhatsApp yang ditempel
+     atau dari file Excel/CSV hasil export Google Spreadsheet.
+     Tidak bergantung pada formulir mana pun (dipakai admin/CS).
+  ========================================================= */
+  (function initGenerator(){
+    var genTemaSel = document.getElementById('gen-tema');
+    var tabs = document.querySelectorAll('.gen-tab');
+    var panels = document.querySelectorAll('.gen-panel');
+    if(!genTemaSel || !tabs.length) return;
+
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        var name = tab.getAttribute('data-gen-tab');
+        panels.forEach(function(p){
+          p.style.display = (p.getAttribute('data-gen-panel') === name) ? '' : 'none';
+        });
+      });
+    });
+
+    // Membaca ulang format pesan WhatsApp otomatis (lihat buildMessage()) menjadi
+    // struktur groups/summaryRows yang sama seperti yang dipakai renderBiodataCard().
+    function parseWaText(text){
+      var lines = String(text || '').split(/\r?\n/);
+      var judul = '';
+      var groups = [];
+      var summaryRows = [];
+      var currentGroup = null;
+      var inSummary = false;
+
+      lines.forEach(function(raw){
+        var line = raw.trim();
+        if(!line) return;
+
+        var titleMatch = line.match(/^\*FORMULIR BIODATA\s*-\s*(.+?)\*$/i);
+        if(titleMatch){ judul = titleMatch[1].trim(); return; }
+        if(/^terima kasih\.?$/i.test(line)) return;
+
+        var legendMatch = line.match(/^\*(.+)\*$/);
+        if(legendMatch){
+          var legendText = legendMatch[1].trim();
+          if(/rincian biaya/i.test(legendText)){
+            inSummary = true;
+            currentGroup = null;
+          } else {
+            inSummary = false;
+            currentGroup = { legend: legendText, lines: [] };
+            groups.push(currentGroup);
+          }
+          return;
+        }
+
+        var sep = line.indexOf(':');
+        if(sep === -1) return;
+        var label = line.slice(0, sep).trim();
+        var value = line.slice(sep + 1).trim();
+        if(!label || !value) return;
+
+        if(inSummary){
+          summaryRows.push({ label:label, value:value, grand:/sisa pembayaran/i.test(label) });
+        } else {
+          if(!currentGroup){ currentGroup = { legend:'', lines:[] }; groups.push(currentGroup); }
+          currentGroup.lines.push({ label:label, value:value });
+        }
+      });
+
+      return { judul: judul, groups: groups, summaryRows: summaryRows };
+    }
+
+    function showGenPreview(blob){
+      var url = URL.createObjectURL(blob);
+      var img = document.getElementById('gen-preview-img');
+      img.src = url;
+      document.getElementById('gen-preview').style.display = '';
+      document.getElementById('gen-download-btn').onclick = function(){
+        downloadBlob(blob, 'biodata-mandiri-' + Date.now() + '.png');
+      };
+      document.getElementById('gen-preview').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    var btnDariTeks = document.getElementById('gen-buat-dari-teks');
+    if(btnDariTeks){
+      btnDariTeks.addEventListener('click', function(){
+        var raw = document.getElementById('gen-paste-text').value;
+        if(!raw || !raw.trim()){
+          showToast('Tempelkan dulu teks pesan WhatsApp-nya di kotak yang tersedia.', 4000);
+          return;
+        }
+        var parsed = parseWaText(raw);
+        var judulManual = document.getElementById('gen-judul-paste').value.trim();
+        var judul = judulManual || parsed.judul || 'Biodata Klien';
+        if(!parsed.groups.length){
+          showToast('Teks tidak dikenali. Pastikan formatnya "Label: isi" per baris, seperti pesan WhatsApp asli.', 6000);
+          return;
+        }
+        btnDariTeks.disabled = true;
+        renderBiodataCard(genTemaSel.value, judul, parsed.groups, parsed.summaryRows)
+          .then(showGenPreview)
+          .catch(function(err){ console.error(err); showToast('Gagal membuat gambar.', 4000); })
+          .then(function(){ btnDariTeks.disabled = false; });
+      });
+    }
+
+    var excelRows = [];
+    var excelHeaders = [];
+    var fileInput = document.getElementById('gen-excel-file');
+    var rowWrap = document.getElementById('gen-excel-row-wrap');
+    var rowSelect = document.getElementById('gen-excel-row');
+    var btnDariExcel = document.getElementById('gen-buat-dari-excel');
+
+    if(fileInput){
+      fileInput.addEventListener('change', function(){
+        var file = fileInput.files && fileInput.files[0];
+        if(!file) return;
+        if(typeof XLSX === 'undefined'){
+          showToast('Pustaka pembaca Excel gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.', 6000);
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e){
+          try{
+            var data = new Uint8Array(e.target.result);
+            var wb = XLSX.read(data, { type:'array' });
+            var ws = wb.Sheets[wb.SheetNames[0]];
+            var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+            if(!rows.length){ showToast('File kosong atau tidak terbaca.', 4000); return; }
+
+            excelHeaders = rows[0].map(function(h){ return String(h || '').trim(); });
+            excelRows = rows.slice(1).filter(function(r){
+              return r.some(function(c){ return String(c || '').trim(); });
+            });
+            if(!excelRows.length){ showToast('Tidak ada baris data ditemukan di file ini.', 4000); return; }
+
+            var namaIdx = excelHeaders.findIndex(function(h){ return /nama/i.test(h); });
+            rowSelect.innerHTML = '';
+            excelRows.forEach(function(r, idx){
+              var opt = document.createElement('option');
+              var label = 'Baris ' + (idx + 2);
+              if(namaIdx !== -1 && r[namaIdx]) label += ' — ' + r[namaIdx];
+              opt.value = String(idx);
+              opt.textContent = label;
+              rowSelect.appendChild(opt);
+            });
+
+            rowWrap.style.display = '';
+            btnDariExcel.disabled = false;
+            showToast('File berhasil dibaca. Pilih baris data, lalu klik "Buat Gambar dari Excel".', 5000);
+          }catch(err){
+            console.error(err);
+            showToast('Gagal membaca file. Pastikan formatnya benar (.xlsx / .csv).', 5000);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    if(btnDariExcel){
+      btnDariExcel.addEventListener('click', function(){
+        var idx = parseInt(rowSelect.value, 10);
+        var row = excelRows[idx];
+        if(!row){ showToast('Pilih baris data terlebih dahulu.', 4000); return; }
+
+        var skipCols = ['timestamp', 'form key', 'formkey'];
+        var lines = [];
+        var judul = 'Biodata Klien';
+
+        excelHeaders.forEach(function(h, i){
+          var val = String(row[i] === undefined ? '' : row[i]).trim();
+          if(!val) return;
+          if(/form\s*title/i.test(h)){ judul = val; return; }
+          if(skipCols.indexOf(h.toLowerCase()) !== -1) return;
+          lines.push({ label: h || ('Kolom ' + (i + 1)), value: val });
+        });
+
+        if(!lines.length){ showToast('Baris ini tidak memiliki data yang bisa ditampilkan.', 4000); return; }
+
+        var groups = [{ legend:'Detail Formulir', lines:lines }];
+        btnDariExcel.disabled = true;
+        renderBiodataCard(genTemaSel.value, judul, groups, [])
+          .then(showGenPreview)
+          .catch(function(err){ console.error(err); showToast('Gagal membuat gambar.', 4000); })
+          .then(function(){ btnDariExcel.disabled = false; });
+      });
+    }
+  })();
+
+})();
+</script>
 
 </body>
 </html>
