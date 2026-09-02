@@ -2706,6 +2706,28 @@
     for(var i=1;i<=5;i++){ out += '<span class="' + (i<=r?'on':'') + '">★</span>'; }
     return out;
   }
+  /* Label sub-nama pada kartu testimoni — HARUS sama persis dengan logika
+     ulasanSourceLabel() di rekap job (rekapjob-online.html), supaya ulasan yang
+     berasal dari pricelist Prewedding/Margondang/Mangayun/dll dan ikut dipilih
+     untuk tampil di halaman Isi Biodata ini tetap menampilkan nama jenis acara
+     aslinya (mis. "Prewedding"), bukan selalu jatuh ke tulisan generik
+     "Isi Biodata". Hanya ulasan yang benar-benar berasal dari formulir Isi
+     Biodata ini (asal_form === 'biodata') yang memakai jenis_acara pilihan
+     klien, dengan fallback "Isi Biodata" kalau kolom itu kosong. */
+  var TESTIMONI_ASAL_FORM_LABELS = {
+    wedding:          'Wedding',
+    prewedding:       'Prewedding',
+    margondang:       'Margondang',
+    mangayun:         'Mangayun',
+    wisuda:           'Wisuda',
+    undangan_digital: 'Undangan Digital',
+  };
+  function testimoniSourceLabel(u){
+    var asal = u.asal_form;
+    if(asal === 'biodata') return u.jenis_acara || 'Isi Biodata';
+    if(asal === 'wedding') return u.jenis_acara || 'Wedding';
+    return TESTIMONI_ASAL_FORM_LABELS[asal] || (u.jenis_acara || 'Isi Biodata');
+  }
   function renderTestimoniList(list){
     var wrap = document.getElementById('testimoniListWrap');
     if(!wrap) return;
@@ -2719,7 +2741,7 @@
           '<div class="testimoni-card-top">' +
             '<div>' +
               '<div class="testimoni-name">' + ulasanEscapeHtml(u.nama_klien || 'Klien') + '</div>' +
-              '<div class="testimoni-sub">' + ulasanEscapeHtml(u.jenis_acara || 'Isi Biodata') + '</div>' +
+              '<div class="testimoni-sub">' + ulasanEscapeHtml(testimoniSourceLabel(u)) + '</div>' +
               '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
             '</div>' +
             '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
