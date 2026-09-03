@@ -369,6 +369,58 @@
     to{ opacity:1; transform:translateY(0) scale(1); }
   }
 
+  /* ---------- Formulir acara sebagai pop up di atas Beranda ---------- */
+  body.popup-open{ overflow:hidden; }
+  .view.form-popup{
+    position:fixed;
+    inset:0;
+    z-index:40;
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:5vh 4vw;
+    background:rgba(36,24,17,0.55);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    overflow-y:auto;
+  }
+  .view.form-popup.active{
+    display:flex;
+    animation:viewEnter 0.4s cubic-bezier(.22,.75,.32,1) both;
+  }
+  .view.form-popup .form-page{
+    position:relative;
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg);
+    width:100%;
+    margin:0;
+  }
+  .popup-close-btn{
+    position:absolute;
+    top:0.9rem;
+    right:0.9rem;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    color:var(--maroon-deep);
+    font-size:1rem;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .2s ease, transform .2s ease;
+    z-index:1;
+  }
+  .popup-close-btn:hover{ background:var(--gold-soft); transform:rotate(90deg); }
+  @media (max-width:640px){
+    .view.form-popup{ padding:0; align-items:stretch; }
+    .view.form-popup .form-page{ border-radius:0; min-height:100%; }
+  }
+
   .form-page{ max-width:720px; margin:0 auto; padding:2.4rem 5vw 4rem; }
   .form-page .back-link{
     font-family:'JetBrains Mono', monospace;
@@ -1035,8 +1087,9 @@
 </main>
 
 <!-- ============ FORM: WEDDING & PATUAEKKON ============ -->
-<main id="wedding" class="view">
+<main id="wedding" class="view form-popup">
   <div class="form-page">
+    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
     <a href="#home" class="back-link">← Kembali ke Beranda</a>
     <span class="eyebrow">Formulir Biodata</span>
     <h2 class="form-title">Wedding &amp; Patuaekkon</h2>
@@ -1167,8 +1220,9 @@
 </main>
 
 <!-- ============ FORM: MARGONDANG ============ -->
-<main id="margondang" class="view">
+<main id="margondang" class="view form-popup">
   <div class="form-page">
+    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
     <a href="#home" class="back-link">← Kembali ke Beranda</a>
     <span class="eyebrow">Formulir Biodata</span>
     <h2 class="form-title">Margondang</h2>
@@ -1300,8 +1354,9 @@
 </main>
 
 <!-- ============ FORM: MANGAYUN / AQIQAH ============ -->
-<main id="mangayun" class="view">
+<main id="mangayun" class="view form-popup">
   <div class="form-page">
+    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
     <a href="#home" class="back-link">← Kembali ke Beranda</a>
     <span class="eyebrow">Formulir Biodata</span>
     <h2 class="form-title">Mangayun / Aqiqah</h2>
@@ -1416,8 +1471,9 @@
 </main>
 
 <!-- ============ FORM: WISUDA ============ -->
-<main id="wisuda" class="view">
+<main id="wisuda" class="view form-popup">
   <div class="form-page">
+    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
     <a href="#home" class="back-link">← Kembali ke Beranda</a>
     <span class="eyebrow">Formulir Biodata</span>
     <h2 class="form-title">Wisuda</h2>
@@ -1538,8 +1594,9 @@
 </main>
 
 <!-- ============ FORM: UNDANGAN DIGITAL ============ -->
-<main id="undangan" class="view">
+<main id="undangan" class="view form-popup">
   <div class="form-page">
+    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
     <a href="#home" class="back-link">← Kembali ke Beranda</a>
     <span class="eyebrow">Formulir Biodata</span>
     <h2 class="form-title">Undangan Digital</h2>
@@ -1751,18 +1808,48 @@
      ROUTING (hash-based single page navigation)
   ========================================================= */
   var views = document.querySelectorAll('.view');
+  // Formulir acara ini ditampilkan sebagai pop up mengambang di atas Beranda,
+  // bukan berpindah ke halaman penuh seperti view lain.
+  var FORM_POPUP_IDS = ['wedding','margondang','mangayun','wisuda','undangan'];
   function showView(hash){
     var id = (hash && hash !== '#') ? hash.replace('#','') : 'splash';
+    var isFormPopup = FORM_POPUP_IDS.indexOf(id) !== -1;
     var found = false;
     views.forEach(function(v){
       if(v.id === id){ v.classList.add('active'); found = true; }
+      else if(isFormPopup && v.id === 'home'){ v.classList.add('active'); }
       else { v.classList.remove('active'); }
     });
     if(!found){ document.getElementById('splash').classList.add('active'); }
-    window.scrollTo({top:0, behavior:(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')});
+    document.body.classList.toggle('popup-open', isFormPopup && found);
+    if(!(isFormPopup && found)){
+      window.scrollTo({top:0, behavior:(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')});
+    }
   }
   window.addEventListener('hashchange', function(){ showView(location.hash); });
   showView(location.hash);
+
+  // Klik area gelap di luar kotak pop up formulir untuk menutupnya
+  FORM_POPUP_IDS.forEach(function(id){
+    var popupEl = document.getElementById(id);
+    if(popupEl){
+      popupEl.addEventListener('click', function(e){
+        if(e.target === popupEl){ location.hash = '#home'; }
+      });
+    }
+  });
+
+  // Tombol ✕ di pojok pop up untuk menutup formulir
+  document.querySelectorAll('.popup-close-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ location.hash = '#home'; });
+  });
+
+  // Tombol Escape untuk menutup pop up formulir yang sedang terbuka
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && document.body.classList.contains('popup-open')){
+      location.hash = '#home';
+    }
+  });
 
   /* =========================================================
      VOUCHER — kode voucher TIDAK lagi disimpan di file HTML ini
