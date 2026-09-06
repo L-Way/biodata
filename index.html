@@ -1366,8 +1366,8 @@
       <fieldset>
         <legend>Data Pemesan</legend>
         <div class="field">
-          <label for="ay-ortu">Nama Orang Tua <span class="required-mark">*</span></label>
-          <input type="text" id="ay-ortu" name="ay-ortu" data-label="Nama Orang Tua" required>
+          <label for="ay-ortu">Nama Pemesan/Penanggung Jawab <span class="required-mark">*</span></label>
+          <input type="text" id="ay-ortu" name="ay-ortu" data-label="Nama Pemesan/Penanggung Jawab" required>
         </div>
         <div class="field">
           <label for="ay-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1378,8 +1378,8 @@
       <fieldset>
         <legend>Paket</legend>
         <div class="field">
-          <label for="ay-paket">Nama Paket <span class="required-mark">*</span></label>
-          <input type="text" id="ay-paket" name="ay-paket" data-label="Nama Paket" placeholder="Contoh: Paket Standar" required>
+          <label for="ay-paket">Nama Paket</label>
+          <input type="text" id="ay-paket" name="ay-paket" data-label="Nama Paket" placeholder="Contoh: Paket Standar">
         </div>
         <div class="field">
           <label for="ay-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1388,25 +1388,49 @@
       </fieldset>
 
       <fieldset>
-        <legend>Data Bayi &amp; Acara</legend>
+        <legend>Data Anak &amp; Orang Tua</legend>
         <div class="two-col">
           <div class="field">
-            <label for="ay-bayi">Nama Bayi <span class="required-mark">*</span></label>
-            <input type="text" id="ay-bayi" name="ay-bayi" data-label="Nama Bayi" required>
+            <label for="ay-anak">Nama Anak <span class="required-mark">*</span></label>
+            <input type="text" id="ay-anak" name="ay-anak" data-label="Nama Anak" required>
           </div>
           <div class="field">
-            <label for="ay-lahir">Tanggal Lahir Bayi <span class="required-mark">*</span></label>
-            <input type="date" id="ay-lahir" name="ay-lahir" data-label="Tanggal Lahir Bayi" required>
+            <label for="ay-ig-anak">IG Anak</label>
+            <input type="text" id="ay-ig-anak" name="ay-ig-anak" data-label="IG Anak" placeholder="@username">
           </div>
         </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="ay-ibu">Nama Ibu</label>
+            <input type="text" id="ay-ibu" name="ay-ibu" data-label="Nama Ibu">
+          </div>
+          <div class="field">
+            <label for="ay-ig-ibu">IG Ibu</label>
+            <input type="text" id="ay-ig-ibu" name="ay-ig-ibu" data-label="IG Ibu" placeholder="@username">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="ay-ayah">Nama Ayah</label>
+            <input type="text" id="ay-ayah" name="ay-ayah" data-label="Nama Ayah">
+          </div>
+          <div class="field">
+            <label for="ay-ig-ayah">IG Ayah</label>
+            <input type="text" id="ay-ig-ayah" name="ay-ig-ayah" data-label="IG Ayah" placeholder="@username">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Waktu &amp; Lokasi Acara</legend>
         <div class="two-col">
           <div class="field">
             <label for="ay-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
             <input type="date" id="ay-tanggal" name="ay-tanggal" data-label="Tanggal Acara" required>
           </div>
           <div class="field">
-            <label for="ay-waktu">Waktu Acara <span class="required-mark">*</span></label>
-            <input type="time" id="ay-waktu" name="ay-waktu" data-label="Waktu Acara" required>
+            <label for="ay-waktu">Jam Acara <span class="required-mark">*</span></label>
+            <input type="time" id="ay-waktu" name="ay-waktu" data-label="Jam Acara" required>
           </div>
         </div>
         <div class="field">
@@ -1424,18 +1448,22 @@
       </fieldset>
 
       <fieldset>
-        <legend>Catatan</legend>
+        <legend>Detail Acara</legend>
         <div class="field">
-          <label>Pemilihan Foto</label>
+          <label for="ay-vendor">IG All Vendor</label>
+          <textarea id="ay-vendor" name="ay-vendor" data-label="IG All Vendor" placeholder="Contoh: MUA @..., Dekorasi @..., Catering @..."></textarea>
+        </div>
+        <div class="field">
+          <label>Pemilihan Foto <span class="required-mark">*</span></label>
           <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
           <span class="radio-row">
-            <label><input type="radio" name="ay-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
-            <label><input type="radio" name="ay-pemilihan-foto" value="Orang Tua" data-label="Pemilihan Foto"> Orang Tua</label>
+            <label><input type="radio" name="ay-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto" required> Fotografer</label>
+            <label><input type="radio" name="ay-pemilihan-foto" value="Orang Tua" data-label="Pemilihan Foto" required> Orang Tua</label>
           </span>
         </div>
         <div class="field">
-          <label for="ay-catatan">Catatan Tambahan</label>
-          <textarea id="ay-catatan" name="ay-catatan" data-label="Catatan"></textarea>
+          <label for="ay-catatan">Catatan Penting Untuk Fotografer</label>
+          <textarea id="ay-catatan" name="ay-catatan" data-label="Catatan Penting Untuk Fotografer"></textarea>
         </div>
       </fieldset>
 
