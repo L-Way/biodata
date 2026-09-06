@@ -477,6 +477,9 @@
   .radio-row label, .check-row label{ display:flex; align-items:center; gap:0.5rem; font-weight:400; font-size:0.88rem; margin-bottom:0; }
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
   @media (max-width:560px){ .two-col{ grid-template-columns:1fr; } }
+  .three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; }
+  @media (max-width:720px){ .three-col{ grid-template-columns:1fr; } }
+  .js-uppercase-trim{ text-transform:uppercase; }
   .required-mark{ color:var(--maroon); }
 
   .maps-actions{ display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
@@ -976,7 +979,7 @@
     <div id="reviewFormWrap" class="review-form-box">
       <div class="field">
         <label for="reviewNama">Nama Anda <span class="required-mark">*</span></label>
-        <input type="text" id="reviewNama" placeholder="Nama lengkap" autocomplete="name">
+        <input type="text" id="reviewNama" class="js-capitalize" placeholder="Nama lengkap" autocomplete="name">
       </div>
 
       <div class="field">
@@ -1100,7 +1103,7 @@
         <legend>Data Pemesan</legend>
         <div class="field">
           <label for="w-nama">Nama Lengkap <span class="required-mark">*</span></label>
-          <input type="text" id="w-nama" name="w-nama" data-label="Nama Lengkap" placeholder="Nama Anda" required>
+          <input type="text" id="w-nama" name="w-nama" class="js-capitalize" data-label="Nama Lengkap" placeholder="Nama Anda" required>
         </div>
         <div class="field">
           <label for="w-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1112,7 +1115,7 @@
         <legend>Paket</legend>
         <div class="field">
           <label for="w-paket">Nama Paket <span class="required-mark">*</span></label>
-          <input type="text" id="w-paket" name="w-paket" data-label="Nama Paket" placeholder="Contoh: Paket Gold" required>
+          <input type="text" id="w-paket" name="w-paket" class="js-capitalize" data-label="Nama Paket" placeholder="Contoh: Paket Gold" required>
         </div>
         <div class="field">
           <label for="w-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1124,7 +1127,7 @@
         <legend>Data Mempelai</legend>
         <div class="field">
           <label for="w-pasangan">Nama Kedua Mempelai <span class="required-mark">*</span></label>
-          <input type="text" id="w-pasangan" name="w-pasangan" data-label="Nama Kedua Mempelai" placeholder="Contoh: Andi &amp; Sari" required>
+          <input type="text" id="w-pasangan" name="w-pasangan" class="js-capitalize" data-label="Nama Kedua Mempelai" placeholder="Contoh: Andi &amp; Sari" required>
         </div>
         <div class="two-col">
           <div class="field">
@@ -1151,8 +1154,22 @@
           </div>
         </div>
         <div class="field">
-          <label for="w-alamat">Alamat Acara <span class="required-mark">*</span></label>
-          <textarea id="w-alamat" name="w-alamat" data-label="Alamat Acara" placeholder="Alamat lengkap lokasi acara" required></textarea>
+          <label>Alamat Acara <span class="required-mark">*</span></label>
+          <div class="three-col">
+            <div class="field">
+              <label for="w-alamat-desa">Desa/Kelurahan</label>
+              <input type="text" id="w-alamat-desa" name="w-alamat-desa" class="js-capitalize" data-address-part="desa" data-address-group="w-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Aek Haruaya" required>
+            </div>
+            <div class="field">
+              <label for="w-alamat-kec">Kecamatan</label>
+              <input type="text" id="w-alamat-kec" name="w-alamat-kec" class="js-capitalize" data-address-part="kecamatan" data-address-group="w-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Portibi" required>
+            </div>
+            <div class="field">
+              <label for="w-alamat-kab">Kabupaten</label>
+              <input type="text" id="w-alamat-kab" name="w-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="w-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
+            </div>
+          </div>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
         </div>
         <div class="field">
           <label for="w-maps">Maps Acara</label>
@@ -1168,7 +1185,7 @@
         <legend>Detail Acara</legend>
         <div class="field">
           <label for="w-adat">Adat/Konsep Pakaian</label>
-          <input type="text" id="w-adat" name="w-adat" data-label="Adat/Konsep Pakaian" placeholder="Contoh: Adat Batak, Modern, Rustic, dll.">
+          <input type="text" id="w-adat" name="w-adat" class="js-capitalize" data-label="Adat/Konsep Pakaian" placeholder="Contoh: Adat Batak, Modern, Rustic, dll.">
         </div>
         <div class="field">
           <label for="w-vendor">Instagram Semua Vendor</label>
@@ -1193,7 +1210,7 @@
         <div class="two-col">
           <div class="field">
             <label for="w-voucher">Kode Voucher</label>
-            <input type="text" id="w-voucher" name="w-voucher" data-label="Kode Voucher" class="js-voucher" placeholder="Jika ada">
+            <input type="text" id="w-voucher" name="w-voucher" data-label="Kode Voucher" class="js-voucher js-uppercase-trim" placeholder="Jika ada">
           </div>
           <div class="field">
             <label for="w-dp">DP (Uang Muka)</label>
@@ -1233,7 +1250,7 @@
         <legend>Data Pemesan</legend>
         <div class="field">
           <label for="m-nama">Nama Lengkap <span class="required-mark">*</span></label>
-          <input type="text" id="m-nama" name="m-nama" data-label="Nama Lengkap" required>
+          <input type="text" id="m-nama" name="m-nama" class="js-capitalize" data-label="Nama Lengkap" required>
         </div>
         <div class="field">
           <label for="m-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1245,7 +1262,7 @@
         <legend>Paket</legend>
         <div class="field">
           <label for="m-paket">Jenis Paket <span class="required-mark">*</span></label>
-          <input type="text" id="m-paket" name="m-paket" data-label="Jenis Paket" placeholder="Contoh: Paket Reguler" required>
+          <input type="text" id="m-paket" name="m-paket" class="js-capitalize" data-label="Jenis Paket" placeholder="Contoh: Paket Reguler" required>
         </div>
         <div class="field">
           <label for="m-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1257,7 +1274,7 @@
         <legend>Data Mempelai</legend>
         <div class="field">
           <label for="m-pasangan">Nama Kedua Mempelai <span class="required-mark">*</span></label>
-          <input type="text" id="m-pasangan" name="m-pasangan" data-label="Nama Kedua Mempelai" placeholder="Contoh: Rian &amp; Sarah" required>
+          <input type="text" id="m-pasangan" name="m-pasangan" class="js-capitalize" data-label="Nama Kedua Mempelai" placeholder="Contoh: Rian &amp; Sarah" required>
         </div>
         <div class="two-col">
           <div class="field">
@@ -1288,8 +1305,22 @@
           </div>
         </div>
         <div class="field">
-          <label for="m-alamat">Alamat Acara <span class="required-mark">*</span></label>
-          <textarea id="m-alamat" name="m-alamat" data-label="Alamat Acara" required></textarea>
+          <label>Alamat Acara <span class="required-mark">*</span></label>
+          <div class="three-col">
+            <div class="field">
+              <label for="m-alamat-desa">Desa/Kelurahan</label>
+              <input type="text" id="m-alamat-desa" name="m-alamat-desa" class="js-capitalize" data-address-part="desa" data-address-group="m-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Aek Haruaya" required>
+            </div>
+            <div class="field">
+              <label for="m-alamat-kec">Kecamatan</label>
+              <input type="text" id="m-alamat-kec" name="m-alamat-kec" class="js-capitalize" data-address-part="kecamatan" data-address-group="m-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Portibi" required>
+            </div>
+            <div class="field">
+              <label for="m-alamat-kab">Kabupaten</label>
+              <input type="text" id="m-alamat-kab" name="m-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="m-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
+            </div>
+          </div>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
         </div>
         <div class="field">
           <label for="m-maps">Maps Acara</label>
@@ -1327,7 +1358,7 @@
         <div class="two-col">
           <div class="field">
             <label for="m-voucher">Kode Voucher</label>
-            <input type="text" id="m-voucher" name="m-voucher" data-label="Kode Voucher" class="js-voucher">
+            <input type="text" id="m-voucher" name="m-voucher" data-label="Kode Voucher" class="js-voucher js-uppercase-trim">
           </div>
           <div class="field">
             <label for="m-dp">DP</label>
@@ -1367,7 +1398,7 @@
         <legend>Data Pemesan</legend>
         <div class="field">
           <label for="ay-ortu">Nama Pemesan/Penanggung Jawab <span class="required-mark">*</span></label>
-          <input type="text" id="ay-ortu" name="ay-ortu" data-label="Nama Pemesan/Penanggung Jawab" required>
+          <input type="text" id="ay-ortu" name="ay-ortu" class="js-capitalize" data-label="Nama Pemesan/Penanggung Jawab" required>
         </div>
         <div class="field">
           <label for="ay-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1379,7 +1410,7 @@
         <legend>Paket</legend>
         <div class="field">
           <label for="ay-paket">Nama Paket</label>
-          <input type="text" id="ay-paket" name="ay-paket" data-label="Nama Paket" placeholder="Contoh: Paket Standar">
+          <input type="text" id="ay-paket" name="ay-paket" class="js-capitalize" data-label="Nama Paket" placeholder="Contoh: Paket Standar">
         </div>
         <div class="field">
           <label for="ay-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1392,7 +1423,7 @@
         <div class="two-col">
           <div class="field">
             <label for="ay-anak">Nama Anak <span class="required-mark">*</span></label>
-            <input type="text" id="ay-anak" name="ay-anak" data-label="Nama Anak" required>
+            <input type="text" id="ay-anak" name="ay-anak" class="js-capitalize" data-label="Nama Anak" required>
           </div>
           <div class="field">
             <label for="ay-ig-anak">IG Anak</label>
@@ -1402,7 +1433,7 @@
         <div class="two-col">
           <div class="field">
             <label for="ay-ibu">Nama Ibu</label>
-            <input type="text" id="ay-ibu" name="ay-ibu" data-label="Nama Ibu">
+            <input type="text" id="ay-ibu" name="ay-ibu" class="js-capitalize" data-label="Nama Ibu">
           </div>
           <div class="field">
             <label for="ay-ig-ibu">IG Ibu</label>
@@ -1412,7 +1443,7 @@
         <div class="two-col">
           <div class="field">
             <label for="ay-ayah">Nama Ayah</label>
-            <input type="text" id="ay-ayah" name="ay-ayah" data-label="Nama Ayah">
+            <input type="text" id="ay-ayah" name="ay-ayah" class="js-capitalize" data-label="Nama Ayah">
           </div>
           <div class="field">
             <label for="ay-ig-ayah">IG Ayah</label>
@@ -1434,8 +1465,22 @@
           </div>
         </div>
         <div class="field">
-          <label for="ay-alamat">Alamat Acara <span class="required-mark">*</span></label>
-          <textarea id="ay-alamat" name="ay-alamat" data-label="Alamat Acara" required></textarea>
+          <label>Alamat Acara <span class="required-mark">*</span></label>
+          <div class="three-col">
+            <div class="field">
+              <label for="ay-alamat-desa">Desa/Kelurahan</label>
+              <input type="text" id="ay-alamat-desa" name="ay-alamat-desa" class="js-capitalize" data-address-part="desa" data-address-group="ay-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Aek Haruaya" required>
+            </div>
+            <div class="field">
+              <label for="ay-alamat-kec">Kecamatan</label>
+              <input type="text" id="ay-alamat-kec" name="ay-alamat-kec" class="js-capitalize" data-address-part="kecamatan" data-address-group="ay-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Portibi" required>
+            </div>
+            <div class="field">
+              <label for="ay-alamat-kab">Kabupaten</label>
+              <input type="text" id="ay-alamat-kab" name="ay-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="ay-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
+            </div>
+          </div>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
         </div>
         <div class="field">
           <label for="ay-maps">Maps Acara</label>
@@ -1472,7 +1517,7 @@
         <div class="two-col">
           <div class="field">
             <label for="ay-voucher">Kode Voucher</label>
-            <input type="text" id="ay-voucher" name="ay-voucher" data-label="Kode Voucher" class="js-voucher">
+            <input type="text" id="ay-voucher" name="ay-voucher" data-label="Kode Voucher" class="js-voucher js-uppercase-trim">
           </div>
           <div class="field">
             <label for="ay-dp">DP (Uang Muka)</label>
@@ -1512,7 +1557,7 @@
         <legend>Data Pemesan</legend>
         <div class="field">
           <label for="s-nama">Nama Wisudawan/i <span class="required-mark">*</span></label>
-          <input type="text" id="s-nama" name="s-nama" data-label="Nama Wisudawan/i" required>
+          <input type="text" id="s-nama" name="s-nama" class="js-capitalize" data-label="Nama Wisudawan/i" required>
         </div>
         <div class="field">
           <label for="s-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1524,7 +1569,7 @@
         <legend>Paket</legend>
         <div class="field">
           <label for="s-paket">Nama Paket <span class="required-mark">*</span></label>
-          <input type="text" id="s-paket" name="s-paket" data-label="Nama Paket" placeholder="Contoh: Paket Plus" required>
+          <input type="text" id="s-paket" name="s-paket" class="js-capitalize" data-label="Nama Paket" placeholder="Contoh: Paket Plus" required>
         </div>
         <div class="field">
           <label for="s-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1537,7 +1582,7 @@
         <div class="two-col">
           <div class="field">
             <label for="s-kampus">Universitas / Institusi</label>
-            <input type="text" id="s-kampus" name="s-kampus" data-label="Universitas/Institusi">
+            <input type="text" id="s-kampus" name="s-kampus" class="js-capitalize" data-label="Universitas/Institusi">
           </div>
           <div class="field">
             <label for="s-jenjang">Jenjang</label>
@@ -1595,7 +1640,7 @@
         <div class="two-col">
           <div class="field">
             <label for="s-voucher">Kode Voucher</label>
-            <input type="text" id="s-voucher" name="s-voucher" data-label="Kode Voucher" class="js-voucher">
+            <input type="text" id="s-voucher" name="s-voucher" data-label="Kode Voucher" class="js-voucher js-uppercase-trim">
           </div>
           <div class="field">
             <label for="s-dp">DP (Uang Muka)</label>
@@ -1648,7 +1693,7 @@
         </div>
         <div class="field" id="u-jenis-lainnya-wrap" style="display:none;">
           <label for="u-jenis-lainnya">Sebutkan Jenis Undangan</label>
-          <input type="text" id="u-jenis-lainnya" name="u-jenis-lainnya" data-label="Jenis Undangan (Lainnya)" placeholder="Tuliskan jenis acara Anda">
+          <input type="text" id="u-jenis-lainnya" name="u-jenis-lainnya" class="js-capitalize" data-label="Jenis Undangan (Lainnya)" placeholder="Tuliskan jenis acara Anda">
         </div>
       </fieldset>
 
@@ -1656,7 +1701,7 @@
         <legend>Data Pemesan</legend>
         <div class="field">
           <label for="u-pj">Nama Penanggung Jawab <span class="required-mark">*</span></label>
-          <input type="text" id="u-pj" name="u-pj" data-label="Penanggung Jawab" required>
+          <input type="text" id="u-pj" name="u-pj" class="js-capitalize" data-label="Penanggung Jawab" required>
         </div>
         <div class="field">
           <label for="u-wa">No. WhatsApp <span class="required-mark">*</span></label>
@@ -1668,7 +1713,7 @@
         <legend>Paket</legend>
         <div class="field">
           <label for="u-paket">Nama Paket <span class="required-mark">*</span></label>
-          <input type="text" id="u-paket" name="u-paket" data-label="Nama Paket" placeholder="Contoh: Paket Elegant" required>
+          <input type="text" id="u-paket" name="u-paket" class="js-capitalize" data-label="Nama Paket" placeholder="Contoh: Paket Elegant" required>
         </div>
         <div class="field">
           <label for="u-harga">Harga Paket <span class="required-mark">*</span></label>
@@ -1680,7 +1725,7 @@
         <legend>Data Acara</legend>
         <div class="field">
           <label for="u-nama">Nama Acara</label>
-          <input type="text" id="u-nama" name="u-nama" data-label="Nama Acara">
+          <input type="text" id="u-nama" name="u-nama" class="js-capitalize" data-label="Nama Acara">
         </div>
         <div class="field">
           <label for="u-tanggal">Tanggal Acara <span class="required-mark">*</span></label>
@@ -1689,7 +1734,7 @@
         <div class="two-col">
           <div class="field">
             <label for="u-tema">Tema / Warna yang Diinginkan</label>
-            <input type="text" id="u-tema" name="u-tema" data-label="Tema/Warna">
+            <input type="text" id="u-tema" name="u-tema" class="js-capitalize" data-label="Tema/Warna">
           </div>
           <div class="field">
             <label for="u-tamu">Estimasi Jumlah Tamu / Undangan</label>
@@ -1721,7 +1766,7 @@
         <div class="two-col">
           <div class="field">
             <label for="u-voucher">Kode Voucher</label>
-            <input type="text" id="u-voucher" name="u-voucher" data-label="Kode Voucher" class="js-voucher">
+            <input type="text" id="u-voucher" name="u-voucher" data-label="Kode Voucher" class="js-voucher js-uppercase-trim">
           </div>
           <div class="field">
             <label for="u-dp">DP (Uang Muka)</label>
@@ -1822,6 +1867,32 @@
     return /^(\+62|62|0)8[0-9]{8,11}$/.test(normalizePhone(v));
   }
 
+  /* =========================================================
+     AUTO KAPITAL — semua kolom Nama, Alamat, Paket, dan sejenisnya
+     (class "js-capitalize") otomatis menjadi Huruf Kapital Di Awal
+     Setiap Kata saat pengguna selesai mengisi kolom tersebut (event
+     blur), misal "putri ayu" menjadi "Putri Ayu".
+
+     Kolom Kode Voucher (class "js-uppercase-trim") otomatis diubah
+     jadi HURUF BESAR SEMUA dan spasi di awal/akhir dibuang.
+  ========================================================= */
+  function toTitleCase(str){
+    return String(str || '').replace(/\S+/g, function(word){
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+  }
+  document.addEventListener('blur', function(e){
+    var t = e.target;
+    if(!t || !t.classList || typeof t.value !== 'string') return;
+    if(t.classList.contains('js-uppercase-trim')){
+      t.value = t.value.trim().toUpperCase();
+      return;
+    }
+    if(t.classList.contains('js-capitalize') && t.value.trim()){
+      t.value = toTitleCase(t.value);
+    }
+  }, true);
+
   document.addEventListener('DOMContentLoaded', function(){
     var waDisplay = formatPhoneDisplay(KAONE_CONFIG.waNumber);
     document.querySelectorAll('.js-wa-phone').forEach(function(el){ el.textContent = waDisplay; });
@@ -1857,12 +1928,23 @@
   window.addEventListener('hashchange', function(){ showView(location.hash); });
   showView(location.hash);
 
-  // Klik area gelap di luar kotak pop up formulir untuk menutupnya
+  // Klik area gelap di luar kotak pop up formulir untuk menutupnya.
+  // Catatan: sebelumnya pop up ikut tertutup kalau pengguna blok/seleksi teks
+  // di dalam kolom lalu menyeret kursor sampai keluar kotak dan melepas klik
+  // di area gelap — karena event "click" tetap dianggap "klik di luar" meski
+  // niatnya cuma menyeleksi teks. Sekarang pop up hanya ditutup jika mouse
+  // BENAR-BENAR ditekan (mousedown) DAN dilepas (click) di area gelap yang
+  // sama, bukan hasil drag seleksi teks yang berawal dari dalam kotak form.
   FORM_POPUP_IDS.forEach(function(id){
     var popupEl = document.getElementById(id);
     if(popupEl){
+      var mousedownOnOverlay = false;
+      popupEl.addEventListener('mousedown', function(e){
+        mousedownOnOverlay = (e.target === popupEl);
+      });
       popupEl.addEventListener('click', function(e){
-        if(e.target === popupEl){ location.hash = '#home'; }
+        if(e.target === popupEl && mousedownOnOverlay){ location.hash = '#home'; }
+        mousedownOnOverlay = false;
       });
     }
   });
@@ -2167,6 +2249,17 @@
     undangan:   { title:'Undangan Digital',      bg:'#e6f4f6', accent:'#2a94ae', accentDeep:'#1c6d80', font:'Poppins' }
   };
 
+  /* Menggabungkan input Desa/Kecamatan/Kabupaten (data-address-part) menjadi
+     satu baris "Alamat Acara" dengan format: Desa, Kec. Kecamatan, Kab. Kabupaten
+     — dipakai di pesan WhatsApp, gambar ringkasan, maupun backup spreadsheet. */
+  function formatAddressParts(parts){
+    var out = [];
+    if(parts.desa) out.push(parts.desa);
+    if(parts.kecamatan) out.push('Kec. ' + parts.kecamatan);
+    if(parts.kabupaten) out.push('Kab. ' + parts.kabupaten);
+    return out.join(', ');
+  }
+
   function buildFieldGroups(formEl){
     var groups = [];
     formEl.querySelectorAll('fieldset').forEach(function(fs){
@@ -2174,8 +2267,18 @@
       var legendText = legendEl ? legendEl.textContent.trim() : '';
       var lines = [];
       var checkGroups = {};
+      var addressGroups = {};
 
-      fs.querySelectorAll('[data-label]').forEach(function(el){
+      fs.querySelectorAll('[data-label], [data-address-part]').forEach(function(el){
+        if(el.dataset.addressPart){
+          var groupKey = el.dataset.addressGroup || 'alamat';
+          if(!addressGroups[groupKey]){
+            addressGroups[groupKey] = { label: el.dataset.addressLabel || 'Alamat', parts: {} };
+            lines.push(addressGroups[groupKey]);
+          }
+          addressGroups[groupKey].parts[el.dataset.addressPart] = (el.value || '').trim();
+          return;
+        }
         var label = el.dataset.label;
         if(el.type === 'checkbox'){
           if(!checkGroups[label]) checkGroups[label] = [];
@@ -2191,6 +2294,12 @@
       Object.keys(checkGroups).forEach(function(label){
         if(checkGroups[label].length) lines.push({ label:label, value:checkGroups[label].join(', ') });
       });
+
+      // Rangkai baris alamat gabungan, lalu buang baris yang ternyata kosong
+      lines.forEach(function(l){
+        if(l.parts){ l.value = formatAddressParts(l.parts); delete l.parts; }
+      });
+      lines = lines.filter(function(l){ return l.value; });
 
       if(lines.length) groups.push({ legend:legendText, lines:lines });
     });
