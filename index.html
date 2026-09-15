@@ -8,9 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --ink:#241811;
@@ -557,23 +554,35 @@
   .review-success h3{ color:var(--maroon-deep); font-size:1.5rem; margin:0 0 8px; }
   .review-success p{ color:var(--ink-soft); font-size:0.9rem; line-height:1.6; margin:0 0 16px; }
 
-  .testimoni-list{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    grid-auto-rows:min-content;
-    align-items:start;
-    gap:16px;
+  .testimoni-viewport{
+    position:relative;
     margin:0 0 2rem;
-    max-height:74vh;
-    overflow-y:auto;
-    padding-right:6px;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
+  }
+  .testimoni-list{
+    display:flex;
+    align-items:stretch;
+    gap:16px;
+    padding:4px 6px 14px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y pinch-zoom;
+    scroll-snap-type:x proximity;
     scrollbar-width:thin;
     scrollbar-color:var(--gold) var(--paper-2);
+    user-select:none;
+    -webkit-user-select:none;
   }
-  .testimoni-list::-webkit-scrollbar{ width:7px; }
+  .testimoni-list::-webkit-scrollbar{ height:7px; }
   .testimoni-list::-webkit-scrollbar-track{ background:var(--paper-2); border-radius:10px; }
   .testimoni-list::-webkit-scrollbar-thumb{ background:var(--gold); border-radius:10px; }
-  @media (max-width:720px){ .testimoni-list{ grid-template-columns:1fr; } }
+  .testimoni-list.is-draggable{ cursor:grab; }
+  .testimoni-list.is-dragging{ cursor:grabbing; scroll-behavior:auto; }
+  .testimoni-list.is-scrollable{ scroll-snap-type:x mandatory; }
+  .testimoni-list.is-marquee{ scroll-snap-type:none; scroll-behavior:auto; }
+  .testimoni-empty, .testimoni-loading{ flex:1 1 100%; width:100%; }
   .testimoni-card{
     background:var(--white);
     border:1px solid var(--line);
@@ -585,6 +594,9 @@
     transition:transform .25s ease, box-shadow .25s ease;
     display:flex;
     flex-direction:column;
+    flex:0 0 min(82vw, 300px);
+    width:min(82vw, 300px);
+    scroll-snap-align:start;
   }
   .testimoni-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .testimoni-card::before{
@@ -998,8 +1010,10 @@
     <h2>Saran &amp; Penilaian</h2>
     <p class="lede">Sudah pernah menggunakan jasa kami? Bagikan pengalaman Anda — saran dan penilaian Anda sangat berarti untuk kami.</p>
 
-    <div id="testimoniListWrap" class="testimoni-list">
-      <div class="testimoni-loading">Memuat testimoni...</div>
+    <div class="testimoni-viewport">
+      <div id="testimoniListWrap" class="testimoni-list">
+        <div class="testimoni-loading">Memuat testimoni...</div>
+      </div>
     </div>
 
     <div id="reviewFormWrap" class="review-form-box">
@@ -1864,6 +1878,9 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 (function(){
 
@@ -2971,6 +2988,7 @@
     mangayun:         'Mangayun',
     wisuda:           'Wisuda',
     undangan_digital: 'Undangan Digital',
+    self_photo:       'Self Photo Studio',
   };
   function testimoniSourceLabel(u){
     var asal = u.asal_form;
@@ -2978,28 +2996,181 @@
     if(asal === 'wedding') return u.jenis_acara || 'Wedding';
     return TESTIMONI_ASAL_FORM_LABELS[asal] || (u.jenis_acara || 'Isi Biodata');
   }
+  function buildTestimoniCardHtml(u){
+    return '' +
+      '<div class="testimoni-card">' +
+        '<div class="testimoni-card-top">' +
+          '<div>' +
+            '<div class="testimoni-name">' + ulasanEscapeHtml(u.nama_klien || 'Klien') + '</div>' +
+            '<div class="testimoni-sub">' + ulasanEscapeHtml(testimoniSourceLabel(u)) + '</div>' +
+            '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
+          '</div>' +
+          '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
+        '</div>' +
+        (u.komentar ? '<div class="testimoni-comment">&ldquo;' + ulasanEscapeHtml(u.komentar) + '&rdquo;</div>' : '') +
+      '</div>';
+  }
+  /* Testimoni ditampilkan berjajar horizontal (seperti di pricelist Self Photo).
+     Begitu testimoninya ada 2 atau lebih, baris ini otomatis berjalan sendiri
+     (marquee) tanpa henti — digerakkan lewat scrollLeft via JS (bukan CSS
+     transform) supaya tetap bisa digeser manual dengan mouse atau jari kapan
+     saja; begitu disentuh/di-drag, auto-scroll berhenti sebentar lalu lanjut
+     lagi. Kalau cuma ada 1 testimoni, baris diam tapi tetap bisa digeser
+     manual kalau lebih lebar dari layarnya. */
+  function setupTestimoniMarquee(wrap, count){
+    var viewport = wrap.parentElement;
+    if(!viewport) return;
+    if(wrap._marqueeRAF) cancelAnimationFrame(wrap._marqueeRAF);
+    wrap.classList.remove('is-marquee','is-scrollable','is-draggable','is-dragging');
+    wrap.scrollLeft = 0;
+
+    var paused = false, resumeTimer = null;
+    function pauseAuto(){
+      paused = true;
+      if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer = null; }
+    }
+    function scheduleResume(delay){
+      if(resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){ paused = false; }, delay || 500);
+    }
+
+    // Aktifkan drag manual pakai mouse/jari (Pointer Events) — dukung di semua
+    // perangkat sekaligus, dan bekerja walau auto-scroll sedang jalan.
+    function enableDrag(loopWidth){
+      if(wrap._dragBound) return;
+      wrap._dragBound = true;
+      wrap.classList.add('is-draggable');
+      var dragging = false, startX = 0, startScroll = 0, pointerId = null;
+      wrap.addEventListener('pointerdown', function(e){
+        dragging = true;
+        pointerId = e.pointerId;
+        try{ wrap.setPointerCapture(pointerId); }catch(err){}
+        wrap.classList.add('is-dragging');
+        startX = e.clientX;
+        startScroll = wrap.scrollLeft;
+        pauseAuto();
+      });
+      wrap.addEventListener('pointermove', function(e){
+        if(!dragging) return;
+        wrap.scrollLeft = startScroll - (e.clientX - startX);
+      });
+      function endDrag(){
+        if(!dragging) return;
+        dragging = false;
+        wrap.classList.remove('is-dragging');
+        if(pointerId !== null){ try{ wrap.releasePointerCapture(pointerId); }catch(err){} }
+        if(loopWidth){
+          while(wrap.scrollLeft >= loopWidth) wrap.scrollLeft -= loopWidth;
+          while(wrap.scrollLeft < 0) wrap.scrollLeft += loopWidth;
+        }
+        scheduleResume(700);
+      }
+      wrap.addEventListener('pointerup', endDrag);
+      wrap.addEventListener('pointercancel', endDrag);
+      wrap.addEventListener('mouseenter', pauseAuto);
+      wrap.addEventListener('mouseleave', function(){ if(!dragging) scheduleResume(300); });
+    }
+
+    if(count < 2){
+      if(wrap.scrollWidth > viewport.clientWidth + 4) enableDrag(0);
+      return;
+    }
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Lebar satu set kartu asli (sebelum digandakan) — ini jadi titik "reset" loop-nya.
+    var singleSetHtml = wrap.innerHTML;
+    var loopWidth = wrap.scrollWidth;
+    // PENTING: kalau wadah ini masih tersembunyi (mis. halaman Beranda "#home"
+    // belum ditampilkan karena splash masih di depan), lebarnya = 0. Kalau
+    // dilanjut, loopWidth jadi 0 dan kondisi "while(wrap.scrollLeft >= loopWidth)"
+    // di bawah selalu true tanpa pernah berubah — browser HANG TOTAL (infinite
+    // loop), itulah yang membuat halaman ngelag lalu berhenti & tidak bisa
+    // diklik lagi. Jadi kalau masih tak terlihat, batalkan dulu; nanti akan
+    // di-setup ulang otomatis begitu Beranda benar-benar tampil (lihat
+    // refreshTestimoniMarqueeIfHomeVisible di bawah).
+    if(loopWidth <= 0 || viewport.clientWidth <= 0){
+      wrap._marqueeNeedsRetry = true;
+      return;
+    }
+    wrap._marqueeNeedsRetry = false;
+    // Gandakan terus sampai total lebar kontennya melebihi (satu set + lebar layar).
+    // Kalau cuma digandakan sekali dan testimoninya sedikit / layarnya lebar, total
+    // lebarnya bisa lebih pendek dari layar — browser jadi "mentok" (clamp) sebelum
+    // sempat sampai titik reset, sehingga marquee-nya keliatan berhenti/melompat
+    // alih-alih muter mulus balik ke testimoni pertama. Dengan konten yang selalu
+    // lebih panjang dari (satu set + layar), titik reset selalu bisa dicapai dengan
+    // mulus dan yang terlihat sesudahnya selalu sambungan testimoni berikutnya.
+    var safety = 0;
+    while(wrap.scrollWidth < loopWidth + viewport.clientWidth + 4 && safety < 60){
+      wrap.innerHTML += singleSetHtml;
+      safety++;
+    }
+    if(prefersReduced){
+      wrap.classList.add('is-scrollable');
+      enableDrag(loopWidth);
+      return;
+    }
+    wrap.classList.add('is-marquee');
+    enableDrag(loopWidth);
+
+    var pxPerSecond = 70; // dipercepat (sebelumnya 32px/detik)
+    var lastTs = null;
+    function frame(ts){
+      if(lastTs === null) lastTs = ts;
+      var dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+      if(!paused){
+        wrap.scrollLeft += pxPerSecond * dt;
+        // pakai while (bukan if) supaya tetap mulus walau dt sempat besar
+        // (misal tab lama tidak aktif) — tidak akan pernah "lompat" lewat titik reset.
+        while(wrap.scrollLeft >= loopWidth) wrap.scrollLeft -= loopWidth;
+      }
+      wrap._marqueeRAF = requestAnimationFrame(frame);
+    }
+    wrap._marqueeRAF = requestAnimationFrame(frame);
+  }
+  var testimoniLastList = null;
   function renderTestimoniList(list){
     var wrap = document.getElementById('testimoniListWrap');
     if(!wrap) return;
+    testimoniLastList = list;
+    if(wrap._marqueeRAF) cancelAnimationFrame(wrap._marqueeRAF);
+    wrap.classList.remove('is-marquee','is-scrollable','is-draggable','is-dragging');
     if(!list || list.length===0){
       wrap.innerHTML = '<div class="testimoni-empty">Belum ada testimoni yang ditampilkan. Jadilah yang pertama memberi penilaian!</div>';
       return;
     }
-    wrap.innerHTML = list.map(function(u){
-      return '' +
-        '<div class="testimoni-card">' +
-          '<div class="testimoni-card-top">' +
-            '<div>' +
-              '<div class="testimoni-name">' + ulasanEscapeHtml(u.nama_klien || 'Klien') + '</div>' +
-              '<div class="testimoni-sub">' + ulasanEscapeHtml(testimoniSourceLabel(u)) + '</div>' +
-              '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
-            '</div>' +
-            '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
-          '</div>' +
-          (u.komentar ? '<div class="testimoni-comment">&ldquo;' + ulasanEscapeHtml(u.komentar) + '&rdquo;</div>' : '') +
-        '</div>';
-    }).join('');
+    wrap.innerHTML = list.map(buildTestimoniCardHtml).join('');
+    requestAnimationFrame(function(){ setupTestimoniMarquee(wrap, list.length); });
   }
+  // Beranda ("#home") bisa saja masih tersembunyi (display:none, karena splash
+  // masih tampil) saat data testimoni datang dari Supabase. Kalau begitu,
+  // setupTestimoniMarquee di atas akan membatalkan diri (lihat _marqueeNeedsRetry)
+  // supaya tidak hang. Fungsi ini mencoba ulang begitu Beranda benar-benar
+  // terlihat, dipanggil setiap kali hash URL berubah.
+  function refreshTestimoniMarqueeIfHomeVisible(){
+    var homeView = document.getElementById('home');
+    var wrap = document.getElementById('testimoniListWrap');
+    if(!homeView || !wrap) return;
+    if(!homeView.classList.contains('active')) return;
+    if(wrap._marqueeNeedsRetry && testimoniLastList){
+      renderTestimoniList(testimoniLastList);
+    }
+  }
+  window.addEventListener('hashchange', function(){
+    requestAnimationFrame(refreshTestimoniMarqueeIfHomeVisible);
+  });
+  requestAnimationFrame(refreshTestimoniMarqueeIfHomeVisible);
+  // Kalau lebar layar berubah (resize jendela, buka/tutup DevTools, putar layar
+  // HP), jumlah kartu yang sudah digandakan sebelumnya mungkin jadi tidak cukup
+  // lagi buat mengisi (satu set + layar) — bangun ulang dari daftar aslinya
+  // supaya loop-nya tetap selalu mulus dan tidak pernah "mentok".
+  var testimoniResizeTimer = null;
+  window.addEventListener('resize', function(){
+    if(testimoniResizeTimer) clearTimeout(testimoniResizeTimer);
+    testimoniResizeTimer = setTimeout(function(){
+      if(testimoniLastList) renderTestimoniList(testimoniLastList);
+    }, 250);
+  });
   /* Ambil daftar publish_targets satu baris ulasan dengan aman, apapun bentuk datanya
      dari Supabase (array asli, string JSON hasil serialisasi, atau baris lama yang cuma
      punya kolom "dipublikasikan"). Sebelumnya kode ini menyaring lewat query
@@ -3018,6 +3189,28 @@
       }catch(e){ /* bukan JSON valid, abaikan */ }
     }
     return u.dipublikasikan ? ['wedding'] : [];
+  }
+  // Tabel "kaone_motret_ulasan" ini dipakai bersama oleh beberapa halaman lain
+  // juga, jadi ada kemungkinan testimoni yang sama (nama + isi komentar sama)
+  // ter-input lebih dari sekali (misal double-submit, atau dipublikasikan
+  // ulang dari halaman lain). Fungsi ini menyaring supaya yang tampil di sini
+  // cuma satu per testimoni — diambil yang paling baru (data sudah diurutkan
+  // dari terbaru ke terlama sebelum masuk sini).
+  function dedupeTestimoni(list){
+    var seen = {};
+    var hasil = [];
+    for(var i = 0; i < list.length; i++){
+      var u = list[i];
+      var key = (
+        (u.nama_klien || '').trim().toLowerCase() + '|' +
+        (u.komentar || '').trim().toLowerCase() + '|' +
+        (u.rating || '')
+      );
+      if(seen[key]) continue;
+      seen[key] = true;
+      hasil.push(u);
+    }
+    return hasil;
   }
   function loadTestimoniList(){
     var wrap = document.getElementById('testimoniListWrap');
@@ -3039,7 +3232,7 @@
         var untukBiodata = semua.filter(function(u){
           return getPublishTargetsSafe(u).indexOf('biodata') !== -1;
         });
-        renderTestimoniList(untukBiodata);
+        renderTestimoniList(dedupeTestimoni(untukBiodata));
       })
       .catch(function(err){
         console.error('Gagal memuat testimoni', err);
