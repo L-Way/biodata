@@ -4,6 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Kaone Studio — Formulir Biodata</title>
+
+<!-- Thumbnail saat link dibagikan (WhatsApp, Facebook, Telegram, dll.)
+     Pastikan file thumbnail-kaone.jpg diunggah di folder yang sama dengan halaman ini,
+     sehingga bisa dibuka di https://isibiodata.kaone.web.id/thumbnail-kaone.jpg -->
+<meta name="description" content="Lengkapi formulir biodata Anda untuk sesi bersama Kaone Studio.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kaone Studio">
+<meta property="og:locale" content="id_ID">
+<meta property="og:title" content="Kaone Studio — Formulir Biodata">
+<meta property="og:description" content="Lengkapi formulir biodata Anda untuk sesi bersama Kaone Studio.">
+<meta property="og:url" content="https://isibiodata.kaone.web.id/">
+<meta property="og:image" content="https://isibiodata.kaone.web.id/thumbnail-kaone.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:alt" content="Kaone Studio — We capture the moments you never want to forget">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kaone Studio — Formulir Biodata">
+<meta name="twitter:description" content="Lengkapi formulir biodata Anda untuk sesi bersama Kaone Studio.">
+<meta name="twitter:image" content="https://isibiodata.kaone.web.id/thumbnail-kaone.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -452,7 +472,7 @@
   }
   .field label{ display:block; font-size:0.84rem; font-weight:700; margin-bottom:0.4rem; color:var(--ink); }
   .field .hint{ font-weight:400; color:var(--ink-soft); font-size:0.76rem; display:block; margin-top:0.35rem; line-height:1.5; }
-  input[type="text"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
+  input[type="text"], input[type="tel"], input[type="date"], input[type="time"], select, textarea{
     width:100%;
     font-family:'Manrope', sans-serif;
     font-size:0.95rem;
@@ -464,7 +484,7 @@
     box-shadow:inset 0 1px 2px rgba(36,24,17,0.04);
     transition:border-color .2s ease, box-shadow .2s ease;
   }
-  input[type="text"]:focus, input[type="tel"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="number"]:focus, select:focus, textarea:focus{
+  input[type="text"]:focus, input[type="tel"]:focus, input[type="date"]:focus, input[type="time"]:focus, select:focus, textarea:focus{
     border-color:var(--gold);
     box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 22%, transparent);
   }
@@ -478,6 +498,28 @@
   @media (max-width:720px){ .three-col{ grid-template-columns:1fr; } }
   .js-uppercase-trim{ text-transform:uppercase; }
   .required-mark{ color:var(--maroon); }
+
+  /* ---------- Kolom uang (Rp permanen + pemisah ribuan otomatis) ---------- */
+  .rp-input-wrap{ position:relative; }
+  .rp-input-wrap .rp-input-prefix{
+    position:absolute;
+    left:0.95rem;
+    top:50%;
+    transform:translateY(-50%);
+    font-weight:700;
+    color:var(--maroon);
+    pointer-events:none;
+    font-size:0.95rem;
+    letter-spacing:0.01em;
+  }
+  .rp-input-wrap input{ padding-left:2.6rem !important; }
+
+  /* ---------- Highlight sesaat untuk kolom wajib yang belum diisi ---------- */
+  @keyframes fieldInvalidFlash{
+    0%, 100%{ box-shadow:inset 0 1px 2px rgba(36,24,17,0.04); border-color:var(--maroon); }
+    50%{ box-shadow:0 0 0 4px color-mix(in srgb, var(--maroon) 22%, transparent); border-color:var(--maroon); }
+  }
+  .field-invalid-flash{ animation:fieldInvalidFlash 0.55s ease 2; border-color:var(--maroon) !important; }
 
   .maps-actions{ display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
 
@@ -1147,7 +1189,7 @@
         </div>
         <div class="field">
           <label for="w-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="w-wa" name="w-wa" data-label="No. WhatsApp" placeholder="Contoh: 0812xxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <input type="tel" id="w-wa" name="w-wa" class="js-phone" data-label="No. WhatsApp" placeholder="Contoh: 0812xxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
         </div>
       </fieldset>
 
@@ -1159,7 +1201,7 @@
         </div>
         <div class="field">
           <label for="w-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="number" id="w-harga" name="w-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 6500000" min="0" step="10000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="w-harga" name="w-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 6.500.000" required>
         </div>
       </fieldset>
 
@@ -1254,7 +1296,7 @@
           </div>
           <div class="field">
             <label for="w-dp">DP (Uang Muka)</label>
-            <input type="number" id="w-dp" name="w-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Nominal DP, contoh: 500000" min="0" step="10000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="w-dp" name="w-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Nominal DP, contoh: 500.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1267,10 +1309,10 @@
 
       <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
         <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
-          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
-          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
       </div>
     </form>
   </div>
@@ -1294,7 +1336,7 @@
         </div>
         <div class="field">
           <label for="m-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="m-wa" name="m-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <input type="tel" id="m-wa" name="m-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
         </div>
       </fieldset>
 
@@ -1306,7 +1348,7 @@
         </div>
         <div class="field">
           <label for="m-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="number" id="m-harga" name="m-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 3500000" min="0" step="10000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="m-harga" name="m-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 3.500.000" required>
         </div>
       </fieldset>
 
@@ -1402,7 +1444,7 @@
           </div>
           <div class="field">
             <label for="m-dp">DP</label>
-            <input type="number" id="m-dp" name="m-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="m-dp" name="m-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1415,10 +1457,10 @@
 
       <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
         <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
-          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
-          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
       </div>
     </form>
   </div>
@@ -1442,7 +1484,7 @@
         </div>
         <div class="field">
           <label for="ay-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="ay-wa" name="ay-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <input type="tel" id="ay-wa" name="ay-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
         </div>
       </fieldset>
 
@@ -1454,7 +1496,7 @@
         </div>
         <div class="field">
           <label for="ay-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="number" id="ay-harga" name="ay-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 2000000" min="0" step="10000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="ay-harga" name="ay-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 2.000.000" required>
         </div>
       </fieldset>
 
@@ -1561,7 +1603,7 @@
           </div>
           <div class="field">
             <label for="ay-dp">DP (Uang Muka)</label>
-            <input type="number" id="ay-dp" name="ay-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="ay-dp" name="ay-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1574,10 +1616,10 @@
 
       <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
         <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
-          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
-          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
       </div>
     </form>
   </div>
@@ -1601,7 +1643,7 @@
         </div>
         <div class="field">
           <label for="s-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="s-wa" name="s-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <input type="tel" id="s-wa" name="s-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
         </div>
       </fieldset>
 
@@ -1613,7 +1655,7 @@
         </div>
         <div class="field">
           <label for="s-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="number" id="s-harga" name="s-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 900000" min="0" step="10000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="s-harga" name="s-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 900.000" required>
         </div>
       </fieldset>
 
@@ -1684,7 +1726,7 @@
           </div>
           <div class="field">
             <label for="s-dp">DP (Uang Muka)</label>
-            <input type="number" id="s-dp" name="s-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500000" min="0" step="10000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="s-dp" name="s-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1697,10 +1739,10 @@
 
       <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
         <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
-          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
-          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
       </div>
     </form>
   </div>
@@ -1745,7 +1787,7 @@
         </div>
         <div class="field">
           <label for="u-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="u-wa" name="u-wa" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <input type="tel" id="u-wa" name="u-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
         </div>
       </fieldset>
 
@@ -1757,7 +1799,7 @@
         </div>
         <div class="field">
           <label for="u-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="number" id="u-harga" name="u-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 300000" min="0" step="10000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="u-harga" name="u-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 300.000" required>
         </div>
       </fieldset>
 
@@ -1778,7 +1820,7 @@
           </div>
           <div class="field">
             <label for="u-tamu">Estimasi Jumlah Tamu / Undangan</label>
-            <input type="text" id="u-tamu" name="u-tamu" data-label="Estimasi Tamu">
+            <input type="text" id="u-tamu" name="u-tamu" data-label="Estimasi Tamu" class="js-numeric" inputmode="numeric" autocomplete="off" placeholder="Contoh: 150">
           </div>
         </div>
       </fieldset>
@@ -1810,7 +1852,7 @@
           </div>
           <div class="field">
             <label for="u-dp">DP (Uang Muka)</label>
-            <input type="number" id="u-dp" name="u-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 100000" min="0" step="10000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="u-dp" name="u-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 100.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1823,10 +1865,10 @@
 
       <div class="submit-row" style="flex-direction:column; align-items:stretch; gap:0.7rem;">
         <div style="display:flex; flex-wrap:wrap; gap:0.7rem;">
-          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 1. Unduh Gambar Ringkasan</button>
-          <button type="submit" class="btn btn-kirim-wa" disabled>2. Kirim via WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
+          <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Wajib unduh gambar ringkasan dahulu (tombol 1), lalu lampirkan gambar tersebut saat chat WhatsApp terbuka. Data akan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
+        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
       </div>
     </form>
   </div>
@@ -1936,6 +1978,59 @@
     }
   }, true);
 
+  /* Huruf besar otomatis SAAT MENGETIK (huruf demi huruf), tanpa harus pindah kolom:
+     - Kode Voucher (js-uppercase-trim) -> HURUF BESAR SEMUA
+     - Nama/Alamat/Paket dll (js-capitalize) -> Huruf Besar Di Awal Setiap Kata
+     Posisi kursor tetap terjaga. Spasi awal/akhir voucher tetap dirapikan saat blur. */
+  document.addEventListener('input', function(e){
+    var t = e.target;
+    if(!t || !t.classList || typeof t.value !== 'string') return;
+    if(e.isComposing) return;
+    var next;
+    if(t.classList.contains('js-uppercase-trim')){
+      next = t.value.toUpperCase();
+    } else if(t.classList.contains('js-capitalize')){
+      next = toTitleCase(t.value);
+    } else {
+      return;
+    }
+    if(next === t.value) return;
+    var start = t.selectionStart, end = t.selectionEnd;
+    t.value = next;
+    try{ t.setSelectionRange(start, end); }catch(err){ /* abaikan */ }
+  }, true);
+
+  /* =========================================================
+     PEMBATASAN INPUT ANGKA — semua kolom yang isinya wajib angka
+     (nomor WhatsApp "js-phone", jumlah/estimasi "js-numeric")
+     otomatis membuang karakter selain angka begitu diketik, jadi
+     klien tidak bisa mengetik huruf atau simbol di kolom tersebut.
+     Kolom harga/DP ("js-harga"/"js-dp") punya pemformatannya
+     sendiri (lihat wireCurrencyField) karena juga perlu pemisah
+     ribuan otomatis.
+  ========================================================= */
+  function keepCursorFromEnd(el, updateFn){
+    var posFromEnd = el.value.length - (el.selectionStart == null ? el.value.length : el.selectionStart);
+    updateFn();
+    var pos = Math.max(el.value.length - posFromEnd, 0);
+    try{ el.setSelectionRange(pos, pos); }catch(e){ /* beberapa tipe input tidak mendukung ini */ }
+  }
+  document.addEventListener('input', function(e){
+    var t = e.target;
+    if(!t || !t.classList || typeof t.value !== 'string') return;
+    if(t.classList.contains('js-numeric')){
+      keepCursorFromEnd(t, function(){ t.value = t.value.replace(/[^\d]/g, ''); });
+      return;
+    }
+    if(t.classList.contains('js-phone')){
+      keepCursorFromEnd(t, function(){
+        var v = t.value || '';
+        var plus = v.charAt(0) === '+' ? '+' : '';
+        t.value = plus + v.slice(plus ? 1 : 0).replace(/[^\d]/g, '');
+      });
+    }
+  }, true);
+
   document.addEventListener('DOMContentLoaded', function(){
     var waDisplay = formatPhoneDisplay(KAONE_CONFIG.waNumber);
     document.querySelectorAll('.js-wa-phone').forEach(function(el){ el.textContent = waDisplay; });
@@ -2018,6 +2113,42 @@
     return 'Rp ' + n.toLocaleString('id-ID');
   }
 
+  // Mengambil angka murni dari isian harga/DP yang sudah diformat pakai
+  // titik pemisah ribuan (mis. "6.500.000" -> 6500000).
+  function parseRupiah(v){
+    return parseInt(String(v || '').replace(/[^\d]/g, ''), 10) || 0;
+  }
+
+  /* =========================================================
+     KOLOM UANG: label "Rp" permanen di kolom + pemisah ribuan
+     (titik) otomatis setiap 3 angka saat klien mengetik, supaya
+     nominal mudah dibaca (mis. mengetik "6500000" langsung
+     tampil "6.500.000"). Nilai yang tersimpan di kolom tetap
+     angka murni + titik, dan dikonversi balik ke angka lewat
+     parseRupiah() setiap kali dipakai untuk perhitungan.
+  ========================================================= */
+  function wireCurrencyField(input){
+    if(!input || input.dataset.rpWired === '1') return;
+    input.dataset.rpWired = '1';
+
+    var wrap = document.createElement('div');
+    wrap.className = 'rp-input-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    var prefix = document.createElement('span');
+    prefix.className = 'rp-input-prefix';
+    prefix.textContent = 'Rp';
+    prefix.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(prefix);
+    wrap.appendChild(input);
+
+    input.addEventListener('input', function(){
+      keepCursorFromEnd(input, function(){
+        var digits = input.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+        input.value = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      });
+    });
+  }
+
   /* =========================================================
      KALKULASI OTOMATIS: total (dari Harga Paket manual), diskon, dp, sisa
      Diskon HANYA dihitung setelah kode voucher divalidasi ke server
@@ -2034,6 +2165,9 @@
     var sumSisa = formEl.querySelector('[data-sum="sisa"]');
     if(!harga) return;
 
+    wireCurrencyField(harga);
+    if(dp) wireCurrencyField(dp);
+
     // Sisipkan otomatis keterangan status pengecekan kode voucher di bawah kolomnya
     var voucherStatus = null;
     if(voucher){
@@ -2049,8 +2183,8 @@
     var voucherTimer = null;
 
     function recalc(){
-      var total = parseInt(harga.value, 10) || 0;
-      var dpVal = parseInt((dp && dp.value), 10) || 0;
+      var total = parseRupiah(harga.value);
+      var dpVal = parseRupiah(dp && dp.value);
       var diskon = Math.min(appliedDiscount, total);
       var sisa = total - diskon - dpVal;
       if(sisa < 0) sisa = 0;
@@ -2088,7 +2222,7 @@
 
       setVoucherStatus('Memeriksa kode voucher…');
 
-      var total = parseInt(harga.value, 10) || 0;
+      var total = parseRupiah(harga.value);
       var checkUrl = KAONE_CONFIG.sheetWebAppUrl + '?action=checkVoucher&code=' + encodeURIComponent(kode);
 
       fetch(checkUrl).then(function(res){ return res.json(); }).then(function(data){
@@ -2330,6 +2464,9 @@
           if(el.checked) lines.push({ label:label, value:el.value });
         } else {
           var val = (el.value || '').trim();
+          if(val && (el.classList.contains('js-harga') || el.classList.contains('js-dp'))){
+            val = 'Rp ' + val;
+          }
           if(val) lines.push({ label:label, value:val });
         }
       });
@@ -2647,16 +2784,41 @@
     { id:'form-undangan', judul:'Undangan Digital', key:'undangan' }
   ];
 
-  function checkPhoneField(formEl){
+  /* =========================================================
+     VALIDASI FORMULIR + AUTO-SCROLL KE KOLOM YANG BELUM DIISI
+     Dipakai bersama oleh tombol "Unduh Gambar" maupun "Kirim via
+     WhatsApp" — begitu salah satu ditekan dan ternyata masih ada
+     kolom wajib yang kosong/salah format, layar otomatis bergulir
+     halus ke kolom tersebut, kolomnya berkedip sebentar sebagai
+     penanda, lalu balon peringatan bawaan browser tetap muncul
+     seperti biasa supaya pesannya tetap jelas.
+  ========================================================= */
+  function validateFormOrFocus(formEl){
+    // Pesan kustom khusus nomor WhatsApp, lebih jelas dari pesan bawaan browser
     var waInput = formEl.querySelector('input[type="tel"]');
-    if(waInput && waInput.value && !isValidPhone(waInput.value)){
-      waInput.setCustomValidity('Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx.');
-      formEl.reportValidity();
-      waInput.setCustomValidity('');
-      waInput.focus();
-      return false;
+    if(waInput){
+      waInput.setCustomValidity(
+        (waInput.value && !isValidPhone(waInput.value))
+          ? 'Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx.'
+          : ''
+      );
     }
-    return true;
+
+    if(formEl.checkValidity()) return true;
+
+    var invalid = formEl.querySelector(':invalid');
+    if(invalid){
+      var target = invalid.closest('.field') || invalid;
+      target.scrollIntoView({ behavior:'smooth', block:'center' });
+      invalid.classList.add('field-invalid-flash');
+      setTimeout(function(){ invalid.classList.remove('field-invalid-flash'); }, 1300);
+      setTimeout(function(){
+        invalid.focus({ preventScroll:true });
+        formEl.reportValidity();
+        if(waInput) waInput.setCustomValidity('');
+      }, 350);
+    }
+    return false;
   }
 
   forms.forEach(function(f){
@@ -2665,42 +2827,33 @@
 
     var downloadBtn = formEl.querySelector('.btn-unduh-gambar');
     var sendBtn = formEl.querySelector('.btn-kirim-wa');
-    formEl.dataset.imageReady = '0';
 
-    // Jika data formulir diubah lagi setelah gambar diunduh, wajibkan unduh ulang
-    // supaya gambar yang dikirim ke klien selalu sesuai data terbaru.
-    function resetImageReady(){
-      if(formEl.dataset.imageReady === '1'){
-        formEl.dataset.imageReady = '0';
-        if(sendBtn) sendBtn.disabled = true;
-        if(downloadBtn) downloadBtn.textContent = '📥 1. Unduh Gambar Ringkasan';
-      }
-    }
-    formEl.addEventListener('input', resetImageReady);
-    formEl.addEventListener('change', resetImageReady);
-
+    // Tombol "Unduh Gambar" dan "Kirim via WhatsApp" independen — bisa
+    // ditekan kapan saja, dengan urutan apa saja. Keduanya sama-sama
+    // memvalidasi isian dan sama-sama mem-backup data ke spreadsheet.
     if(downloadBtn){
       downloadBtn.addEventListener('click', function(){
-        if(!formEl.reportValidity()) return;
-        if(!checkPhoneField(formEl)) return;
+        if(formEl.dataset.downloading === '1') return;
+        if(!validateFormOrFocus(formEl)) return;
 
+        formEl.dataset.downloading = '1';
         downloadBtn.disabled = true;
         var originalLabel = downloadBtn.textContent;
         downloadBtn.textContent = 'Membuat gambar…';
 
+        sendBackupToSheet(formEl, f.key, f.judul);
+
         generateBiodataImage(formEl, f.key, f.judul).then(function(blob){
           var filename = 'biodata-' + f.key + '-' + Date.now() + '.png';
           downloadBlob(blob, filename);
-          formEl.dataset.imageReady = '1';
-          if(sendBtn) sendBtn.disabled = false;
-          downloadBtn.textContent = '✅ Sudah Diunduh (klik lagi jika data berubah)';
-          showToast('Gambar ringkasan sudah terunduh. Sekarang tekan tombol "Kirim via WhatsApp".', 6000);
+          showToast('Gambar ringkasan biodata sudah terunduh.', 5000);
         }).catch(function(err){
           console.error('Gagal membuat gambar ringkasan:', err);
-          downloadBtn.textContent = originalLabel;
           showToast('Gagal membuat gambar ringkasan. Silakan coba lagi.', 6000);
         }).then(function(){
+          downloadBtn.textContent = originalLabel;
           downloadBtn.disabled = false;
+          formEl.dataset.downloading = '0';
         });
       });
     }
@@ -2711,14 +2864,7 @@
       // Cegah double-submit: klik ganda / klik cepat berulang tidak akan
       // membuka beberapa tab WhatsApp atau mengirim backup dobel ke sheet.
       if(formEl.dataset.submitting === '1') return;
-
-      if(!formEl.reportValidity()) return;
-      if(!checkPhoneField(formEl)) return;
-
-      if(formEl.dataset.imageReady !== '1'){
-        showToast('Silakan unduh gambar ringkasan biodata dahulu (tombol 1) sebelum mengirim ke WhatsApp.', 6000);
-        return;
-      }
+      if(!validateFormOrFocus(formEl)) return;
 
       formEl.dataset.submitting = '1';
       if(sendBtn) sendBtn.disabled = true;
@@ -2732,7 +2878,7 @@
       window.open(url, '_blank');
 
       showToast(
-        'Jangan lupa lampirkan (attach) gambar ringkasan yang sudah diunduh tadi di chat WhatsApp yang terbuka.',
+        'Chat WhatsApp sudah terbuka. Jika belum, unduh dulu gambar ringkasan lewat tombol "Unduh Gambar Ringkasan", lalu lampirkan (attach) gambar tersebut di chat yang terbuka.',
         8000
       );
 
@@ -2740,7 +2886,7 @@
       // tidak sengaja menutup tab WhatsApp dan perlu membukanya ulang.
       setTimeout(function(){
         formEl.dataset.submitting = '0';
-        if(sendBtn && formEl.dataset.imageReady === '1') sendBtn.disabled = false;
+        if(sendBtn) sendBtn.disabled = false;
       }, 3000);
     });
   });
