@@ -50,7 +50,12 @@
   }
 
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+    overscroll-behavior:none;   /* hilangkan efek tertarik/memantul saat mentok */
+  }
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto;}
     *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
@@ -71,6 +76,8 @@
     font-family:'Manrope', sans-serif;
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
+    overscroll-behavior:none;
+    touch-action:pan-y pinch-zoom;   /* layar tidak bisa tergeser kiri-kanan */
   }
 
   a{color:inherit;}
@@ -180,6 +187,32 @@
     flex-shrink:0;
   }
   .home-link:hover{ background:var(--maroon); color:var(--white); box-shadow:0 8px 18px rgba(147,22,61,0.28); transform:translateY(-1px); }
+
+  .nav-actions{ display:flex; align-items:center; gap:0.55rem; flex-shrink:0; }
+  .nav-icon-btn{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    border:1.5px solid var(--gold);
+    background:transparent;
+    color:var(--maroon-deep);
+    padding:0.5rem 0.7rem;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background 0.2s ease, color 0.2s ease, box-shadow .25s ease, transform .2s ease;
+  }
+  .nav-icon-btn svg{ width:16px; height:16px; flex-shrink:0; display:block; }
+  .nav-icon-btn:hover{ background:var(--gold); color:var(--maroon-deep); box-shadow:0 8px 18px rgba(217,165,33,0.35); transform:translateY(-1px); }
+  .nav-icon-btn:active{ transform:translateY(0); }
+  .nav-icon-btn.is-busy{ opacity:0.6; cursor:wait; }
+  @media (max-width:640px){
+    .nav-icon-btn-label{ display:none; }
+    .nav-icon-btn{ padding:0.55rem; }
+  }
 
   /* ---------- Hero ---------- */
   .hero{
@@ -386,56 +419,136 @@
     to{ opacity:1; transform:translateY(0) scale(1); }
   }
 
-  /* ---------- Formulir acara sebagai pop up di atas Beranda ---------- */
-  body.popup-open{ overflow:hidden; }
+  /* ---------- Formulir acara sebagai POP UP sungguhan ----------
+     Desktop/tablet : kotak dialog di tengah layar, latar gelap, isi bisa di-scroll
+                      di dalam kotaknya sendiri (halaman di belakang terkunci).
+     HP (<=640px)   : "bottom sheet" — naik dari bawah, sudut atas membulat, ada
+                      pegangan geser di atas; tarik ke bawah atau ketuk area gelap
+                      untuk menutup. Tombol ✕ selalu menempel di atas (sticky). */
+  body.popup-open{ position:fixed; left:0; right:0; width:100%; overflow:hidden; }
   .view.form-popup{
     position:fixed;
     inset:0;
     z-index:40;
     display:none;
-    align-items:flex-start;
+    align-items:center;
     justify-content:center;
-    padding:5vh 4vw;
-    background:rgba(36,24,17,0.55);
-    backdrop-filter:blur(3px);
-    -webkit-backdrop-filter:blur(3px);
-    overflow-y:auto;
+    padding:max(1.5rem, env(safe-area-inset-top, 0px)) 1.5rem calc(max(1.5rem, env(safe-area-inset-bottom, 0px)) + var(--kb, 0px));
+    background:rgba(36,24,17,0.58);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    overflow:hidden;
+    overscroll-behavior:contain;
   }
   .view.form-popup.active{
     display:flex;
-    animation:viewEnter 0.4s cubic-bezier(.22,.75,.32,1) both;
+    animation:popupFade .25s ease both;
   }
+  @keyframes popupFade{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes popupIn{ from{ opacity:0; transform:translateY(18px) scale(.97); } to{ opacity:1; transform:none; } }
+  @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+
   .view.form-popup .form-page{
     position:relative;
-    background:var(--white);
-    border-radius:var(--radius-lg);
-    box-shadow:var(--shadow-lg);
     width:100%;
+    max-width:720px;
+    max-height:100%;
     margin:0;
+    padding:0;
+    background:linear-gradient(180deg, var(--page-bg, var(--white)) 0, var(--white) 260px);
+    border-radius:22px;
+    box-shadow:var(--shadow-lg);
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y pinch-zoom;
+    outline:none;
+    scrollbar-width:thin;
+    animation:popupIn .34s cubic-bezier(.22,.75,.32,1);
+  }
+  .popup-body{
+    padding:0.35rem clamp(1.15rem, 5vw, 2.4rem) calc(2.4rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Bilah atas yang menempel: pegangan geser + judul (muncul saat digulir) + tombol tutup */
+  .popup-bar{
+    position:sticky;
+    top:0;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:0.75rem;
+    min-height:62px;
+    padding:0.8rem 0.9rem 0.6rem 1.4rem;
+    background:transparent;
+    border-bottom:1px solid transparent;
+    transition:background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .popup-bar.is-scrolled{ background:var(--page-bg, var(--white)); border-bottom-color:var(--line); box-shadow:0 8px 18px -12px rgba(36,24,17,0.3); }
+  .popup-bar-title{
+    font-family:'Fraunces', serif;
+    font-size:1rem;
+    color:var(--maroon-deep);
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .popup-bar.is-scrolled .popup-bar-title{ opacity:1; transform:none; }
+  .popup-grabber{
+    display:none;
+    position:absolute;
+    top:8px;
+    left:50%;
+    width:44px;
+    height:5px;
+    border-radius:99px;
+    background:#dcc78a;
+    transform:translateX(-50%);
   }
   .popup-close-btn{
-    position:absolute;
-    top:0.9rem;
-    right:0.9rem;
-    width:34px;
-    height:34px;
+    flex-shrink:0;
+    margin-left:auto;
+    width:42px;
+    height:42px;
     border-radius:50%;
     border:1.5px solid var(--line);
     background:var(--paper);
     color:var(--maroon-deep);
-    font-size:1rem;
+    font-size:1.05rem;
     line-height:1;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
     transition:background .2s ease, transform .2s ease;
-    z-index:1;
+    -webkit-tap-highlight-color:transparent;
   }
   .popup-close-btn:hover{ background:var(--gold-soft); transform:rotate(90deg); }
+  .popup-close-btn:active{ background:var(--gold-soft); }
+
   @media (max-width:640px){
-    .view.form-popup{ padding:0; align-items:stretch; }
-    .view.form-popup .form-page{ border-radius:0; min-height:100%; }
+    .view.form-popup{
+      align-items:flex-end;
+      padding:calc(env(safe-area-inset-top, 0px) + 2.2rem) 0 var(--kb, 0px);
+    }
+    .view.form-popup .form-page{
+      max-width:none;
+      border-radius:22px 22px 0 0;
+      animation:sheetUp .38s cubic-bezier(.22,.75,.32,1);
+    }
+    .popup-grabber{ display:block; }
+    .popup-bar{ touch-action:none; cursor:grab; min-height:58px; padding-top:1.05rem; }
+    .popup-body{ padding-left:1.15rem; padding-right:1.15rem; }
+    .view.form-popup .submit-row .btn{ flex:1 1 100%; min-height:50px; text-align:center; line-height:1.3; }
+  }
+  @media (min-width:641px){
+    .view.form-popup .submit-row .btn{ flex:1 1 200px; }
   }
 
   .form-page{ max-width:720px; margin:0 auto; padding:2.4rem 5vw 4rem; }
@@ -490,6 +603,11 @@
   }
   input[readonly]{ background:var(--paper-2); color:var(--ink-soft); }
   textarea{ min-height:90px; resize:vertical; }
+  /* iPhone/iPad otomatis ZOOM saat kolom diketik jika font-nya < 16px.
+     Di layar sentuh, kolom isian dipaksa 16px agar layar tidak membesar. */
+  @media (hover:none) and (pointer:coarse){
+    input:not([type="checkbox"]):not([type="radio"]), select, textarea{ font-size:16px !important; }
+  }
   .radio-row, .check-row{ display:flex; flex-wrap:wrap; gap:0.55rem 1.2rem; }
   .radio-row label, .check-row label{ display:flex; align-items:center; gap:0.5rem; font-weight:400; font-size:0.88rem; margin-bottom:0; }
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
@@ -499,20 +617,57 @@
   .js-uppercase-trim{ text-transform:uppercase; }
   .required-mark{ color:var(--maroon); }
 
-  /* ---------- Kolom uang (Rp permanen + pemisah ribuan otomatis) ---------- */
-  .rp-input-wrap{ position:relative; }
-  .rp-input-wrap .rp-input-prefix{
-    position:absolute;
-    left:0.95rem;
-    top:50%;
-    transform:translateY(-50%);
-    font-weight:700;
+  /* ---------- Kolom dengan awalan tetap: "@" (Instagram), "+62" (WhatsApp) & "Rp" (uang) ----------
+     Awalan tampil sebagai kotak kecil tersendiri di dalam kolom, tidak bisa
+     terhapus, dan ikut menyala saat kolom diketik. */
+  .input-group{
+    display:flex;
+    align-items:stretch;
+    width:100%;
+    background:var(--white);
+    border:1.5px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:inset 0 1px 2px rgba(36,24,17,0.04);
+    overflow:hidden;
+    cursor:text;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .input-group:focus-within{
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 22%, transparent);
+  }
+  .input-addon{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:2.7rem;
+    margin:5px 0 5px 5px;
+    padding:0 0.8rem;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:calc(var(--radius-lg) - 6px);
     color:var(--maroon);
-    pointer-events:none;
+    font-family:'Manrope', sans-serif;
+    font-weight:800;
     font-size:0.95rem;
     letter-spacing:0.01em;
+    user-select:none;
+    -webkit-user-select:none;
+    transition:background .2s ease, border-color .2s ease;
   }
-  .rp-input-wrap input{ padding-left:2.6rem !important; }
+  .input-group:focus-within .input-addon{ background:var(--gold-soft); border-color:var(--gold); }
+  .input-group input{
+    flex:1 1 auto;
+    min-width:0;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    padding-left:0.8rem;
+  }
+  .input-group input:focus,
+  .input-group input:focus-visible{ outline:none; box-shadow:none !important; }
 
   /* ---------- Highlight sesaat untuk kolom wajib yang belum diisi ---------- */
   @keyframes fieldInvalidFlash{
@@ -520,6 +675,8 @@
     50%{ box-shadow:0 0 0 4px color-mix(in srgb, var(--maroon) 22%, transparent); border-color:var(--maroon); }
   }
   .field-invalid-flash{ animation:fieldInvalidFlash 0.55s ease 2; border-color:var(--maroon) !important; }
+  .input-group .field-invalid-flash{ animation:none; }
+  .input-group:has(.field-invalid-flash){ animation:fieldInvalidFlash 0.55s ease 2; border-color:var(--maroon); }
 
   .maps-actions{ display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
 
@@ -551,19 +708,11 @@
   .maps-distance .md-btns{ display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.6rem; }
   .maps-distance .md-ok{ margin-top:0.8rem; padding-top:0.7rem; border-top:1px dashed var(--gold); font-weight:700; color:#3a7a4a; }
 
-  /* ---------- Info draf isian tersimpan otomatis ---------- */
+  /* ---------- Tombol Kosongkan Isian (di atas formulir) ---------- */
   .draft-notice{
-    display:flex; align-items:center; justify-content:space-between; gap:0.7rem; flex-wrap:wrap;
-    margin:0 0 1.2rem;
-    padding:0.65rem 0.9rem;
-    border:1px dashed var(--gold);
-    border-radius:var(--radius);
-    background:rgba(255,253,248,0.7);
-    font-size:0.76rem;
-    line-height:1.5;
-    color:var(--ink-soft);
+    display:flex; justify-content:flex-end;
+    margin:0 0 1rem;
   }
-  .draft-notice.is-restored{ border-style:solid; color:var(--ink); }
   .draft-notice .draft-reset{ flex:0 0 auto; }
 
   .summary-box{
@@ -712,10 +861,120 @@
 
 
   /* ---------- Generator gambar mandiri ---------- */
-  .gen-tabs{ display:flex; gap:0.6rem; margin:1.2rem 0 1.6rem; flex-wrap:wrap; }
-  .gen-tab.active{ background:var(--maroon-deep); color:var(--white); }
+  #generator .gen-page{ max-width:1080px; margin:0 auto; padding:2rem 5vw 4rem; }
+  #generator .back-link{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; text-decoration:none; color:var(--maroon); font-weight:600; display:inline-flex; align-items:center; gap:0.4rem; margin-bottom:1.8rem; }
+  #generator .back-link:hover{ text-decoration:underline; }
+  .gen-head{ max-width:54ch; margin-bottom:1.8rem; }
+  .gen-head .eyebrow{ display:block; margin-bottom:0.6rem; }
+  .gen-head h2{ font-size:clamp(1.8rem, 6.5vw, 2.7rem); line-height:1.12; color:var(--maroon-deep); }
+  .gen-head p{ margin:0.75rem 0 0; color:var(--ink-soft); font-size:0.94rem; line-height:1.65; }
+
+  .gen-layout{ display:grid; gap:1.5rem; align-items:start; }
+  .gen-layout > *{ min-width:0; }
+  @media (min-width:960px){
+    .gen-layout{ grid-template-columns:minmax(0,470px) minmax(0,1fr); gap:2.4rem; }
+    .gen-stage{ position:sticky; top:1.5rem; }
+    #gen-preview .gen-img-wrap{ max-height:calc(100vh - 11rem); overflow:auto; }
+  }
+
+  .gen-card, .gen-preview-card{ position:relative; background:var(--white); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow-md); padding:clamp(1.1rem, 4vw, 1.8rem); }
+  .gen-card::before{ content:''; position:absolute; left:12%; right:12%; top:-1px; height:2px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .gen-card{ display:flex; flex-direction:column; gap:1.5rem; }
+  .gen-step{ display:flex; flex-direction:column; gap:0.5rem; }
+  .gen-label{ font-size:0.84rem; font-weight:700; color:var(--ink); }
+  .gen-hint{ font-size:0.76rem; color:var(--ink-soft); line-height:1.5; margin:0; }
+
+  .gen-card select{
+    appearance:none; -webkit-appearance:none; padding-right:2.6rem; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2393163d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0.95rem center; background-size:18px;
+  }
+
+  /* Pil penanda satu-satunya: bergeser (dengan sedikit pantulan) ke tombol tab yang dipilih.
+     Posisinya dihitung murni dari variabel --i (0/1/2), jadi tidak butuh pengukuran JS. */
+  .gen-seg{ --i:0; position:relative; isolation:isolate; display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:4px; background:var(--paper-2); border:1px solid var(--line); border-radius:999px; }
+  .gen-seg::before{ content:''; position:absolute; z-index:0; top:4px; bottom:4px; left:4px; width:calc((100% - 16px) / 3); border-radius:999px; background:radial-gradient(120% 160% at 25% 10%, var(--maroon) 0%, var(--maroon-deep) 72%); box-shadow:0 8px 16px -8px rgba(79,12,34,0.65); transform:translateX(calc(var(--i) * (100% + 4px))); transition:transform .55s cubic-bezier(.34,1.36,.5,1); will-change:transform; }
+  .gen-tab{ position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:0.4rem; min-height:44px; padding:0.5rem 0.4rem; border:0; border-radius:999px; background:transparent; color:var(--ink-soft); font:600 0.82rem 'Manrope', sans-serif; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:color .25s ease .1s; }
+  .gen-tab svg{ width:16px; height:16px; flex:none; }
+  .gen-tab:hover{ color:var(--maroon-deep); }
+  .gen-tab.active, .gen-tab.active:hover{ color:var(--white); }
+  @media (max-width:400px){ .gen-tab svg{ display:none; } }
+
+  /* Wadah panel: tingginya dianimasikan mulus saat panel berganti */
+  .gen-panels{ position:relative; margin:-6px; padding:6px; }
+  .gen-panels.is-swapping{ overflow:hidden; }
+
   .gen-panel{ display:flex; flex-direction:column; gap:1.2rem; }
-  #gen-preview img{ display:block; width:100%; height:auto; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow-md); }
+  .gen-panel textarea{ min-height:150px; }
+
+  .gen-search{ padding-right:5px; }
+  .gen-search .gen-go{ flex:none; display:flex; align-items:center; gap:0.4rem; margin:5px; padding:0 1rem; border:0; border-radius:calc(var(--radius-lg) - 6px); background:var(--maroon-deep); color:var(--white); font:700 0.82rem 'Manrope', sans-serif; cursor:pointer; transition:background .2s ease, opacity .2s ease; }
+  .gen-search .gen-go:hover{ background:var(--maroon); }
+  .gen-search .gen-go svg{ width:16px; height:16px; }
+  .gen-search .gen-go:disabled{ opacity:0.5; cursor:wait; }
+  .gen-status{ margin:0; font-size:0.8rem; line-height:1.5; color:var(--ink-soft); }
+  .gen-status:empty{ display:none; }
+
+  .gen-actions{ display:flex; flex-wrap:wrap; gap:0.7rem; }
+  .gen-actions .btn{ flex:1 1 190px; min-height:52px; }
+  .gen-card .btn:disabled, .gen-preview-card .btn:disabled{ opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
+  .gen-panel > .btn{ width:100%; min-height:52px; }
+
+  .gen-drop{ position:relative; display:flex; flex-direction:column; align-items:center; gap:0.35rem; text-align:center; padding:1.6rem 1rem; border:1.5px dashed var(--gold); border-radius:var(--radius-lg); background:var(--paper); color:var(--ink-soft); font-size:0.78rem; cursor:pointer; transition:background .2s ease, border-color .2s ease; }
+  .gen-drop:hover, .gen-drop.is-over, .gen-drop:focus-within{ background:var(--paper-2); border-color:var(--maroon); }
+  .gen-drop svg{ width:26px; height:26px; color:var(--maroon); }
+  .gen-drop strong{ color:var(--maroon-deep); font-size:0.9rem; word-break:break-all; }
+  .gen-drop.has-file{ border-style:solid; }
+  .gen-drop input{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+
+  .gen-more summary{ cursor:pointer; list-style:none; font-size:0.8rem; font-weight:600; color:var(--maroon); }
+  .gen-more summary::-webkit-details-marker{ display:none; }
+  .gen-more summary::before{ content:'+ '; }
+  .gen-more[open] summary::before{ content:'– '; }
+  .gen-more .gen-step{ margin-top:0.9rem; }
+
+
+  /* Pratinjau teks yang bisa disalin (Spreadsheet & Excel) */
+  .gen-reveal{ display:grid; grid-template-rows:0fr; margin-top:-1.2rem; opacity:0; visibility:hidden; transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1), margin-top .45s cubic-bezier(.2,.8,.2,1), opacity .3s ease, visibility 0s linear .45s; }
+  .gen-reveal.open{ grid-template-rows:1fr; margin-top:0; opacity:1; visibility:visible; transition-delay:0s; }
+  .gen-reveal-inner{ min-height:0; overflow:hidden; padding:4px; margin:-4px; }
+  .gen-textprev{ display:flex; flex-direction:column; gap:0.55rem; }
+  .gen-textprev-head{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; }
+  .gen-textprev-title{ font-size:0.84rem; font-weight:700; color:var(--ink); }
+  .gen-copy{ display:inline-flex; align-items:center; gap:0.4rem; min-height:38px; padding:0 1rem; border-radius:999px; border:1.5px solid var(--maroon-deep); background:transparent; color:var(--maroon-deep); font:700 0.78rem 'Manrope', sans-serif; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease; }
+  .gen-copy:hover{ background:var(--maroon-deep); color:var(--white); }
+  .gen-copy:active{ transform:scale(.95); }
+  .gen-copy svg{ width:15px; height:15px; flex:none; }
+  .gen-copy .ico-done{ display:none; }
+  .gen-copy.is-done, .gen-copy.is-done:hover{ background:#2f6b3f; border-color:#2f6b3f; color:#fff; }
+  .gen-copy.is-done .ico-copy{ display:none; }
+  .gen-copy.is-done .ico-done{ display:block; }
+  .gen-textprev-body{ margin:0; max-height:270px; overflow:auto; overscroll-behavior:contain; padding:0.95rem 1.05rem; border:1.5px solid var(--line); border-radius:var(--radius-lg); background:var(--paper); box-shadow:inset 0 1px 2px rgba(36,24,17,0.04); font:500 0.86rem/1.75 'Manrope', sans-serif; color:var(--ink); white-space:pre-wrap; overflow-wrap:anywhere; -webkit-user-select:text; user-select:text; }
+  .gen-textprev-body .t{ font-weight:800; color:var(--maroon-deep); }
+  .gen-textprev-body .k{ color:var(--ink-soft); }
+  .gen-textprev-body .v{ font-weight:700; }
+  .gen-textprev-body.is-fresh{ animation:genRise .4s cubic-bezier(.2,.8,.2,1) both; }
+
+  /* Gerakan kecil saat hasil muncul */
+  .gen-pop{ animation:genRise .45s cubic-bezier(.2,.8,.2,1) both; }
+  .gen-preview-card.is-in{ animation:genRise .55s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes genRise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  .gen-search .gen-go.is-loading svg{ display:none; }
+  .gen-search .gen-go.is-loading::before{ content:''; width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; animation:genSpin .7s linear infinite; }
+  .gen-shake{ animation:genShake .4s ease; }
+  @keyframes genShake{ 20%{ transform:translateX(-6px); } 40%{ transform:translateX(5px); } 60%{ transform:translateX(-3px); } 80%{ transform:translateX(2px); } }
+  @keyframes genSpin{ to{ transform:rotate(360deg); } }
+
+  .gen-empty{ display:none; }
+  @media (min-width:960px){
+    .gen-empty{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.7rem; min-height:340px; padding:2rem; text-align:center; border:1.5px dashed var(--line); border-radius:24px; color:var(--ink-soft); font-size:0.88rem; line-height:1.6; }
+    .gen-empty svg{ width:38px; height:38px; color:var(--gold); }
+  }
+  .gen-preview-head{ display:flex; align-items:center; justify-content:space-between; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.9rem; }
+  .gen-preview-head h3{ font-size:1.05rem; color:var(--maroon-deep); }
+  .gen-preview-head .btn{ min-height:44px; padding:0.6rem 1.1rem; }
+  .gen-preview-head .btn svg{ width:16px; height:16px; }
+  #gen-preview img{ display:block; width:100%; height:auto; border-radius:14px; border:1px solid var(--line); }
 
   /* ---------- Map picker modal ---------- */
   .modal-overlay{
@@ -738,6 +997,9 @@
     padding:1.4rem;
     box-shadow:0 30px 70px rgba(0,0,0,0.4);
     border:1px solid var(--line);
+    max-height:100%;
+    overflow-y:auto;
+    overscroll-behavior:contain;
   }
   .modal-head{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; }
   .modal-head h3{ font-size:1.1rem; color:var(--maroon-deep); }
@@ -923,10 +1185,8 @@
     --heading-font:'Poppins', sans-serif;
     --radius:10px; --radius-lg:16px;
   }
-  #wedding, #margondang, #mangayun, #wisuda, #undangan{
-    background:var(--page-bg);
-    min-height:100vh;
-  }
+  /* Warna tema tiap formulir dipakai di kartu pop up (bukan lagi sebagai latar
+     layar penuh — itu yang sebelumnya membuat pop up terlihat seperti halaman biasa). */
   #wisuda .form-page .form-title, #undangan .form-page .form-title{ font-weight:600; }
   #mangayun .form-page .form-title{ font-weight:600; }
 
@@ -1017,7 +1277,13 @@
     </span>
     <span class="brand-wordmark"><span class="brand-name">Kaone Studio</span><span class="brand-sub">Aek Haruaya, Sejak Tahun 2023</span></span>
   </a>
-  <a href="#home" class="home-link">Beranda</a>
+  <div class="nav-actions">
+    <button type="button" class="nav-icon-btn" id="navPasteSheetBtn" title="Ambil &amp; buat gambar biodata dari data klien di spreadsheet" aria-label="Ambil data dari spreadsheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span class="nav-icon-btn-label">Salin Spreadsheet</span>
+    </button>
+    <a href="#home" class="home-link">Beranda</a>
+  </div>
 </header>
 
 <!-- ============ SPLASH / SELAMAT DATANG ============ -->
@@ -1156,59 +1422,101 @@
 
 <!-- ============ GENERATOR GAMBAR MANDIRI ============ -->
 <main id="generator" class="view">
-  <div class="form-page">
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
-    <span class="eyebrow">Alat Bantu Admin</span>
-    <h2 class="form-title">Buat Gambar Biodata Mandiri</h2>
-    <p class="form-sub">Gunakan halaman ini untuk membuat ulang gambar ringkasan biodata dari teks WhatsApp yang sudah diterima, atau dari data hasil export Google Spreadsheet (Excel/CSV) — tanpa perlu klien mengisi formulir lagi.</p>
+  <div class="gen-page">
+    <a href="#home" class="back-link">← Beranda</a>
+    <header class="gen-head">
+      <span class="eyebrow">Alat Bantu Admin</span>
+      <h2>Buat Gambar Biodata</h2>
+      <p>Susun ulang gambar ringkasan biodata dari teks WhatsApp, Google Spreadsheet, atau file Excel — klien tidak perlu mengisi formulir lagi.</p>
+    </header>
 
-    <div class="field" style="margin-top:1.6rem;">
-      <label for="gen-tema">Tema / Jenis Acara</label>
-      <select id="gen-tema">
-        <option value="wedding">Wedding &amp; Patuaekkon</option>
-        <option value="margondang">Margondang</option>
-        <option value="mangayun">Mangayun / Aqiqah</option>
-        <option value="wisuda">Wisuda</option>
-        <option value="undangan">Undangan Digital</option>
-      </select>
-    </div>
+    <div class="gen-layout">
+      <section class="gen-card" aria-label="Pengaturan gambar">
+        <div class="gen-step">
+          <label class="gen-label" for="gen-tema">Tema acara</label>
+          <select id="gen-tema">
+            <option value="wedding">Wedding &amp; Patuaekkon</option>
+            <option value="margondang">Margondang</option>
+            <option value="mangayun">Mangayun / Aqiqah</option>
+            <option value="wisuda">Wisuda</option>
+            <option value="undangan">Undangan Digital</option>
+          </select>
+        </div>
 
-    <div class="gen-tabs">
-      <button type="button" class="btn btn-ghost gen-tab active" data-gen-tab="paste">📋 Tempel Teks WhatsApp</button>
-      <button type="button" class="btn btn-ghost gen-tab" data-gen-tab="excel">📊 Upload File Excel</button>
-    </div>
+        <div class="gen-step">
+          <span class="gen-label" id="gen-src-label">Sumber data</span>
+          <div class="gen-seg" role="tablist" aria-labelledby="gen-src-label">
+            <button type="button" role="tab" aria-selected="true" class="gen-tab active" data-gen-tab="paste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>WhatsApp</button>
+            <button type="button" role="tab" aria-selected="false" class="gen-tab" data-gen-tab="sheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>Spreadsheet</button>
+            <button type="button" role="tab" aria-selected="false" class="gen-tab" data-gen-tab="excel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>Excel</button>
+          </div>
+        </div>
 
-    <div class="gen-panel" data-gen-panel="paste">
-      <div class="field">
-        <label for="gen-judul-paste">Judul Gambar (opsional)</label>
-        <input type="text" id="gen-judul-paste" placeholder="Kosongkan untuk memakai judul dari teks, contoh: Wedding Andi & Sari">
-      </div>
-      <div class="field">
-        <label for="gen-paste-text">Tempel seluruh teks pesan WhatsApp klien di sini</label>
-        <textarea id="gen-paste-text" rows="10" placeholder="Tempel teks pesan yang dikirim/diterima di WhatsApp di sini, format: Label: isi (satu baris per data)"></textarea>
-        <span class="hint">Format yang dikenali sama seperti pesan otomatis dari formulir: baris "*Judul Grup*" untuk kelompok data, dan "Label: isi" untuk tiap data.</span>
-      </div>
-      <button type="button" class="btn" id="gen-buat-dari-teks">Buat Gambar dari Teks</button>
-    </div>
+        <div class="gen-panels" id="gen-panels">
+        <div class="gen-panel" data-gen-panel="paste">
+          <div class="gen-step">
+            <label class="gen-label" for="gen-paste-text">Teks pesan WhatsApp</label>
+            <textarea id="gen-paste-text" rows="8" placeholder="Tempel pesan klien di sini. Format: Label: isi, satu data per baris."></textarea>
+          </div>
+          <div class="gen-step">
+            <label class="gen-label" for="gen-judul-paste">Judul gambar <span class="gen-hint" style="display:inline;">(opsional)</span></label>
+            <input type="text" id="gen-judul-paste" placeholder="Contoh: Wedding Andi &amp; Sari">
+          </div>
+          <button type="button" class="btn" id="gen-buat-dari-teks">Buat Gambar</button>
+        </div>
 
-    <div class="gen-panel" data-gen-panel="excel" style="display:none;">
-      <div class="field">
-        <label for="gen-excel-file">Upload file Excel/CSV hasil export Google Spreadsheet</label>
-        <input type="file" id="gen-excel-file" accept=".xlsx,.xls,.csv">
-        <span class="hint">Baris pertama file harus berisi nama-nama kolom (header), sama seperti kolom di Google Spreadsheet backup.</span>
-      </div>
-      <div class="field" id="gen-excel-row-wrap" style="display:none;">
-        <label for="gen-excel-row">Pilih Baris Data Klien</label>
-        <select id="gen-excel-row"></select>
-      </div>
-      <button type="button" class="btn" id="gen-buat-dari-excel" disabled>Buat Gambar dari Excel</button>
-    </div>
+        <div class="gen-panel" data-gen-panel="sheet" style="display:none;">
+          <div class="gen-step">
+            <label class="gen-label" for="gen-sheet-search">Nama klien</label>
+            <div class="input-group gen-search">
+              <input type="text" id="gen-sheet-search" placeholder="Ketik nama klien" autocomplete="off">
+              <button type="button" class="gen-go" id="gen-sheet-cari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Cari</button>
+            </div>
+            <p class="gen-hint">Diambil dari tab “Data Klien” di Google Spreadsheet backup.</p>
+            <p class="gen-status" id="gen-sheet-status" role="status" aria-live="polite"></p>
+          </div>
+          <div class="gen-step" id="gen-sheet-row-wrap" style="display:none;">
+            <label class="gen-label" for="gen-sheet-row">Pilih data klien</label>
+            <select id="gen-sheet-row"></select>
+          </div>
+          <div class="gen-actions">
+            <button type="button" class="btn" id="gen-buat-dari-sheet" disabled>Buat Gambar</button>
+          </div>
+          <details class="gen-more">
+            <summary>Tempel manual dari clipboard</summary>
+            <div class="gen-step">
+              <textarea id="gen-sheet-text" rows="5" aria-label="Data yang disalin dari Google Spreadsheet" placeholder="Salin judul kolom + baris klien dari spreadsheet (Ctrl+C), lalu tempel di sini."></textarea>
+              <p class="gen-hint">Cadangan jika pencarian otomatis gagal.</p>
+            </div>
+          </details>
+        </div>
 
-    <div id="gen-preview" style="margin-top:2.4rem; display:none;">
-      <h3 style="font-size:1rem; margin-bottom:0.8rem; color:var(--maroon-deep);">Pratinjau Gambar</h3>
-      <img id="gen-preview-img" alt="Pratinjau gambar biodata">
-      <div class="submit-row" style="margin-top:1rem;">
-        <button type="button" class="btn" id="gen-download-btn">📥 Unduh Gambar</button>
+        <div class="gen-panel" data-gen-panel="excel" style="display:none;">
+          <label class="gen-drop" id="gen-drop" for="gen-excel-file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            <strong id="gen-file-name">Pilih file Excel atau CSV</strong>
+            <span>atau seret ke sini · .xlsx .xls .csv</span>
+            <input type="file" id="gen-excel-file" accept=".xlsx,.xls,.csv">
+          </label>
+          <p class="gen-hint">Baris pertama harus berisi nama kolom, sama seperti di Google Spreadsheet backup.</p>
+          <div class="gen-step" id="gen-excel-row-wrap" style="display:none;">
+            <label class="gen-label" for="gen-excel-row">Pilih data klien</label>
+            <select id="gen-excel-row"></select>
+          </div>
+          <button type="button" class="btn" id="gen-buat-dari-excel" disabled>Buat Gambar</button>
+        </div>
+        </div><!-- /gen-panels -->
+      </section>
+
+      <div class="gen-stage">
+        <div class="gen-empty" id="gen-preview-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="m21 15-5-5L5 21"/></svg><span>Pratinjau gambar akan muncul di sini<br>setelah data diproses.</span></div>
+        <div id="gen-preview" class="gen-preview-card" style="display:none;">
+          <div class="gen-preview-head">
+            <h3>Pratinjau</h3>
+            <button type="button" class="btn" id="gen-download-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>Unduh Gambar</button>
+          </div>
+          <div class="gen-img-wrap"><img id="gen-preview-img" alt="Pratinjau gambar biodata"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1216,11 +1524,15 @@
 
 <!-- ============ FORM: WEDDING & PATUAEKKON ============ -->
 <main id="wedding" class="view form-popup">
-  <div class="form-page">
-    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+  <div class="form-page" role="dialog" aria-modal="true" aria-labelledby="wedding-title" tabindex="-1">
+    <div class="popup-bar">
+      <span class="popup-grabber" aria-hidden="true"></span>
+      <span class="popup-bar-title" aria-hidden="true">Wedding &amp; Patuaekkon</span>
+      <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup formulir">✕</button>
+    </div>
+    <div class="popup-body">
     <span class="eyebrow">Formulir Biodata</span>
-    <h2 class="form-title">Wedding &amp; Patuaekkon</h2>
+    <h2 class="form-title" id="wedding-title">Wedding &amp; Patuaekkon</h2>
     <p class="form-sub">Lengkapi data di bawah ini. Setelah dikirim, data akan tersusun rapi dan langsung terkirim ke WhatsApp tim Kaone Studio.</p>
 
     <form id="form-wedding" novalidate>
@@ -1232,7 +1544,7 @@
         </div>
         <div class="field">
           <label for="w-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="w-wa" name="w-wa" class="js-phone" data-label="No. WhatsApp" placeholder="Contoh: 0812xxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <div class="input-group"><span class="input-addon" aria-hidden="true">+62</span><input type="tel" id="w-wa" name="w-wa" class="js-phone" data-label="No. WhatsApp" placeholder="Contoh: 812xxxxxxxx" inputmode="numeric" autocomplete="tel-national" pattern="^8[0-9]{8,11}$" title="Isi nomor tanpa 0 di depan, contoh: 812xxxxxxxx" required></div>
         </div>
       </fieldset>
 
@@ -1244,7 +1556,7 @@
         </div>
         <div class="field">
           <label for="w-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="text" inputmode="numeric" autocomplete="off" id="w-harga" name="w-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 6.500.000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="w-harga" name="w-harga" data-label="Harga Paket" class="js-harga" placeholder="Contoh: 6.500.000" required>
         </div>
       </fieldset>
 
@@ -1257,11 +1569,11 @@
         <div class="two-col">
           <div class="field">
             <label for="w-ig-wanita">Instagram Pengantin Wanita</label>
-            <input type="text" id="w-ig-wanita" name="w-ig-wanita" data-label="Instagram Pengantin Wanita" placeholder="@username">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="w-ig-wanita" name="w-ig-wanita" class="js-ig" data-label="Instagram Pengantin Wanita" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
           <div class="field">
             <label for="w-ig-pria">Instagram Pengantin Pria</label>
-            <input type="text" id="w-ig-pria" name="w-ig-pria" data-label="Instagram Pengantin Pria" placeholder="@username">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="w-ig-pria" name="w-ig-pria" class="js-ig" data-label="Instagram Pengantin Pria" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
         </div>
       </fieldset>
@@ -1339,7 +1651,7 @@
           </div>
           <div class="field">
             <label for="w-dp">DP (Uang Muka)</label>
-            <input type="text" inputmode="numeric" autocomplete="off" id="w-dp" name="w-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Nominal DP, contoh: 500.000">
+            <input type="text" inputmode="numeric" autocomplete="off" id="w-dp" name="w-dp" data-label="DP (Uang Muka)" class="js-dp" placeholder="Contoh: 500.000">
           </div>
         </div>
         <div class="summary-box">
@@ -1359,15 +1671,20 @@
       </div>
     </form>
   </div>
+  </div>
 </main>
 
 <!-- ============ FORM: MARGONDANG ============ -->
 <main id="margondang" class="view form-popup">
-  <div class="form-page">
-    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+  <div class="form-page" role="dialog" aria-modal="true" aria-labelledby="margondang-title" tabindex="-1">
+    <div class="popup-bar">
+      <span class="popup-grabber" aria-hidden="true"></span>
+      <span class="popup-bar-title" aria-hidden="true">Margondang</span>
+      <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup formulir">✕</button>
+    </div>
+    <div class="popup-body">
     <span class="eyebrow">Formulir Biodata</span>
-    <h2 class="form-title">Margondang</h2>
+    <h2 class="form-title" id="margondang-title">Margondang</h2>
     <p class="form-sub">Lengkapi data acara margondang Anda agar tim kami bisa mempersiapkan dokumentasi terbaik.</p>
 
     <form id="form-margondang" novalidate>
@@ -1379,7 +1696,7 @@
         </div>
         <div class="field">
           <label for="m-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="m-wa" name="m-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <div class="input-group"><span class="input-addon" aria-hidden="true">+62</span><input type="tel" id="m-wa" name="m-wa" class="js-phone" data-label="No. WhatsApp" placeholder="812xxxxxxxx" inputmode="numeric" autocomplete="tel-national" pattern="^8[0-9]{8,11}$" title="Isi nomor tanpa 0 di depan, contoh: 812xxxxxxxx" required></div>
         </div>
       </fieldset>
 
@@ -1391,7 +1708,7 @@
         </div>
         <div class="field">
           <label for="m-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="text" inputmode="numeric" autocomplete="off" id="m-harga" name="m-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 3.500.000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="m-harga" name="m-harga" data-label="Harga Paket" class="js-harga" placeholder="Contoh: 3.500.000" required>
         </div>
       </fieldset>
 
@@ -1404,11 +1721,11 @@
         <div class="two-col">
           <div class="field">
             <label for="m-ig-wanita">Instagram Pengantin Wanita</label>
-            <input type="text" id="m-ig-wanita" name="m-ig-wanita" data-label="Instagram Pengantin Wanita" placeholder="@namapengguna">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="m-ig-wanita" name="m-ig-wanita" class="js-ig" data-label="Instagram Pengantin Wanita" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
           <div class="field">
             <label for="m-ig-pria">Instagram Pengantin Pria</label>
-            <input type="text" id="m-ig-pria" name="m-ig-pria" data-label="Instagram Pengantin Pria" placeholder="@namapengguna">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="m-ig-pria" name="m-ig-pria" class="js-ig" data-label="Instagram Pengantin Pria" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
         </div>
       </fieldset>
@@ -1507,15 +1824,20 @@
       </div>
     </form>
   </div>
+  </div>
 </main>
 
 <!-- ============ FORM: MANGAYUN / AQIQAH ============ -->
 <main id="mangayun" class="view form-popup">
-  <div class="form-page">
-    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+  <div class="form-page" role="dialog" aria-modal="true" aria-labelledby="mangayun-title" tabindex="-1">
+    <div class="popup-bar">
+      <span class="popup-grabber" aria-hidden="true"></span>
+      <span class="popup-bar-title" aria-hidden="true">Mangayun / Aqiqah</span>
+      <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup formulir">✕</button>
+    </div>
+    <div class="popup-body">
     <span class="eyebrow">Formulir Biodata</span>
-    <h2 class="form-title">Mangayun / Aqiqah</h2>
+    <h2 class="form-title" id="mangayun-title">Mangayun / Aqiqah</h2>
     <p class="form-sub">Ceritakan sedikit tentang si kecil, agar momen pertamanya bisa kami abadikan dengan tepat.</p>
 
     <form id="form-mangayun" novalidate>
@@ -1527,7 +1849,7 @@
         </div>
         <div class="field">
           <label for="ay-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="ay-wa" name="ay-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <div class="input-group"><span class="input-addon" aria-hidden="true">+62</span><input type="tel" id="ay-wa" name="ay-wa" class="js-phone" data-label="No. WhatsApp" placeholder="812xxxxxxxx" inputmode="numeric" autocomplete="tel-national" pattern="^8[0-9]{8,11}$" title="Isi nomor tanpa 0 di depan, contoh: 812xxxxxxxx" required></div>
         </div>
       </fieldset>
 
@@ -1539,7 +1861,7 @@
         </div>
         <div class="field">
           <label for="ay-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="text" inputmode="numeric" autocomplete="off" id="ay-harga" name="ay-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 2.000.000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="ay-harga" name="ay-harga" data-label="Harga Paket" class="js-harga" placeholder="Contoh: 2.000.000" required>
         </div>
       </fieldset>
 
@@ -1552,7 +1874,7 @@
           </div>
           <div class="field">
             <label for="ay-ig-anak">IG Anak</label>
-            <input type="text" id="ay-ig-anak" name="ay-ig-anak" data-label="IG Anak" placeholder="@username">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="ay-ig-anak" name="ay-ig-anak" class="js-ig" data-label="IG Anak" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
         </div>
         <div class="two-col">
@@ -1562,7 +1884,7 @@
           </div>
           <div class="field">
             <label for="ay-ig-ibu">IG Ibu</label>
-            <input type="text" id="ay-ig-ibu" name="ay-ig-ibu" data-label="IG Ibu" placeholder="@username">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="ay-ig-ibu" name="ay-ig-ibu" class="js-ig" data-label="IG Ibu" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
         </div>
         <div class="two-col">
@@ -1572,7 +1894,7 @@
           </div>
           <div class="field">
             <label for="ay-ig-ayah">IG Ayah</label>
-            <input type="text" id="ay-ig-ayah" name="ay-ig-ayah" data-label="IG Ayah" placeholder="@username">
+            <div class="input-group"><span class="input-addon" aria-hidden="true">@</span><input type="text" id="ay-ig-ayah" name="ay-ig-ayah" class="js-ig" data-label="IG Ayah" placeholder="username" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
           </div>
         </div>
       </fieldset>
@@ -1666,15 +1988,20 @@
       </div>
     </form>
   </div>
+  </div>
 </main>
 
 <!-- ============ FORM: WISUDA ============ -->
 <main id="wisuda" class="view form-popup">
-  <div class="form-page">
-    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+  <div class="form-page" role="dialog" aria-modal="true" aria-labelledby="wisuda-title" tabindex="-1">
+    <div class="popup-bar">
+      <span class="popup-grabber" aria-hidden="true"></span>
+      <span class="popup-bar-title" aria-hidden="true">Wisuda</span>
+      <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup formulir">✕</button>
+    </div>
+    <div class="popup-body">
     <span class="eyebrow">Formulir Biodata</span>
-    <h2 class="form-title">Wisuda</h2>
+    <h2 class="form-title" id="wisuda-title">Wisuda</h2>
     <p class="form-sub">Rayakan hasil perjuangan Anda dengan dokumentasi yang layak dikenang.</p>
 
     <form id="form-wisuda" novalidate>
@@ -1686,7 +2013,7 @@
         </div>
         <div class="field">
           <label for="s-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="s-wa" name="s-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <div class="input-group"><span class="input-addon" aria-hidden="true">+62</span><input type="tel" id="s-wa" name="s-wa" class="js-phone" data-label="No. WhatsApp" placeholder="812xxxxxxxx" inputmode="numeric" autocomplete="tel-national" pattern="^8[0-9]{8,11}$" title="Isi nomor tanpa 0 di depan, contoh: 812xxxxxxxx" required></div>
         </div>
       </fieldset>
 
@@ -1698,7 +2025,7 @@
         </div>
         <div class="field">
           <label for="s-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="text" inputmode="numeric" autocomplete="off" id="s-harga" name="s-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 900.000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="s-harga" name="s-harga" data-label="Harga Paket" class="js-harga" placeholder="Contoh: 900.000" required>
         </div>
       </fieldset>
 
@@ -1789,15 +2116,20 @@
       </div>
     </form>
   </div>
+  </div>
 </main>
 
 <!-- ============ FORM: UNDANGAN DIGITAL ============ -->
 <main id="undangan" class="view form-popup">
-  <div class="form-page">
-    <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup">✕</button>
-    <a href="#home" class="back-link">← Kembali ke Beranda</a>
+  <div class="form-page" role="dialog" aria-modal="true" aria-labelledby="undangan-title" tabindex="-1">
+    <div class="popup-bar">
+      <span class="popup-grabber" aria-hidden="true"></span>
+      <span class="popup-bar-title" aria-hidden="true">Undangan Digital</span>
+      <button type="button" class="popup-close-btn" data-popup-close aria-label="Tutup formulir">✕</button>
+    </div>
+    <div class="popup-body">
     <span class="eyebrow">Formulir Biodata</span>
-    <h2 class="form-title">Undangan Digital</h2>
+    <h2 class="form-title" id="undangan-title">Undangan Digital</h2>
     <p class="form-sub">Ceritakan acara Anda, dan biarkan kami merancang undangan digital yang mewakili momen Anda.</p>
 
     <form id="form-undangan" novalidate>
@@ -1830,7 +2162,7 @@
         </div>
         <div class="field">
           <label for="u-wa">No. WhatsApp <span class="required-mark">*</span></label>
-          <input type="tel" id="u-wa" name="u-wa" class="js-phone" data-label="No. WhatsApp" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="tel" pattern="^(\+62|62|0)8[0-9]{8,11}$" title="Format: 08xxxxxxxxxx atau +62xxxxxxxxxx" required>
+          <div class="input-group"><span class="input-addon" aria-hidden="true">+62</span><input type="tel" id="u-wa" name="u-wa" class="js-phone" data-label="No. WhatsApp" placeholder="812xxxxxxxx" inputmode="numeric" autocomplete="tel-national" pattern="^8[0-9]{8,11}$" title="Isi nomor tanpa 0 di depan, contoh: 812xxxxxxxx" required></div>
         </div>
       </fieldset>
 
@@ -1842,7 +2174,7 @@
         </div>
         <div class="field">
           <label for="u-harga">Harga Paket <span class="required-mark">*</span></label>
-          <input type="text" inputmode="numeric" autocomplete="off" id="u-harga" name="u-harga" data-label="Harga Paket" class="js-harga" placeholder="Nominal harga, contoh: 300.000" required>
+          <input type="text" inputmode="numeric" autocomplete="off" id="u-harga" name="u-harga" data-label="Harga Paket" class="js-harga" placeholder="Contoh: 300.000" required>
         </div>
       </fieldset>
 
@@ -1915,6 +2247,7 @@
       </div>
     </form>
   </div>
+  </div>
 </main>
 
 <div class="ulos-band" aria-hidden="true"></div>
@@ -1982,7 +2315,7 @@
     // URL Web App Google Apps Script untuk backup otomatis ke Google Spreadsheet.
     // Cara mendapatkan URL ini ada di file panduan terpisah (GOOGLE-SHEET-SETUP.md).
     // Selama masih bertuliskan 'PASTE_URL_...', backup ke spreadsheet otomatis dilewati (fitur lain tetap jalan normal).
-    sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzLsg4jJTUyc5xfZSRHP-OXIJic0UpiFNeYxkB2uXr2_4Tc89MbGdiC4lManszAstyuTg/exec'
+    sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzQf4G5NuPpJFrPkJSI9ulirladgU1QCqjbWS6NiClEKBBSW8JigsL9UKx_YrGB_21zCA/exec'
   };
 
   function formatPhoneDisplay(waNumber){
@@ -1991,11 +2324,20 @@
     return m ? ('+62 ' + m[1] + '-' + m[2] + '-' + m[3]) : ('+62 ' + digits);
   }
 
+  // Kotak "+62" ditampilkan permanen di kiri kolom, jadi kolom hanya berisi
+  // nomor nasionalnya (mulai dari 8). Kalau klien mengetik/menempel 0812..., 62812...
+  // atau +62812..., awalan 0 / 62 dibuang otomatis.
+  function toNationalPhone(v){
+    var d = String(v || '').replace(/\D/g, '');
+    if(d.indexOf('62') === 0) d = d.slice(2);
+    d = d.replace(/^0+/, '');
+    return d.slice(0, 12);
+  }
   function normalizePhone(v){
-    return String(v || '').replace(/[\s-]/g, '');
+    return toNationalPhone(v);
   }
   function isValidPhone(v){
-    return /^(\+62|62|0)8[0-9]{8,11}$/.test(normalizePhone(v));
+    return /^8[0-9]{8,11}$/.test(toNationalPhone(v));
   }
 
   /* =========================================================
@@ -2061,21 +2403,36 @@
     var pos = Math.max(el.value.length - posFromEnd, 0);
     try{ el.setSelectionRange(pos, pos); }catch(e){ /* beberapa tipe input tidak mendukung ini */ }
   }
+  // Username Instagram: buang "@", spasi & karakter terlarang (hanya huruf, angka,
+  // titik, garis bawah), otomatis huruf kecil, dan kalau klien menempel link profil
+  // (instagram.com/namanya) yang diambil hanya namanya. Tanda "@" ditampilkan
+  // permanen di kotak kiri kolom dan ditambahkan otomatis saat data dikirim.
+  function cleanInstagram(v){
+    v = String(v || '').trim();
+    var m = v.match(/instagram\.com\/([^\/?#\s]+)/i);
+    if(m) v = m[1];
+    return v.replace(/^@+/, '').replace(/[^A-Za-z0-9._]/g, '').toLowerCase().slice(0, 30);
+  }
   document.addEventListener('input', function(e){
     var t = e.target;
     if(!t || !t.classList || typeof t.value !== 'string') return;
+    if(t.classList.contains('js-ig')){
+      keepCursorFromEnd(t, function(){ t.value = cleanInstagram(t.value); });
+      return;
+    }
     if(t.classList.contains('js-numeric')){
       keepCursorFromEnd(t, function(){ t.value = t.value.replace(/[^\d]/g, ''); });
       return;
     }
     if(t.classList.contains('js-phone')){
-      keepCursorFromEnd(t, function(){
-        var v = t.value || '';
-        var plus = v.charAt(0) === '+' ? '+' : '';
-        t.value = plus + v.slice(plus ? 1 : 0).replace(/[^\d]/g, '');
-      });
+      keepCursorFromEnd(t, function(){ t.value = toNationalPhone(t.value); });
     }
   }, true);
+
+  document.addEventListener('click', function(e){
+    var g = e.target && e.target.closest ? e.target.closest('.input-group') : null;
+    if(g && e.target.tagName !== 'INPUT'){ var inp = g.querySelector('input'); if(inp) inp.focus(); }
+  });
 
   document.addEventListener('DOMContentLoaded', function(){
     var waDisplay = formatPhoneDisplay(KAONE_CONFIG.waNumber);
@@ -2091,12 +2448,46 @@
      ROUTING (hash-based single page navigation)
   ========================================================= */
   var views = document.querySelectorAll('.view');
-  // Formulir acara ini ditampilkan sebagai pop up mengambang di atas Beranda,
-  // bukan berpindah ke halaman penuh seperti view lain.
+  // Formulir acara ditampilkan sebagai pop up di atas Beranda (dialog di layar
+  // besar, bottom sheet di HP), bukan berpindah ke halaman penuh.
   var FORM_POPUP_IDS = ['wedding','margondang','mangayun','wisuda','undangan'];
+  var sheetMQ = window.matchMedia('(max-width:640px)');
+  var scrollLocked = false, lockedScrollY = 0;
+  var lastViewId = null, cameFromHome = false, popupTrigger = null;
+
+  // Kunci halaman di belakang pop up (cara "body fixed" — berfungsi juga di iPhone
+  // lama), lalu kembalikan ke posisi semula saat pop up ditutup.
+  function lockBodyScroll(){
+    if(scrollLocked) return;
+    lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    document.body.style.top = (-lockedScrollY) + 'px';
+    document.body.classList.add('popup-open');
+    scrollLocked = true;
+  }
+  function unlockBodyScroll(restore){
+    if(!scrollLocked) return;
+    document.body.classList.remove('popup-open');
+    document.body.style.top = '';
+    scrollLocked = false;
+    var root = document.documentElement;
+    root.style.scrollBehavior = 'auto';   // lompat langsung, tanpa animasi
+    window.scrollTo(0, restore ? lockedScrollY : 0);
+    root.style.scrollBehavior = '';
+  }
+  function resetPopupState(popupEl){
+    var page = popupEl.querySelector('.form-page');
+    if(!page) return;
+    page.style.transition = '';
+    page.style.transform = '';
+    page.scrollTop = 0;
+    var bar = popupEl.querySelector('.popup-bar');
+    if(bar) bar.classList.remove('is-scrolled');
+  }
+
   function showView(hash){
     var id = (hash && hash !== '#') ? hash.replace('#','') : 'splash';
     var isFormPopup = FORM_POPUP_IDS.indexOf(id) !== -1;
+    var prevId = lastViewId;
     var found = false;
     views.forEach(function(v){
       if(v.id === id){ v.classList.add('active'); found = true; }
@@ -2104,45 +2495,121 @@
       else { v.classList.remove('active'); }
     });
     if(!found){ document.getElementById('splash').classList.add('active'); }
-    document.body.classList.toggle('popup-open', isFormPopup && found);
-    if(!(isFormPopup && found)){
+
+    if(isFormPopup && found){
+      var wasLocked = scrollLocked;
+      lockBodyScroll();
+      if(!wasLocked){
+        popupTrigger = (document.activeElement && document.activeElement !== document.body) ? document.activeElement : null;
+        cameFromHome = (prevId === 'home');
+      }
+      var pop = document.getElementById(id);
+      resetPopupState(pop);
+      var pg = pop.querySelector('.form-page');
+      if(pg){ try{ pg.focus({ preventScroll:true }); }catch(e){ /* abaikan */ } }
+    } else if(scrollLocked){
+      unlockBodyScroll(id === 'home');
+      if(popupTrigger && document.contains(popupTrigger)){ try{ popupTrigger.focus({ preventScroll:true }); }catch(e){ /* abaikan */ } }
+      popupTrigger = null;
+    } else {
       window.scrollTo({top:0, behavior:(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')});
     }
+    lastViewId = found ? id : 'splash';
   }
   window.addEventListener('hashchange', function(){ showView(location.hash); });
   showView(location.hash);
 
-  // Klik area gelap di luar kotak pop up formulir untuk menutupnya.
-  // Catatan: sebelumnya pop up ikut tertutup kalau pengguna blok/seleksi teks
-  // di dalam kolom lalu menyeret kursor sampai keluar kotak dan melepas klik
-  // di area gelap — karena event "click" tetap dianggap "klik di luar" meski
-  // niatnya cuma menyeleksi teks. Sekarang pop up hanya ditutup jika mouse
-  // BENAR-BENAR ditekan (mousedown) DAN dilepas (click) di area gelap yang
-  // sama, bukan hasil drag seleksi teks yang berawal dari dalam kotak form.
+  // Menutup pop up: kalau dibuka dari Beranda, cukup mundur satu langkah riwayat
+  // (tombol Kembali di HP jadi konsisten & riwayat tidak menumpuk).
+  function closePopup(){
+    if(cameFromHome){ cameFromHome = false; history.back(); }
+    else { location.hash = '#home'; }
+  }
+
   FORM_POPUP_IDS.forEach(function(id){
     var popupEl = document.getElementById(id);
-    if(popupEl){
-      var mousedownOnOverlay = false;
-      popupEl.addEventListener('mousedown', function(e){
-        mousedownOnOverlay = (e.target === popupEl);
+    if(!popupEl) return;
+    var page = popupEl.querySelector('.form-page');
+    var bar = popupEl.querySelector('.popup-bar');
+
+    // Ketuk area gelap di luar kotak untuk menutup. Hanya jika sentuhan/klik
+    // DIMULAI dan SELESAI di area gelap (bukan seleksi teks yang terseret keluar).
+    var downOnOverlay = false;
+    popupEl.addEventListener('pointerdown', function(e){ downOnOverlay = (e.target === popupEl); });
+    popupEl.addEventListener('click', function(e){
+      if(e.target === popupEl && downOnOverlay){ closePopup(); }
+      downOnOverlay = false;
+    });
+
+    // Judul di bilah atas muncul begitu klien menggulir ke bawah
+    if(page && bar){
+      page.addEventListener('scroll', function(){
+        bar.classList.toggle('is-scrolled', page.scrollTop > 70);
+      }, { passive:true });
+    }
+
+    // HP: tarik bilah atas ke bawah untuk menutup (seperti bottom sheet aplikasi)
+    if(page && bar){
+      var startY = 0, dy = 0, startT = 0, dragging = false;
+      bar.addEventListener('pointerdown', function(e){
+        if(!sheetMQ.matches || (e.target.closest && e.target.closest('.popup-close-btn'))) return;
+        dragging = true; startY = e.clientY; dy = 0; startT = Date.now();
+        try{ bar.setPointerCapture(e.pointerId); }catch(err){ /* abaikan */ }
+        page.style.transition = 'none';
       });
-      popupEl.addEventListener('click', function(e){
-        if(e.target === popupEl && mousedownOnOverlay){ location.hash = '#home'; }
-        mousedownOnOverlay = false;
+      bar.addEventListener('pointermove', function(e){
+        if(!dragging) return;
+        dy = Math.max(0, e.clientY - startY);
+        page.style.transform = 'translateY(' + dy + 'px)';
       });
+      var endDrag = function(){
+        if(!dragging) return;
+        dragging = false;
+        var speed = dy / Math.max(Date.now() - startT, 1);
+        page.style.transition = 'transform .22s ease';
+        if(dy > 120 || (dy > 40 && speed > 0.5)){
+          page.style.transform = 'translateY(100%)';
+          setTimeout(closePopup, 200);
+        } else {
+          page.style.transform = '';
+        }
+      };
+      bar.addEventListener('pointerup', endDrag);
+      bar.addEventListener('pointercancel', endDrag);
     }
   });
 
-  // Tombol ✕ di pojok pop up untuk menutup formulir
+  // Tombol ✕ di bilah atas pop up
   document.querySelectorAll('.popup-close-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){ location.hash = '#home'; });
+    btn.addEventListener('click', closePopup);
   });
 
   // Tombol Escape untuk menutup pop up formulir yang sedang terbuka
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape' && document.body.classList.contains('popup-open')){
-      location.hash = '#home';
+      closePopup();
     }
+  });
+
+  // Saat keyboard HP muncul, kotak pop up ikut naik di atas keyboard (tidak tertutup),
+  // dan kolom yang sedang diketik digulir ke tengah supaya selalu terlihat.
+  if(window.visualViewport){
+    var vv = window.visualViewport;
+    var updateKb = function(){
+      var kb = Math.round(window.innerHeight - vv.height - vv.offsetTop);
+      if(kb < 80 || vv.scale > 1.01) kb = 0;   // abaikan perubahan toolbar kecil & saat di-zoom
+      document.documentElement.style.setProperty('--kb', kb + 'px');
+    };
+    vv.addEventListener('resize', updateKb);
+    vv.addEventListener('scroll', updateKb);
+  }
+  document.addEventListener('focusin', function(e){
+    var t = e.target;
+    if(!document.body.classList.contains('popup-open') || !t || !t.closest || !t.closest('.form-page')) return;
+    if(!/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.type === 'checkbox' || t.type === 'radio') return;
+    setTimeout(function(){
+      if(document.activeElement === t){ try{ t.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(err){ /* abaikan */ } }
+    }, 320);
   });
 
   /* =========================================================
@@ -2178,10 +2645,10 @@
     input.dataset.rpWired = '1';
 
     var wrap = document.createElement('div');
-    wrap.className = 'rp-input-wrap';
+    wrap.className = 'input-group';
     input.parentNode.insertBefore(wrap, input);
     var prefix = document.createElement('span');
-    prefix.className = 'rp-input-prefix';
+    prefix.className = 'input-addon';
     prefix.textContent = 'Rp';
     prefix.setAttribute('aria-hidden', 'true');
     wrap.appendChild(prefix);
@@ -2742,6 +3209,12 @@
           if(val && (el.classList.contains('js-harga') || el.classList.contains('js-dp'))){
             val = 'Rp ' + val;
           }
+          if(val && el.classList.contains('js-phone')){
+            val = '+62 ' + toNationalPhone(val);
+          }
+          if(val && el.classList.contains('js-ig')){
+            val = '@' + val.replace(/^@+/, '');
+          }
           if(val) lines.push({ label:label, value:val });
         }
       });
@@ -3071,9 +3544,6 @@
       }catch(e){ return false; }
     })();
 
-    var TEXT_DEFAULT = '💾 Isian tersimpan otomatis di perangkat ini sampai terkirim ke WhatsApp, jadi tidak perlu diisi ulang bila halaman ditutup.';
-    var TEXT_RESTORED = '✓ Isian Anda sebelumnya sudah dipulihkan. Silakan lanjutkan — data tetap tersimpan otomatis sampai terkirim ke WhatsApp.';
-
     function controls(formEl){
       return Array.prototype.slice.call(formEl.querySelectorAll('input, textarea, select')).filter(function(el){
         return ['button','submit','reset','file','password','hidden','image'].indexOf(el.type) === -1;
@@ -3142,10 +3612,8 @@
       var dirty = false, suspended = false, timer = null;
 
       var notice = mdEl('div', 'draft-notice');
-      var noticeText = mdEl('span', 'draft-text', TEXT_DEFAULT);
       var resetBtn = mdEl('button', 'btn-mini draft-reset', '🗑️ Kosongkan Isian');
       resetBtn.type = 'button';
-      notice.appendChild(noticeText);
       notice.appendChild(resetBtn);
       formEl.insertBefore(notice, formEl.firstChild);
 
@@ -3184,12 +3652,8 @@
           var parsed = JSON.parse(raw);
           if(parsed && parsed.f && typeof parsed.f === 'object'){
             suspended = true;
-            var n = apply(formEl, parsed.f);
+            apply(formEl, parsed.f);
             suspended = false;
-            if(n > 0){
-              noticeText.textContent = TEXT_RESTORED;
-              notice.classList.add('is-restored');
-            }
           }
         }
       }catch(e){
@@ -3207,8 +3671,6 @@
         });
         suspended = false;
         clear();
-        noticeText.textContent = TEXT_DEFAULT;
-        notice.classList.remove('is-restored');
       });
 
       return { clear:clear };
@@ -3240,7 +3702,7 @@
     if(waInput){
       waInput.setCustomValidity(
         (waInput.value && !isValidPhone(waInput.value))
-          ? 'Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx.'
+          ? 'Nomor WhatsApp tidak valid. Isi nomor setelah +62 tanpa 0 di depan, contoh: 812xxxxxxxx.'
           : ''
       );
     }
@@ -3349,16 +3811,207 @@
     var panels = document.querySelectorAll('.gen-panel');
     if(!genTemaSel || !tabs.length) return;
 
-    tabs.forEach(function(tab){
-      tab.addEventListener('click', function(){
-        tabs.forEach(function(t){ t.classList.remove('active'); });
-        tab.classList.add('active');
-        var name = tab.getAttribute('data-gen-tab');
-        panels.forEach(function(p){
-          p.style.display = (p.getAttribute('data-gen-panel') === name) ? '' : 'none';
-        });
+    /* ---- Perpindahan tab ----
+       Pil penanda bergeser ke tombol yang dipilih (CSS, lewat --i), sementara
+       panel lama meluncur keluar dan panel baru meluncur masuk searah tab,
+       dengan tinggi kartu berubah mulus di antaranya. */
+    var seg = document.querySelector('.gen-seg');
+    var panelsWrap = document.getElementById('gen-panels');
+    var tabList = Array.prototype.slice.call(tabs);
+    var panelList = Array.prototype.slice.call(panels);
+    var activeTabName = 'paste';
+    var runningAnims = [];
+    var swapToken = 0;
+
+    function reducedMotion(){
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+    function panelFor(name){
+      return panelList.filter(function(p){ return p.getAttribute('data-gen-panel') === name; })[0];
+    }
+
+    tabList.forEach(function(tab){
+      var n = tab.getAttribute('data-gen-tab');
+      var pn = panelFor(n);
+      tab.id = 'gen-tab-' + n;
+      tab.setAttribute('aria-controls', 'gen-panel-' + n);
+      tab.tabIndex = tab.classList.contains('active') ? 0 : -1;
+      if(pn){ pn.id = 'gen-panel-' + n; pn.setAttribute('role', 'tabpanel'); pn.setAttribute('aria-labelledby', tab.id); }
+    });
+
+    function cancelRunningAnims(){
+      runningAnims.forEach(function(a){ try{ a.cancel(); }catch(e){} });
+      runningAnims = [];
+    }
+
+    function swapPanels(newPanel, dir){
+      var token = ++swapToken;
+      cancelRunningAnims();
+      var leaving = panelList.filter(function(p){ return p !== newPanel && p.style.display !== 'none'; });
+      var visible = panelsWrap && panelsWrap.getClientRects().length > 0;   // false saat halaman generator masih tersembunyi
+      if(!panelsWrap || !visible || reducedMotion() || !newPanel.animate || !panelsWrap.animate){
+        panelList.forEach(function(p){ p.style.display = (p === newPanel) ? '' : 'none'; });
+        if(panelsWrap) panelsWrap.classList.remove('is-swapping');
+        return;
+      }
+      panelsWrap.classList.add('is-swapping');
+      var outs = leaving.map(function(p){
+        var a = p.animate(
+          [{ opacity:1, transform:'translateX(0)' }, { opacity:0, transform:'translateX(' + (-dir * 26) + 'px)' }],
+          { duration:150, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' }
+        );
+        runningAnims.push(a);
+        return a.finished;
+      });
+      Promise.all(outs).then(function(){
+        if(token !== swapToken) return;
+        var h0 = panelsWrap.getBoundingClientRect().height;
+        leaving.forEach(function(p){ p.style.display = 'none'; });
+        cancelRunningAnims();
+        newPanel.style.display = '';
+        var h1 = panelsWrap.getBoundingClientRect().height;
+        var hA = panelsWrap.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:340, easing:'cubic-bezier(.2,.8,.2,1)' });
+        var pA = newPanel.animate(
+          [{ opacity:0, transform:'translateX(' + (dir * 26) + 'px)' }, { opacity:1, transform:'translateX(0)' }],
+          { duration:360, easing:'cubic-bezier(.2,.8,.2,1)' }
+        );
+        runningAnims.push(hA, pA);
+        hA.finished.then(function(){
+          if(token === swapToken){ panelsWrap.classList.remove('is-swapping'); runningAnims = []; }
+        }).catch(function(){});
+      }).catch(function(){});
+    }
+
+    function activateTab(tab){
+      var name = tab.getAttribute('data-gen-tab');
+      if(name === activeTabName) return;
+      var fromIdx = tabList.findIndex(function(t){ return t.getAttribute('data-gen-tab') === activeTabName; });
+      var toIdx = tabList.indexOf(tab);
+      var dir = toIdx > fromIdx ? 1 : -1;
+      activeTabName = name;
+      tabList.forEach(function(t){
+        var on = (t === tab);
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      if(seg) seg.style.setProperty('--i', String(toIdx));
+      swapPanels(panelFor(name), dir);
+    }
+
+    tabList.forEach(function(tab, i){
+      tab.addEventListener('click', function(){ activateTab(tab); });
+      tab.addEventListener('keydown', function(e){
+        var next = -1;
+        if(e.key === 'ArrowRight') next = (i + 1) % tabList.length;
+        else if(e.key === 'ArrowLeft') next = (i - 1 + tabList.length) % tabList.length;
+        else if(e.key === 'Home') next = 0;
+        else if(e.key === 'End') next = tabList.length - 1;
+        if(next < 0) return;
+        e.preventDefault();
+        tabList[next].focus();
+        activateTab(tabList[next]);
       });
     });
+
+    /* ---- Salin ke clipboard (dengan cadangan untuk browser lama / iOS) ---- */
+    function legacyCopy(text){
+      return new Promise(function(resolve, reject){
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try{ ta.setSelectionRange(0, text.length); }catch(e){}
+        var ok = false;
+        try{ ok = document.execCommand('copy'); }catch(e){}
+        document.body.removeChild(ta);
+        if(ok) resolve(); else reject(new Error('copy failed'));
+      });
+    }
+    function copyToClipboard(text){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text).catch(function(){ return legacyCopy(text); });
+      }
+      return legacyCopy(text);
+    }
+
+    /* ---- Pratinjau teks yang bisa disalin ----
+       Muncul (dengan animasi membuka) begitu ada data klien yang dipilih,
+       dan ikut berganti saat pilihan baris diubah. */
+    var COPY_SVG = '<svg class="ico-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H16"/></svg>';
+    var DONE_SVG = '<svg class="ico-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+    function mountTextPreview(afterEl){
+      var wrap = document.createElement('div');
+      wrap.className = 'gen-reveal';
+      wrap.innerHTML =
+        '<div class="gen-reveal-inner"><div class="gen-textprev">' +
+          '<div class="gen-textprev-head">' +
+            '<span class="gen-textprev-title">Pratinjau teks</span>' +
+            '<button type="button" class="gen-copy">' + COPY_SVG + DONE_SVG + '<span class="lbl">Salin</span></button>' +
+          '</div>' +
+          '<pre class="gen-textprev-body" tabindex="0" aria-label="Pratinjau teks biodata"></pre>' +
+          '<p class="gen-hint">Format sama dengan pesan WhatsApp — bisa ditempel ke chat atau ke tab WhatsApp.</p>' +
+        '</div></div>';
+      afterEl.insertAdjacentElement('afterend', wrap);
+
+      var body = wrap.querySelector('.gen-textprev-body');
+      var copyBtn = wrap.querySelector('.gen-copy');
+      var lbl = copyBtn.querySelector('.lbl');
+      var currentText = '';
+      var doneTimer = null;
+
+      function markCopied(){
+        copyBtn.classList.add('is-done');
+        lbl.textContent = 'Tersalin';
+        clearTimeout(doneTimer);
+        doneTimer = setTimeout(function(){ copyBtn.classList.remove('is-done'); lbl.textContent = 'Salin'; }, 2000);
+      }
+      function span(cls, text){
+        var el = document.createElement('span');
+        el.className = cls;
+        el.textContent = text;
+        return el;
+      }
+
+      var api = {
+        show: function(headers, row){
+          if(!row){ api.hide(); return; }
+          var built = buildLinesFromRow(headers, row);
+          currentText = buildTextFromRow(headers, row);
+          body.textContent = '';
+          body.appendChild(span('t', '*FORMULIR BIODATA - ' + built.judul.toUpperCase() + '*'));
+          body.appendChild(document.createTextNode('\n\n'));
+          built.lines.forEach(function(l, i){
+            body.appendChild(span('k', l.label + ': '));
+            body.appendChild(span('v', l.value));
+            if(i < built.lines.length - 1) body.appendChild(document.createTextNode('\n'));
+          });
+          body.classList.remove('is-fresh');
+          void body.offsetWidth;
+          body.classList.add('is-fresh');
+          body.scrollTop = 0;
+          wrap.classList.add('open');
+        },
+        hide: function(){
+          currentText = '';
+          wrap.classList.remove('open');
+        },
+        copy: function(){
+          if(!currentText){ showToast('Pilih baris data terlebih dahulu.', 4000); return; }
+          copyToClipboard(currentText).then(function(){
+            markCopied();
+            showToast('Teks berhasil disalin. Silakan tempel di WhatsApp atau tab lain.', 3500);
+          }).catch(function(){
+            showToast('Gagal menyalin otomatis. Blok teks di pratinjau lalu salin manual.', 5000);
+          });
+        }
+      };
+      copyBtn.addEventListener('click', api.copy);
+      return api;
+    }
 
     // Membaca ulang format pesan WhatsApp otomatis (lihat buildMessage()) menjadi
     // struktur groups/summaryRows yang sama seperti yang dipakai renderBiodataCard().
@@ -3413,11 +4066,20 @@
       var url = URL.createObjectURL(blob);
       var img = document.getElementById('gen-preview-img');
       img.src = url;
-      document.getElementById('gen-preview').style.display = '';
+      var prevCard = document.getElementById('gen-preview');
+      prevCard.style.display = '';
+      prevCard.classList.remove('is-in');
+      void prevCard.offsetWidth;
+      prevCard.classList.add('is-in');
+      var emptyEl = document.getElementById('gen-preview-empty');
+      if(emptyEl) emptyEl.style.display = 'none';
       document.getElementById('gen-download-btn').onclick = function(){
         downloadBlob(blob, 'biodata-mandiri-' + Date.now() + '.png');
       };
-      document.getElementById('gen-preview').scrollIntoView({ behavior:'smooth', block:'start' });
+      // Di layar lebar pratinjau sudah terlihat di samping; scroll hanya di layar sempit.
+      if(!window.matchMedia('(min-width:960px)').matches){
+        document.getElementById('gen-preview').scrollIntoView({ behavior:'smooth', block:'start' });
+      }
     }
 
     var btnDariTeks = document.getElementById('gen-buat-dari-teks');
@@ -3443,12 +4105,64 @@
       });
     }
 
+    // Dipakai bersama oleh tab "Upload File Excel" MAUPUN tab "Salin dari
+    // Spreadsheet" — keduanya sama-sama berujung pada tabel header + baris.
+    var SHEET_SKIP_COLS = ['timestamp', 'form key', 'formkey'];
+
+    function populateRowPicker(headers, dataRows, rowWrapEl, rowSelectEl, btnEl){
+      if(!dataRows.length){
+        rowWrapEl.style.display = 'none';
+        btnEl.disabled = true;
+        return false;
+      }
+      var namaIdx = headers.findIndex(function(h){ return /nama/i.test(h); });
+      rowSelectEl.innerHTML = '';
+      dataRows.forEach(function(r, idx){
+        var opt = document.createElement('option');
+        var label = 'Baris ' + (idx + 2);
+        if(namaIdx !== -1 && r[namaIdx]) label += ' — ' + r[namaIdx];
+        opt.value = String(idx);
+        opt.textContent = label;
+        rowSelectEl.appendChild(opt);
+      });
+      // Kalau hanya ada 1 baris, tidak perlu pilihan — langsung terpilih.
+      rowWrapEl.style.display = dataRows.length > 1 ? '' : 'none';
+      btnEl.disabled = false;
+      return true;
+    }
+
+    function buildLinesFromRow(headers, row){
+      var lines = [];
+      var judul = 'Biodata Klien';
+      headers.forEach(function(h, i){
+        var val = String(row[i] === undefined ? '' : row[i]).trim();
+        if(!val) return;
+        if(/form\s*title/i.test(h)){ judul = val; return; }
+        if(SHEET_SKIP_COLS.indexOf(String(h || '').toLowerCase()) !== -1) return;
+        lines.push({ label: h || ('Kolom ' + (i + 1)), value: val });
+      });
+      return { lines:lines, judul:judul };
+    }
+
+    function generateFromTable(headers, row, btnEl){
+      if(!row){ showToast('Pilih baris data terlebih dahulu.', 4000); return; }
+      var built = buildLinesFromRow(headers, row);
+      if(!built.lines.length){ showToast('Baris ini tidak memiliki data yang bisa ditampilkan.', 4000); return; }
+      var groups = [{ legend:'Detail Formulir', lines:built.lines }];
+      btnEl.disabled = true;
+      renderBiodataCard(genTemaSel.value, built.judul, groups, [])
+        .then(showGenPreview)
+        .catch(function(err){ console.error(err); showToast('Gagal membuat gambar.', 4000); })
+        .then(function(){ btnEl.disabled = false; });
+    }
+
     var excelRows = [];
     var excelHeaders = [];
     var fileInput = document.getElementById('gen-excel-file');
     var rowWrap = document.getElementById('gen-excel-row-wrap');
     var rowSelect = document.getElementById('gen-excel-row');
     var btnDariExcel = document.getElementById('gen-buat-dari-excel');
+    var excelPreview = mountTextPreview(rowWrap);
 
     if(fileInput){
       fileInput.addEventListener('change', function(){
@@ -3473,20 +4187,12 @@
             });
             if(!excelRows.length){ showToast('Tidak ada baris data ditemukan di file ini.', 4000); return; }
 
-            var namaIdx = excelHeaders.findIndex(function(h){ return /nama/i.test(h); });
-            rowSelect.innerHTML = '';
-            excelRows.forEach(function(r, idx){
-              var opt = document.createElement('option');
-              var label = 'Baris ' + (idx + 2);
-              if(namaIdx !== -1 && r[namaIdx]) label += ' — ' + r[namaIdx];
-              opt.value = String(idx);
-              opt.textContent = label;
-              rowSelect.appendChild(opt);
-            });
-
-            rowWrap.style.display = '';
-            btnDariExcel.disabled = false;
-            showToast('File berhasil dibaca. Pilih baris data, lalu klik "Buat Gambar dari Excel".', 5000);
+            populateRowPicker(excelHeaders, excelRows, rowWrap, rowSelect, btnDariExcel);
+            rowWrap.classList.remove('gen-pop');
+            void rowWrap.offsetWidth;
+            if(excelRows.length > 1) rowWrap.classList.add('gen-pop');
+            excelPreview.show(excelHeaders, excelRows[0]);
+            showToast('File berhasil dibaca (' + excelRows.length + ' baris data).', 4000);
           }catch(err){
             console.error(err);
             showToast('Gagal membaca file. Pastikan formatnya benar (.xlsx / .csv).', 5000);
@@ -3496,32 +4202,210 @@
       });
     }
 
+    if(rowSelect){
+      rowSelect.addEventListener('change', function(){
+        excelPreview.show(excelHeaders, excelRows[parseInt(rowSelect.value, 10)]);
+      });
+    }
+
     if(btnDariExcel){
       btnDariExcel.addEventListener('click', function(){
         var idx = parseInt(rowSelect.value, 10);
-        var row = excelRows[idx];
-        if(!row){ showToast('Pilih baris data terlebih dahulu.', 4000); return; }
+        generateFromTable(excelHeaders, excelRows[idx], btnDariExcel);
+      });
+    }
 
-        var skipCols = ['timestamp', 'form key', 'formkey'];
-        var lines = [];
-        var judul = 'Biodata Klien';
+    /* =======================================================
+       TAB "SALIN DARI SPREADSHEET" — mengambil data klien
+       LANGSUNG dari Google Spreadsheet (via Apps Script doGet),
+       dipilih dari hasil pencarian, lalu bisa dibuatkan gambar
+       ATAU disalin sebagai teks. Dipakai saat klien tidak
+       mengirim teks WhatsApp, tapi datanya sudah ada di
+       spreadsheet backup. Tempel manual (Ctrl+V) tetap tersedia
+       sebagai cadangan kalau pengambilan otomatis gagal.
+    ======================================================= */
+    var sheetRows = [];
+    var sheetHeaders = [];
+    var sheetSearchEl = document.getElementById('gen-sheet-search');
+    var sheetCariBtn = document.getElementById('gen-sheet-cari');
+    var sheetTextEl = document.getElementById('gen-sheet-text');
+    var sheetRowWrap = document.getElementById('gen-sheet-row-wrap');
+    var sheetRowSelect = document.getElementById('gen-sheet-row');
+    var sheetStatusEl = document.getElementById('gen-sheet-status');
+    var btnDariSheet = document.getElementById('gen-buat-dari-sheet');
+    var sheetPreview = mountTextPreview(sheetRowWrap);
 
-        excelHeaders.forEach(function(h, i){
-          var val = String(row[i] === undefined ? '' : row[i]).trim();
-          if(!val) return;
-          if(/form\s*title/i.test(h)){ judul = val; return; }
-          if(skipCols.indexOf(h.toLowerCase()) !== -1) return;
-          lines.push({ label: h || ('Kolom ' + (i + 1)), value: val });
-        });
+    function setSheetStatus(text, isError){
+      if(!sheetStatusEl) return;
+      sheetStatusEl.textContent = text;
+      sheetStatusEl.style.color = isError ? '#b8302f' : '';
+    }
 
-        if(!lines.length){ showToast('Baris ini tidak memiliki data yang bisa ditampilkan.', 4000); return; }
+    function applySheetTable(headers, rows, emptyMessage){
+      sheetHeaders = headers || [];
+      sheetRows = rows || [];
+      if(!sheetRows.length){
+        sheetRowWrap.style.display = 'none';
+        btnDariSheet.disabled = true;
+        sheetPreview.hide();
+        setSheetStatus(emptyMessage || 'Tidak ada data ditemukan.', true);
+        return;
+      }
+      populateRowPicker(sheetHeaders, sheetRows, sheetRowWrap, sheetRowSelect, btnDariSheet);
+      sheetRowWrap.classList.remove('gen-pop');
+      void sheetRowWrap.offsetWidth;
+      if(sheetRows.length > 1) sheetRowWrap.classList.add('gen-pop');
+      sheetPreview.show(sheetHeaders, sheetRows[parseInt(sheetRowSelect.value, 10) || 0]);
+      setSheetStatus(sheetRows.length === 1
+        ? 'Data ditemukan: ' + sheetRowSelect.options[0].textContent
+        : sheetRows.length + ' data ditemukan. Pilih salah satu di bawah.', false);
+    }
 
-        var groups = [{ legend:'Detail Formulir', lines:lines }];
-        btnDariExcel.disabled = true;
-        renderBiodataCard(genTemaSel.value, judul, groups, [])
-          .then(showGenPreview)
-          .catch(function(err){ console.error(err); showToast('Gagal membuat gambar.', 4000); })
-          .then(function(){ btnDariExcel.disabled = false; });
+    // Mengambil data dari Google Spreadsheet lewat Apps Script (action=listData).
+    function fetchSheetData(query){
+      if(!query){
+        setSheetStatus('Ketik nama klien dulu, lalu tekan Cari.', true);
+        if(sheetSearchEl){
+          var grp = sheetSearchEl.closest('.gen-search');
+          if(grp){ grp.classList.remove('gen-shake'); void grp.offsetWidth; grp.classList.add('gen-shake'); }
+          sheetSearchEl.focus();
+        }
+        return;
+      }
+      if(!KAONE_CONFIG.sheetWebAppUrl || KAONE_CONFIG.sheetWebAppUrl.indexOf('PASTE_URL') !== -1){
+        setSheetStatus('URL Google Apps Script belum diisi di KAONE_CONFIG.', true);
+        return;
+      }
+      setSheetStatus('Mengambil data dari spreadsheet…', false);
+      sheetCariBtn.disabled = true;
+      sheetCariBtn.classList.add('is-loading');
+      var url = KAONE_CONFIG.sheetWebAppUrl
+        + '?action=listData'
+        + '&limit=30'
+        + '&q=' + encodeURIComponent(query);
+
+      fetch(url).then(function(res){ return res.json(); }).then(function(data){
+        sheetCariBtn.disabled = false;
+        sheetCariBtn.classList.remove('is-loading');
+        if(!data || data.ok === false){
+          setSheetStatus('Gagal mengambil data: ' + ((data && data.error) || 'periksa koneksi.'), true);
+          return;
+        }
+        applySheetTable(data.headers, data.rows, 'Tidak ada klien dengan nama tersebut ditemukan.');
+      }).catch(function(){
+        sheetCariBtn.disabled = false;
+        sheetCariBtn.classList.remove('is-loading');
+        setSheetStatus('Gagal terhubung ke spreadsheet. Periksa koneksi internet Anda, atau gunakan opsi tempel manual di bawah.', true);
+      });
+    }
+
+    if(sheetCariBtn){
+      sheetCariBtn.addEventListener('click', function(){
+        fetchSheetData(sheetSearchEl.value.trim());
+      });
+    }
+    if(sheetSearchEl){
+      sheetSearchEl.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){ e.preventDefault(); fetchSheetData(sheetSearchEl.value.trim()); }
+      });
+    }
+
+    // Memecah teks yang ditempel manual (hasil salin dari Google Spreadsheet,
+    // berupa sel-sel dipisah TAB antar-kolom, baris baru antar-baris).
+    // Kalau ternyata cuma 1 baris (klien lupa ikut menyalin header),
+    // kolom tetap dibaca dan diberi nama generik "Kolom 1, 2, dst."
+    function parseSheetClipboardText(raw){
+      var text = String(raw || '').replace(/\r\n?/g, '\n');
+      var lines = text.split('\n').filter(function(l){ return l.trim() !== ''; });
+      if(!lines.length) return null;
+      var rows = lines.map(function(l){
+        return l.indexOf('\t') !== -1 ? l.split('\t') : l.split(',');
+      });
+      var headers, dataRows, genericHeader;
+      if(rows.length === 1){
+        headers = rows[0].map(function(_, i){ return 'Kolom ' + (i + 1); });
+        dataRows = rows;
+        genericHeader = true;
+      } else {
+        headers = rows[0].map(function(h){ return String(h || '').trim(); });
+        dataRows = rows.slice(1);
+        genericHeader = false;
+      }
+      dataRows = dataRows.filter(function(r){ return r.some(function(c){ return String(c || '').trim(); }); });
+      return { headers:headers, rows:dataRows, genericHeader:genericHeader };
+    }
+
+    if(sheetTextEl){
+      sheetTextEl.addEventListener('input', function(){
+        var parsed = parseSheetClipboardText(sheetTextEl.value);
+        if(!parsed || !parsed.rows.length){
+          applySheetTable([], [], '');
+          setSheetStatus('', false);
+          return;
+        }
+        applySheetTable(parsed.headers, parsed.rows);
+        if(parsed.genericHeader){
+          setSheetStatus('Data terbaca (' + parsed.rows.length + ' baris), tapi baris judul kolom tidak ikut tersalin — label kolom diberi nama generik.', false);
+        }
+      });
+    }
+
+    if(btnDariSheet){
+      btnDariSheet.addEventListener('click', function(){
+        var idx = parseInt(sheetRowSelect.value, 10);
+        generateFromTable(sheetHeaders, sheetRows[idx], btnDariSheet);
+      });
+    }
+
+    // Menyusun teks "Label: isi" (format yang sama dikenali tab "Tempel Teks
+    // WhatsApp") dari baris terpilih, supaya bisa disalin & ditempel ke mana
+    // saja — bukan cuma dipakai untuk membuat gambar.
+    function buildTextFromRow(headers, row){
+      var built = buildLinesFromRow(headers, row);
+      var out = ['*FORMULIR BIODATA - ' + built.judul.toUpperCase() + '*', ''];
+      built.lines.forEach(function(l){ out.push(l.label + ': ' + l.value); });
+      return out.join('\n');
+    }
+
+    if(sheetRowSelect){
+      sheetRowSelect.addEventListener('change', function(){
+        sheetPreview.show(sheetHeaders, sheetRows[parseInt(sheetRowSelect.value, 10)]);
+      });
+    }
+
+    // Area unggah file: tampilkan nama file & dukung seret-lepas.
+    var dropEl = document.getElementById('gen-drop');
+    var dropName = document.getElementById('gen-file-name');
+    if(dropEl && fileInput){
+      fileInput.addEventListener('change', function(){
+        var f = fileInput.files && fileInput.files[0];
+        if(f){ dropName.textContent = f.name; dropEl.classList.add('has-file'); }
+      });
+      ['dragenter','dragover'].forEach(function(ev){
+        dropEl.addEventListener(ev, function(e){ e.preventDefault(); dropEl.classList.add('is-over'); });
+      });
+      ['dragleave','drop'].forEach(function(ev){
+        dropEl.addEventListener(ev, function(e){ e.preventDefault(); dropEl.classList.remove('is-over'); });
+      });
+      dropEl.addEventListener('drop', function(e){
+        if(e.dataTransfer && e.dataTransfer.files.length){
+          fileInput.files = e.dataTransfer.files;
+          fileInput.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+
+    // Tombol ikon "salin" di nav bar: hanya membuka halaman ini di tab Spreadsheet
+    // dan memfokuskan kolom nama. Data baru diambil setelah menekan "Cari".
+    var navPasteBtn = document.getElementById('navPasteSheetBtn');
+    if(navPasteBtn){
+      navPasteBtn.addEventListener('click', function(){
+        var sheetTabBtn = document.querySelector('.gen-tab[data-gen-tab="sheet"]');
+        if(sheetTabBtn) sheetTabBtn.click();
+        location.hash = '#generator';
+        setTimeout(function(){
+          if(sheetSearchEl){ try{ sheetSearchEl.focus({ preventScroll:false }); }catch(e){ sheetSearchEl.focus(); } }
+        }, 120);
       });
     }
   })();
