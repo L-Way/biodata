@@ -3005,17 +3005,19 @@
       iconAnchor:[17,34]
     });
     leafletMap = L.map('mapCanvas', { attributionControl:true }).setView(DEFAULT_CENTER, 15);
-    // Catatan: sengaja TIDAK memakai tile.openstreetmap.org langsung.
-    // Sejak OSM memperketat kebijakan tile-nya, permintaan dari halaman yang
-    // dibuka lewat file:// atau tanpa header yang "dikenal" sering kena
-    // 403 "Access blocked / not following tile usage policy" (osm.wiki/Blocked).
-    // CARTO Voyager memakai data OpenStreetMap yang sama tapi disediakan
-    // lewat basemap gratis mereka yang memang ditujukan untuk pemakaian
-    // seperti ini (tanpa API key), jadi lebih aman dari pemblokiran itu.
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom:20,
-      subdomains:'abcd',
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
+    // Catatan soal peta yang sempat terblokir/kena watermark "API KEY REQUIRED":
+    // - CARTO (percobaan sebelumnya) sekarang mewajibkan API key untuk tile
+    //   gratisnya, jadi tidak bisa dipakai tanpa akun/API key.
+    // - tile.openstreetmap.org langsung SEBENARNYA aman dipakai selama halaman
+    //   dibuka dari domain sungguhan (https://..., bukan file:// lokal) DAN
+    //   header Referer-nya sesuai kebijakan OSM (osm.wiki/Referer). Karena
+    //   formulir ini sudah online di domain sendiri (bukan dibuka dari file
+    //   lokal lagi), memakai balik tile asli OSM + referrerPolicy yang benar
+    //   di bawah ini seharusnya sudah lolos, tanpa perlu API key sama sekali.
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19,
+      referrerPolicy:'strict-origin-when-cross-origin',
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
     }).on('load', function(){
       if(mapStatus) mapStatus.classList.add('hidden');
     }).addTo(leafletMap);
