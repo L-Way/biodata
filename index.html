@@ -3822,6 +3822,7 @@
     var activeTabName = 'paste';
     var runningAnims = [];
     var swapToken = 0;
+    var settledPanel = panelFor('paste');   // panel yang sedang benar-benar diam (di luar animasi)
 
     function reducedMotion(){
       return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -3844,42 +3845,138 @@
       runningAnims = [];
     }
 
+    // Tinggi minimum kartu: dikunci setinggi tab yang paling tinggi (biasanya
+    // Excel, karena ada kotak unggah file) supaya footer dan bagian di bawah
+    // kartu TIDAK ikut naik-turun hanya karena berpindah ke tab yang isinya
+    // lebih pendek (WhatsApp / Spreadsheet). Kartu tetap boleh tumbuh lebih
+    // tinggi dari itu kalau isinya memang butuh (mis. hasil pencarian banyak).
+    var reservedMinH = 0;
+    function measureBaselineHeights(){
+      if(!panelsWrap) return 0;
+      // Tampilkan tiap panel satu per satu persis seperti kondisi nyatanya
+      // (bukan lewat trik position:absolute, yang ternyata bisa meleset
+      // beberapa piksel karena gap/margin dihitung sedikit berbeda) lalu
+      // ukur tinggi wadahnya langsung — paling akurat dan tetap tidak
+      // kelihatan karena semuanya terjadi di antara dua frame yang sama.
+      var kept = panelList.map(function(p){ return p.style.display; });
+      var keptMinH = panelsWrap.style.minHeight;
+      panelsWrap.style.minHeight = '';   // supaya pengukuran tidak terpengaruh batas lama
+      var max = 0;
+      panelList.forEach(function(p, i){
+        panelList.forEach(function(q, j){ q.style.display = (j === i) ? '' : 'none'; });
+        var h = panelsWrap.getBoundingClientRect().height;
+        if(h > max) max = h;
+      });
+      panelList.forEach(function(p, i){ p.style.display = kept[i]; });
+      panelsWrap.style.minHeight = keptMinH;
+      return max;
+    }
+    function applyReservedHeight(){
+      var h = measureBaselineHeights();
+      if(h > 0){
+        reservedMinH = h;
+        panelsWrap.style.minHeight = reservedMinH + 'px';
+      }
+    }
+    function refreshReservedHeightIfVisible(){
+      if(panelsWrap && panelsWrap.getClientRects().length > 0) applyReservedHeight();
+    }
+    // #generator punya animasi masuk (viewEnter, lihat .view.active di CSS) yang
+    // sedikit men-scale kontennya saat baru muncul — kalau tinggi diukur sebelum
+    // animasi itu selesai, hasilnya sedikit meleset (dan salah terus dipakai
+    // sampai halaman dimuat ulang). Jadi ukur setelah animasi itu benar-benar
+    // selesai, bukan cuma satu frame setelah hash berubah.
+    document.addEventListener('animationend', function(e){
+      if(e.target && e.target.id === 'generator') refreshReservedHeightIfVisible();
+    }, true);
+    refreshReservedHeightIfVisible();
+    // Lebar berubah (putar layar HP, resize jendela) bisa mengubah jumlah
+    // baris teks di tiap tab, jadi ukur ulang.
+    var reservedHeightResizeTimer = null;
+    window.addEventListener('resize', function(){
+      if(reservedHeightResizeTimer) clearTimeout(reservedHeightResizeTimer);
+      reservedHeightResizeTimer = setTimeout(refreshReservedHeightIfVisible, 250);
+    });
+
+    function resetPanelBox(p){
+      p.style.position = '';
+      p.style.top = '';
+      p.style.left = '';
+      p.style.width = '';
+    }
+
     function swapPanels(newPanel, dir){
       var token = ++swapToken;
       cancelRunningAnims();
-      var leaving = panelList.filter(function(p){ return p !== newPanel && p.style.display !== 'none'; });
+      // "leaving" = panel yang terakhir benar-benar diam (bisa jadi masih
+      // pertengahan animasi kalau tab diketuk cepat berturut-turut — itu tetap
+      // diperlakukan sebagai yang keluar). Panel lain yang tersisa dari swap
+      // yang terputus lebih awal langsung dibersihkan, bukan dianimasikan.
+      var leaving = (settledPanel && settledPanel !== newPanel) ? [settledPanel] : [];
+      panelList.forEach(function(p){
+        if(p !== newPanel && leaving.indexOf(p) === -1){ resetPanelBox(p); p.style.display = 'none'; p.style.opacity = ''; }
+      });
       var visible = panelsWrap && panelsWrap.getClientRects().length > 0;   // false saat halaman generator masih tersembunyi
-      if(!panelsWrap || !visible || reducedMotion() || !newPanel.animate || !panelsWrap.animate){
-        panelList.forEach(function(p){ p.style.display = (p === newPanel) ? '' : 'none'; });
+      if(!panelsWrap || !visible || !newPanel.animate || !panelsWrap.animate){
+        panelList.forEach(function(p){ resetPanelBox(p); p.style.display = (p === newPanel) ? '' : 'none'; });
         if(panelsWrap) panelsWrap.classList.remove('is-swapping');
+        panelsWrap.style.height = '';
+        settledPanel = newPanel;
         return;
       }
+      // "Kurangi Gerakan" aktif (umum di banyak HP): tetap dianimasikan dengan
+      // lembut supaya tinggi kartu tidak melompat mendadak — hanya efek geser
+      // ke samping yang dimatikan, sisanya crossfade + tinggi tetap mulus.
+      var motionReduced = reducedMotion();
+      var slide = motionReduced ? 0 : 22;
+
+      // Satu gerakan menerus: panel lama & baru ditumpuk (position:absolute) dan
+      // bertukar tempat lewat crossfade+geser, sementara tinggi kartu ikut
+      // dianimasikan dari tinggi lama ke tinggi baru pada waktu yang sama —
+      // tidak ada jeda "keluar dulu baru menyesuaikan tinggi" seperti sebelumnya.
+      var h0 = panelsWrap.getBoundingClientRect().height;
+      var w0 = panelsWrap.getBoundingClientRect().width;
       panelsWrap.classList.add('is-swapping');
-      var outs = leaving.map(function(p){
-        var a = p.animate(
-          [{ opacity:1, transform:'translateX(0)' }, { opacity:0, transform:'translateX(' + (-dir * 26) + 'px)' }],
-          { duration:150, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' }
-        );
-        runningAnims.push(a);
-        return a.finished;
+
+      // Hanya panel yang KELUAR yang dilepas dari alur normal (position:absolute,
+      // ditumpuk di atas). Panel BARU tetap di alur normal apa adanya, supaya
+      // tinggi barunya (h1) terukur akurat — mengukur elemen yang sedang
+      // position:absolute cenderung meleset beberapa piksel dari tinggi aslinya.
+      leaving.forEach(function(p){
+        p.style.position = 'absolute';
+        p.style.top = '0';
+        p.style.left = '0';
+        p.style.width = w0 + 'px';
       });
-      Promise.all(outs).then(function(){
+      newPanel.style.opacity = '0';
+      newPanel.style.display = '';
+      var h1 = panelsWrap.getBoundingClientRect().height;
+
+      var DUR = motionReduced ? 220 : 380, EASE = 'cubic-bezier(.22,.8,.24,1)';
+      var anims = [];
+      anims.push(panelsWrap.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:DUR, easing:EASE }));
+      leaving.forEach(function(p){
+        anims.push(p.animate(
+          [{ opacity:1, transform:'translateX(0)' }, { opacity:0, transform:'translateX(' + (-dir * slide) + 'px)' }],
+          { duration:DUR * 0.62, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' }
+        ));
+      });
+      anims.push(newPanel.animate(
+        [{ opacity:0, transform:'translateX(' + (dir * slide) + 'px)' }, { opacity:1, transform:'translateX(0)' }],
+        { duration:DUR, easing:EASE, fill:'forwards' }
+      ));
+      runningAnims = anims;
+
+      Promise.all(anims.map(function(a){ return a.finished.catch(function(){}); })).then(function(){
         if(token !== swapToken) return;
-        var h0 = panelsWrap.getBoundingClientRect().height;
-        leaving.forEach(function(p){ p.style.display = 'none'; });
-        cancelRunningAnims();
-        newPanel.style.display = '';
-        var h1 = panelsWrap.getBoundingClientRect().height;
-        var hA = panelsWrap.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:340, easing:'cubic-bezier(.2,.8,.2,1)' });
-        var pA = newPanel.animate(
-          [{ opacity:0, transform:'translateX(' + (dir * 26) + 'px)' }, { opacity:1, transform:'translateX(0)' }],
-          { duration:360, easing:'cubic-bezier(.2,.8,.2,1)' }
-        );
-        runningAnims.push(hA, pA);
-        hA.finished.then(function(){
-          if(token === swapToken){ panelsWrap.classList.remove('is-swapping'); runningAnims = []; }
-        }).catch(function(){});
-      }).catch(function(){});
+        leaving.forEach(function(p){ resetPanelBox(p); p.style.display = 'none'; });
+        resetPanelBox(newPanel);
+        newPanel.style.opacity = '';
+        panelsWrap.style.height = '';
+        panelsWrap.classList.remove('is-swapping');
+        settledPanel = newPanel;
+        runningAnims = [];
+      });
     }
 
     function activateTab(tab){
