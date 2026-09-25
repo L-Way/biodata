@@ -708,6 +708,47 @@
   .maps-distance .md-btns{ display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.6rem; }
   .maps-distance .md-ok{ margin-top:0.8rem; padding-top:0.7rem; border-top:1px dashed var(--gold); font-weight:700; color:#3a7a4a; }
 
+  /* ---------- Pengambilan Hasil Cetak: Diantar / Dijemput ---------- */
+  .delivery-choice{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.8rem;
+    margin-top:0.2rem;
+  }
+  @media (max-width:560px){ .delivery-choice{ grid-template-columns:1fr; } }
+  .delivery-option{
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    gap:0.65rem;
+    padding:0.85rem 1rem;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius-lg);
+    background:var(--white);
+    cursor:pointer;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .2s ease;
+  }
+  .delivery-option:hover{ border-color:var(--gold); transform:translateY(-1px); }
+  .delivery-option input[type="radio"]{
+    margin-top:0.2rem;
+    accent-color:var(--maroon);
+    flex-shrink:0;
+    width:1.05rem;
+    height:1.05rem;
+    cursor:pointer;
+  }
+  .delivery-option-body{ display:flex; flex-direction:column; gap:0.2rem; min-width:0; }
+  .delivery-option-title{ font-weight:700; font-size:0.92rem; color:var(--ink); }
+  .delivery-option-desc{ font-size:0.78rem; color:var(--ink-soft); line-height:1.5; }
+  .delivery-option.is-checked{
+    border-color:var(--maroon);
+    background:linear-gradient(155deg, var(--white), var(--paper-2));
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--maroon) 14%, transparent);
+  }
+  .delivery-option.is-checked .delivery-option-title{ color:var(--maroon-deep); }
+  .ongkir-info{ margin-top:0.9rem; }
+  .ongkir-info .md-value{ font-size:1.25rem; }
+
   /* ---------- Tombol Kosongkan Isian (di atas formulir) ---------- */
   .draft-notice{
     display:flex; justify-content:flex-end;
@@ -729,6 +770,9 @@
   .summary-row strong{ color:var(--ink); font-weight:700; }
   .summary-row.grand{ border-top:1px dashed var(--gold); padding-top:0.6rem; margin-top:0.15rem; font-size:1.05rem; }
   .summary-row.grand span, .summary-row.grand strong{ color:var(--maroon-deep); }
+  .summary-row.info-row{ border-top:1px dotted var(--gold); padding-top:0.55rem; margin-top:0.15rem; font-size:0.82rem; opacity:0.85; }
+  .summary-row.info-row span, .summary-row.info-row strong{ font-weight:600; }
+  .summary-note{ font-size:0.74rem; color:var(--ink-soft); font-style:italic; margin-top:-0.15rem; line-height:1.4; }
 
   .submit-row{ margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; }
   .submit-note{ font-size:0.78rem; color:var(--ink-soft); }
@@ -1619,6 +1663,31 @@
       </fieldset>
 
       <fieldset>
+        <legend>Pengambilan Hasil Cetak <span class="required-mark">*</span></legend>
+        <div class="field">
+          <span class="hint" style="display:block; margin-bottom:0.6rem;">Pilih cara Anda menerima hasil foto cetak setelah proses edit selesai.</span>
+          <div class="delivery-choice" role="radiogroup" aria-label="Pengambilan Hasil Cetak">
+            <label class="delivery-option">
+              <input type="radio" name="w-pengambilan" value="Diantar" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🛵 Diantar</span>
+                <span class="delivery-option-desc">Diantar tim kami ke Alamat Acara — biaya mengikuti jarak dari studio.</span>
+              </span>
+            </label>
+            <label class="delivery-option">
+              <input type="radio" name="w-pengambilan" value="Dijemput" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🏠 Dijemput</span>
+                <span class="delivery-option-desc">Diambil/dijemput sendiri di Kaone Studio — tanpa biaya tambahan.</span>
+              </span>
+            </label>
+          </div>
+          <div class="maps-distance ongkir-info" id="w-ongkir-box" hidden aria-live="polite"></div>
+          <input type="hidden" id="w-ongkir" class="js-ongkir" value="0">
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>Detail Acara</legend>
         <div class="field">
           <label for="w-adat">Adat/Konsep Pakaian</label>
@@ -1659,6 +1728,7 @@
           <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
           <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
           <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+          <div class="summary-row info-row"><span>Ongkos kirim hanya info jika hasil cetak diantar tim kami</span><strong data-sum="ongkir">Gratis</strong></div>
         </div>
       </fieldset>
 
@@ -1667,8 +1737,7 @@
           <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
           <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
-      </div>
+        </div>
     </form>
   </div>
   </div>
@@ -1776,6 +1845,31 @@
       </fieldset>
 
       <fieldset>
+        <legend>Pengambilan Hasil Cetak <span class="required-mark">*</span></legend>
+        <div class="field">
+          <span class="hint" style="display:block; margin-bottom:0.6rem;">Pilih cara Anda menerima hasil foto cetak setelah proses edit selesai.</span>
+          <div class="delivery-choice" role="radiogroup" aria-label="Pengambilan Hasil Cetak">
+            <label class="delivery-option">
+              <input type="radio" name="m-pengambilan" value="Diantar" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🛵 Diantar</span>
+                <span class="delivery-option-desc">Diantar tim kami ke Alamat Acara — biaya mengikuti jarak dari studio.</span>
+              </span>
+            </label>
+            <label class="delivery-option">
+              <input type="radio" name="m-pengambilan" value="Dijemput" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🏠 Dijemput</span>
+                <span class="delivery-option-desc">Diambil/dijemput sendiri di Kaone Studio — tanpa biaya tambahan.</span>
+              </span>
+            </label>
+          </div>
+          <div class="maps-distance ongkir-info" id="m-ongkir-box" hidden aria-live="polite"></div>
+          <input type="hidden" id="m-ongkir" class="js-ongkir" value="0">
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>Detail Acara</legend>
         <div class="field">
           <label for="m-vendor">Instagram Semua Vendor</label>
@@ -1812,6 +1906,7 @@
           <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
           <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
           <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+          <div class="summary-row info-row"><span>Ongkos kirim hanya info jika hasil cetak diantar tim kami</span><strong data-sum="ongkir">Gratis</strong></div>
         </div>
       </fieldset>
 
@@ -1820,8 +1915,7 @@
           <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
           <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
-      </div>
+        </div>
     </form>
   </div>
   </div>
@@ -1940,6 +2034,31 @@
       </fieldset>
 
       <fieldset>
+        <legend>Pengambilan Hasil Cetak <span class="required-mark">*</span></legend>
+        <div class="field">
+          <span class="hint" style="display:block; margin-bottom:0.6rem;">Pilih cara Anda menerima hasil foto cetak setelah proses edit selesai.</span>
+          <div class="delivery-choice" role="radiogroup" aria-label="Pengambilan Hasil Cetak">
+            <label class="delivery-option">
+              <input type="radio" name="ay-pengambilan" value="Diantar" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🛵 Diantar</span>
+                <span class="delivery-option-desc">Diantar tim kami ke Alamat Acara — biaya mengikuti jarak dari studio.</span>
+              </span>
+            </label>
+            <label class="delivery-option">
+              <input type="radio" name="ay-pengambilan" value="Dijemput" data-label="Pengambilan Hasil Cetak" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🏠 Dijemput</span>
+                <span class="delivery-option-desc">Diambil/dijemput sendiri di Kaone Studio — tanpa biaya tambahan.</span>
+              </span>
+            </label>
+          </div>
+          <div class="maps-distance ongkir-info" id="ay-ongkir-box" hidden aria-live="polite"></div>
+          <input type="hidden" id="ay-ongkir" class="js-ongkir" value="0">
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>Detail Acara</legend>
         <div class="field">
           <label for="ay-vendor">IG All Vendor</label>
@@ -1976,6 +2095,7 @@
           <div class="summary-row"><span>Diskon</span><strong data-sum="diskon">- Rp 0</strong></div>
           <div class="summary-row"><span>DP (Uang Muka)</span><strong data-sum="dp">Rp 0</strong></div>
           <div class="summary-row grand"><span>Sisa Pembayaran</span><strong data-sum="sisa">Rp 0</strong></div>
+          <div class="summary-row info-row"><span>Ongkos kirim hanya info jika hasil cetak diantar tim kami</span><strong data-sum="ongkir">Gratis</strong></div>
         </div>
       </fieldset>
 
@@ -1984,8 +2104,7 @@
           <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
           <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
-      </div>
+        </div>
     </form>
   </div>
   </div>
@@ -2112,8 +2231,7 @@
           <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
           <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
-      </div>
+        </div>
     </form>
   </div>
   </div>
@@ -2243,8 +2361,7 @@
           <button type="button" class="btn btn-ghost btn-unduh-gambar">📥 Unduh Gambar Ringkasan</button>
           <button type="submit" class="btn btn-kirim-wa">📤 Kirim via WhatsApp</button>
         </div>
-        <span class="submit-note">Tombol unduh gambar dan kirim WhatsApp bisa ditekan kapan saja, tidak perlu berurutan. Saat mengirim ke WhatsApp, lampirkan gambar ringkasan yang sudah diunduh di chat yang terbuka. Setiap kali salah satu tombol ditekan, data otomatis tersimpan ke spreadsheet. Pesan dikirim ke <span class="js-wa-phone">+62 851-1707-1704</span></span>
-      </div>
+        </div>
     </form>
   </div>
   </div>
@@ -2315,7 +2432,16 @@
     // URL Web App Google Apps Script untuk backup otomatis ke Google Spreadsheet.
     // Cara mendapatkan URL ini ada di file panduan terpisah (GOOGLE-SHEET-SETUP.md).
     // Selama masih bertuliskan 'PASTE_URL_...', backup ke spreadsheet otomatis dilewati (fitur lain tetap jalan normal).
-    sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzQf4G5NuPpJFrPkJSI9ulirladgU1QCqjbWS6NiClEKBBSW8JigsL9UKx_YrGB_21zCA/exec'
+    sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzQf4G5NuPpJFrPkJSI9ulirladgU1QCqjbWS6NiClEKBBSW8JigsL9UKx_YrGB_21zCA/exec',
+
+    // Ongkos kirim hasil cetak (opsi "Diantar"): tarif per km dari Kaone Studio.
+    // Ganti angka ini sesuai tarif Anda sendiri.
+    ongkirPerKm: 3000,
+    // Kalau hasil hitungnya (jarak x tarif/km) masih di bawah nominal ini,
+    // otomatis dianggap gratis — sesuai aturan: di bawah Rp 20.000 = gratis.
+    ongkirBatasGratis: 20000,
+    // Pembulatan ke atas per kelipatan ini supaya angkanya rapi (mis. Rp 23.400 -> Rp 23.500).
+    ongkirPembulatan: 1000
   };
 
   function formatPhoneDisplay(waNumber){
@@ -2672,7 +2798,9 @@
     var harga = formEl.querySelector('.js-harga');
     var voucher = formEl.querySelector('.js-voucher');
     var dp = formEl.querySelector('.js-dp');
+    var ongkirField = formEl.querySelector('.js-ongkir');
     var sumTotal = formEl.querySelector('[data-sum="total"]');
+    var sumOngkir = formEl.querySelector('[data-sum="ongkir"]');
     var sumDiskon = formEl.querySelector('[data-sum="diskon"]');
     var sumDp = formEl.querySelector('[data-sum="dp"]');
     var sumSisa = formEl.querySelector('[data-sum="sisa"]');
@@ -2698,11 +2826,16 @@
     function recalc(){
       var total = parseRupiah(harga.value);
       var dpVal = parseRupiah(dp && dp.value);
+      // Ongkos kirim HANYA ditampilkan sebagai info terpisah (dibayar langsung
+      // ke kurir saat pengantaran) dan sengaja TIDAK ditambahkan ke Sisa
+      // Pembayaran — sesuai permintaan, biaya cetak/paket saja yang dihitung.
+      var ongkir = parseRupiah(ongkirField && ongkirField.value);
       var diskon = Math.min(appliedDiscount, total);
       var sisa = total - diskon - dpVal;
       if(sisa < 0) sisa = 0;
 
       if(sumTotal) sumTotal.textContent = formatRupiah(total);
+      if(sumOngkir) sumOngkir.textContent = ongkir > 0 ? formatRupiah(ongkir) : 'Gratis';
       if(sumDiskon) sumDiskon.textContent = '- ' + formatRupiah(diskon);
       if(sumDp) sumDp.textContent = formatRupiah(dpVal);
       if(sumSisa) sumSisa.textContent = formatRupiah(sisa);
@@ -2767,6 +2900,7 @@
       }
     });
     if(dp) dp.addEventListener('input', recalc);
+    if(ongkirField) ongkirField.addEventListener('input', recalc);
     if(voucher){
       voucher.addEventListener('input', function(){
         clearTimeout(voucherTimer);
@@ -2871,9 +3005,17 @@
       iconAnchor:[17,34]
     });
     leafletMap = L.map('mapCanvas', { attributionControl:true }).setView(DEFAULT_CENTER, 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom:19,
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    // Catatan: sengaja TIDAK memakai tile.openstreetmap.org langsung.
+    // Sejak OSM memperketat kebijakan tile-nya, permintaan dari halaman yang
+    // dibuka lewat file:// atau tanpa header yang "dikenal" sering kena
+    // 403 "Access blocked / not following tile usage policy" (osm.wiki/Blocked).
+    // CARTO Voyager memakai data OpenStreetMap yang sama tapi disediakan
+    // lewat basemap gratis mereka yang memang ditujukan untuk pemakaian
+    // seperti ini (tanpa API key), jadi lebih aman dari pemblokiran itu.
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom:20,
+      subdomains:'abcd',
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
     }).on('load', function(){
       if(mapStatus) mapStatus.classList.add('hidden');
     }).addTo(leafletMap);
@@ -3044,17 +3186,26 @@
 
     var token = 0, timer = null;
 
-    function hide(){ box.hidden = true; box.innerHTML = ''; box.classList.remove('is-warn'); }
+    // Beri tahu modul lain (mis. ongkir "Diantar") bahwa hasil jarak berubah.
+    // km = angka (sudah diketahui) atau null (belum/tidak diketahui).
+    function emitJarak(km){
+      input.dataset.jarakKm = (km == null) ? '' : String(km);
+      input.dispatchEvent(new CustomEvent('kaonejarak', { detail:{ km:km }, bubbles:true }));
+    }
+
+    function hide(){ box.hidden = true; box.innerHTML = ''; box.classList.remove('is-warn'); emitJarak(null); }
     function showMessage(text, warn){
       box.innerHTML = '';
       box.classList.toggle('is-warn', !!warn);
       box.appendChild(mdEl('div', 'md-msg', text));
       box.hidden = false;
+      emitJarak(null);
     }
 
     function showResult(c, km, isStraight, raw){
       box.innerHTML = '';
       box.classList.remove('is-warn');
+      emitJarak(km);
 
       var head = mdEl('div', 'md-head');
       head.appendChild(mdEl('div', 'md-ico', '📏'));
@@ -3154,6 +3305,113 @@
       if(inp) attachDistanceBox(inp);
     });
   })();
+
+  /* =========================================================
+     PENGAMBILAN HASIL CETAK — "Dijemput" (diambil/dijemput sendiri
+     di studio, tanpa biaya) atau "Diantar" (diantar tim kami ke
+     Alamat Acara, kena ongkir sesuai jarak dari Kaone Studio). Ongkir dihitung dari
+     jarak yang sama dengan kotak "Jarak dari Kaone Studio" di atas
+     (lewat event "kaonejarak" dari attachDistanceBox), lalu ditampilkan
+     sebagai baris INFO TERPISAH di kotak ringkasan biaya (bukan bagian
+     dari hitungan "Sisa Pembayaran" — ongkir dibayar langsung ke kurir
+     saat pengantaran, bukan ke harga paket). Tetap tersimpan/terkirim
+     ke gambar ringkasan, teks WhatsApp, dan spreadsheet backup.
+
+     Aturan ongkir (ubah tarifnya di KAONE_CONFIG.ongkirPerKm):
+     jarak (km) x tarif/km -> kalau hasilnya di bawah
+     KAONE_CONFIG.ongkirBatasGratis, dianggap GRATIS (Rp 0).
+  ========================================================= */
+  function hitungOngkir(km){
+    if(km == null || !isFinite(km)) return null;   // jarak belum diketahui
+    var mentah = km * KAONE_CONFIG.ongkirPerKm;
+    if(mentah < KAONE_CONFIG.ongkirBatasGratis) return 0;
+    var bulat = KAONE_CONFIG.ongkirPembulatan || 1;
+    return Math.ceil(mentah / bulat) * bulat;
+  }
+
+  function wireCetakPengambilan(formEl, prefix){
+    if(!formEl) return;
+    var mapsInput = document.getElementById(prefix + '-maps');
+    var radios = Array.prototype.slice.call(formEl.querySelectorAll('input[name="' + prefix + '-pengambilan"]'));
+    var optionEls = Array.prototype.slice.call(formEl.querySelectorAll('.delivery-option'));
+    var box = document.getElementById(prefix + '-ongkir-box');
+    var ongkirField = document.getElementById(prefix + '-ongkir');
+    if(!radios.length || !box || !ongkirField) return;
+
+    var currentKm = null;
+
+    function getPilihan(){
+      var checked = radios.filter(function(r){ return r.checked; })[0];
+      return checked ? checked.value : 'Dijemput';
+    }
+
+    function setOngkir(v){
+      var val = String(v || 0);
+      if(ongkirField.value === val) return;
+      ongkirField.value = val;
+      ongkirField.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+
+    function paintOptions(){
+      optionEls.forEach(function(el){
+        var radio = el.querySelector('input[type="radio"]');
+        el.classList.toggle('is-checked', !!(radio && radio.checked));
+      });
+    }
+
+    function render(){
+      paintOptions();
+      var pilihan = getPilihan();
+
+      if(pilihan !== 'Diantar'){
+        box.hidden = true;
+        box.innerHTML = '';
+        box.classList.remove('is-warn');
+        setOngkir(0);
+        return;
+      }
+
+      if(currentKm == null){
+        box.classList.add('is-warn');
+        box.innerHTML = '';
+        box.appendChild(mdEl('div', 'md-msg', 'Silakan tentukan titik lokasi lebih dulu lewat "Lokasi Saat Ini" atau "Pilih di Peta" di atas, agar ongkos kirim dapat dihitung.'));
+        box.hidden = false;
+        setOngkir(0);
+        return;
+      }
+
+      var ongkir = hitungOngkir(currentKm);
+      box.classList.remove('is-warn');
+      box.innerHTML = '';
+      var head = mdEl('div', 'md-head');
+      head.appendChild(mdEl('div', 'md-ico', '🛵'));
+      var info = mdEl('div');
+      info.appendChild(mdEl('div', 'md-label', 'Ongkos Kirim Hasil Cetak'));
+      info.appendChild(mdEl('div', 'md-value', ongkir > 0 ? formatRupiah(ongkir) : 'Gratis'));
+      info.appendChild(mdEl('div', 'md-note', ongkir > 0
+        ? ('± ' + formatKm(currentKm) + ' dari studio • Rp ' + KAONE_CONFIG.ongkirPerKm.toLocaleString('id-ID') + '/km')
+        : ('± ' + formatKm(currentKm) + ' dari studio • di bawah Rp ' + KAONE_CONFIG.ongkirBatasGratis.toLocaleString('id-ID') + ', jadi gratis')));
+      head.appendChild(info);
+      box.appendChild(head);
+      box.hidden = false;
+      setOngkir(ongkir);
+    }
+
+    radios.forEach(function(r){ r.addEventListener('change', render); });
+    if(mapsInput){
+      var existingKm = parseFloat(mapsInput.dataset.jarakKm);
+      if(isFinite(existingKm)) currentKm = existingKm;
+      mapsInput.addEventListener('kaonejarak', function(e){
+        currentKm = (e.detail && isFinite(e.detail.km)) ? e.detail.km : null;
+        render();
+      });
+    }
+    render();
+  }
+
+  wireCetakPengambilan(document.getElementById('form-wedding'), 'w');
+  wireCetakPengambilan(document.getElementById('form-margondang'), 'm');
+  wireCetakPengambilan(document.getElementById('form-mangayun'), 'ay');
 
 
   /* =========================================================
