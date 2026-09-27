@@ -1701,8 +1701,8 @@
           <label>Pemilihan Foto</label>
           <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
           <span class="radio-row">
-            <label><input type="radio" name="w-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
-            <label><input type="radio" name="w-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto"> Pengantin</label>
+            <label><input type="radio" name="w-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto" required> Fotografer</label>
+            <label><input type="radio" name="w-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto" required> Pengantin</label>
           </span>
         </div>
         <div class="field">
@@ -1879,8 +1879,8 @@
           <label>Pemilihan Foto</label>
           <span class="hint" style="display:block; margin-bottom:0.5rem;">Menentukan siapa yang akan memilih foto-foto hasil pemotretan yang akan diedit final oleh tim kami.</span>
           <span class="radio-row">
-            <label><input type="radio" name="m-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto"> Fotografer</label>
-            <label><input type="radio" name="m-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto"> Pengantin</label>
+            <label><input type="radio" name="m-pemilihan-foto" value="Fotografer" data-label="Pemilihan Foto" required> Fotografer</label>
+            <label><input type="radio" name="m-pemilihan-foto" value="Pengantin" data-label="Pemilihan Foto" required> Pengantin</label>
           </span>
         </div>
         <div class="field">
@@ -2468,23 +2468,25 @@
 
   /* =========================================================
      AUTO KAPITAL — semua kolom Nama, Alamat, Paket, dan sejenisnya
-     (class "js-capitalize") otomatis menjadi Huruf Kapital Di Awal
-     Setiap Kata saat pengguna selesai mengisi kolom tersebut (event
-     blur), misal "putri ayu" menjadi "Putri Ayu".
+     (class "js-capitalize") otomatis dikapitalkan di huruf pertama
+     tiap kata, live saat diketik, misal "putri ayu" menjadi
+     "Putri ayu" begitu huruf pertama diketik. Huruf lain yang sudah
+     diketik pengguna TIDAK diubah/dipaksa jadi huruf kecil.
 
      Kolom Kode Voucher (class "js-uppercase-trim") otomatis diubah
-     jadi HURUF BESAR SEMUA dan spasi di awal/akhir dibuang.
+     jadi HURUF BESAR SEMUA dan semua spasi dibuang (live saat
+     diketik) — kode voucher tidak boleh mengandung spasi sama sekali.
   ========================================================= */
   function toTitleCase(str){
-    return String(str || '').replace(/\S+/g, function(word){
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    return String(str || '').replace(/(^|\s)([a-z])/g, function(_, sep, ch){
+      return sep + ch.toUpperCase();
     });
   }
   document.addEventListener('blur', function(e){
     var t = e.target;
     if(!t || !t.classList || typeof t.value !== 'string') return;
     if(t.classList.contains('js-uppercase-trim')){
-      t.value = t.value.trim().toUpperCase();
+      t.value = t.value.replace(/\s+/g, '').toUpperCase();
       return;
     }
     if(t.classList.contains('js-capitalize') && t.value.trim()){
@@ -2493,7 +2495,7 @@
   }, true);
 
   /* Huruf besar otomatis SAAT MENGETIK (huruf demi huruf), tanpa harus pindah kolom:
-     - Kode Voucher (js-uppercase-trim) -> HURUF BESAR SEMUA
+     - Kode Voucher (js-uppercase-trim) -> HURUF BESAR SEMUA, semua spasi dibuang (kode voucher tidak boleh mengandung spasi)
      - Nama/Alamat/Paket dll (js-capitalize) -> Huruf Besar Di Awal Setiap Kata
      Posisi kursor tetap terjaga. Spasi awal/akhir voucher tetap dirapikan saat blur. */
   document.addEventListener('input', function(e){
@@ -2502,7 +2504,7 @@
     if(e.isComposing) return;
     var next;
     if(t.classList.contains('js-uppercase-trim')){
-      next = t.value.toUpperCase();
+      next = t.value.replace(/\s+/g, '').toUpperCase();
     } else if(t.classList.contains('js-capitalize')){
       next = toTitleCase(t.value);
     } else {
