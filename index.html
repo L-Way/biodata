@@ -2469,18 +2469,50 @@
   /* =========================================================
      AUTO KAPITAL — semua kolom Nama, Alamat, Paket, dan sejenisnya
      (class "js-capitalize") otomatis dikapitalkan di huruf pertama
-     tiap kata, live saat diketik, misal "putri ayu" menjadi
-     "Putri ayu" begitu huruf pertama diketik. Huruf lain yang sudah
-     diketik pengguna TIDAK diubah/dipaksa jadi huruf kecil.
+     tiap kata, live saat diketik. Kalau SATU KATA diketik semua huruf
+     besar (misal karena Caps Lock aktif), huruf setelah awalannya
+     diturunkan otomatis begitu kata itu SELESAI diketik (spasi
+     berikutnya, atau pindah kolom) — bukan di tengah mengetik, supaya
+     tidak "berkelahi" dengan Caps Lock yang masih menyala saat huruf
+     berikutnya diketik. Kata dengan huruf besar CAMPURAN di tengah
+     (misal "McDonald", "AlFarizi") dibiarkan apa adanya karena
+     dianggap disengaja.
 
      Kolom Kode Voucher (class "js-uppercase-trim") otomatis diubah
      jadi HURUF BESAR SEMUA dan semua spasi dibuang (live saat
      diketik) — kode voucher tidak boleh mengandung spasi sama sekali.
   ========================================================= */
-  function toTitleCase(str){
-    return String(str || '').replace(/(^|\s)([a-z])/g, function(_, sep, ch){
-      return sep + ch.toUpperCase();
-    });
+  function fixWordCasing(word){
+    if(!word) return word;
+    var first = word.charAt(0);
+    var rest = word.slice(1);
+    var letters = word.replace(/[^A-Za-z]/g, '');
+    var isAllUpperCaps = letters.length > 1 && letters === letters.toUpperCase() && letters !== letters.toLowerCase();
+    var newFirst = /[a-z]/.test(first) ? first.toUpperCase() : first;
+    var newRest = isAllUpperCaps ? rest.toLowerCase() : rest;
+    return newFirst + newRest;
+  }
+  function capitalizeLive(str){
+    str = String(str || '');
+    var endsWithSpace = /\s$/.test(str);
+    var parts = str.split(/(\s+)/);
+    var lastWordIdx = -1;
+    parts.forEach(function(p, i){ if(p && !/^\s+$/.test(p)) lastWordIdx = i; });
+    return parts.map(function(part, i){
+      if(!part || /^\s+$/.test(part)) return part;
+      var isBeingTyped = (i === lastWordIdx) && !endsWithSpace;
+      if(isBeingTyped){
+        var first = part.charAt(0);
+        return (/[a-z]/.test(first) ? first.toUpperCase() : first) + part.slice(1);
+      }
+      return fixWordCasing(part);
+    }).join('');
+  }
+  function capitalizeFinal(str){
+    return String(str || '').split(/(\s+)/).map(function(part){
+      if(!part || /^\s+$/.test(part)) return part;
+      return fixWordCasing(part);
+    }).join('');
   }
   document.addEventListener('blur', function(e){
     var t = e.target;
@@ -2490,13 +2522,13 @@
       return;
     }
     if(t.classList.contains('js-capitalize') && t.value.trim()){
-      t.value = toTitleCase(t.value);
+      t.value = capitalizeFinal(t.value);
     }
   }, true);
 
   /* Huruf besar otomatis SAAT MENGETIK (huruf demi huruf), tanpa harus pindah kolom:
      - Kode Voucher (js-uppercase-trim) -> HURUF BESAR SEMUA, semua spasi dibuang (kode voucher tidak boleh mengandung spasi)
-     - Nama/Alamat/Paket dll (js-capitalize) -> Huruf Besar Di Awal Setiap Kata
+     - Nama/Alamat/Paket dll (js-capitalize) -> Huruf Besar Di Awal Setiap Kata (kata yang masih diketik tidak diturunkan, lihat capitalizeLive)
      Posisi kursor tetap terjaga. Spasi awal/akhir voucher tetap dirapikan saat blur. */
   document.addEventListener('input', function(e){
     var t = e.target;
@@ -2506,7 +2538,7 @@
     if(t.classList.contains('js-uppercase-trim')){
       next = t.value.replace(/\s+/g, '').toUpperCase();
     } else if(t.classList.contains('js-capitalize')){
-      next = toTitleCase(t.value);
+      next = capitalizeLive(t.value);
     } else {
       return;
     }
