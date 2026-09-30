@@ -2435,14 +2435,31 @@
     sheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbzQf4G5NuPpJFrPkJSI9ulirladgU1QCqjbWS6NiClEKBBSW8JigsL9UKx_YrGB_21zCA/exec',
 
     // Ongkos kirim hasil cetak (opsi "Diantar"): tarif per km dari Kaone Studio.
-    // Ganti angka ini sesuai tarif Anda sendiri.
+    // Dua angka di bawah ini HANYA nilai cadangan — tarif yang berlaku diambil live
+    // dari Rekap Job Kaone Motret (menu Pengaturan > Ongkos Antar Foto) lewat
+    // fetchOngkirAntarPublic() di bawah, supaya cukup diubah SEKALI di sana dan
+    // otomatis berlaku juga di ketiga halaman pricelist. Nilai cadangan disamakan
+    // dengan bawaan Rekap Job, dan baru dipakai kalau pengambilan dari cloud gagal.
     ongkirPerKm: 3000,
-    // Kalau hasil hitungnya (jarak x tarif/km) masih di bawah nominal ini,
-    // otomatis dianggap gratis — sesuai aturan: di bawah Rp 20.000 = gratis.
-    ongkirBatasGratis: 20000,
-    // Pembulatan ke atas per kelipatan ini supaya angkanya rapi (mis. Rp 23.400 -> Rp 23.500).
-    ongkirPembulatan: 1000
+    // Gratis kalau biaya (setelah dibulatkan ke atas per Rp 1.000) sama dengan atau
+    // di bawah nominal ini — aturan yang sama persis dengan Rekap Job.
+    ongkirBatasGratis: 19999
   };
+
+  (function fetchOngkirAntarPublic(){
+    var url = 'https://gyleppavsgbtrlgbyztv.supabase.co/rest/v1/kaone_motret_pengaturan_publik'
+      + '?kunci=eq.ongkir_antar&select=nilai&limit=1';
+    var anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5bGVwcGF2c2didHJsZ2J5enR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU0MDQsImV4cCI6MjEwMzM0MTQwNH0.0t7bMoTjgd-c48O37wo1QyGFsFnjrRiAkDzH8VMgw-Q';
+    fetch(url, { headers: { apikey: anonKey, Authorization: 'Bearer ' + anonKey } })
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(rows){
+        var nilai = rows && rows[0] && rows[0].nilai;
+        if(!nilai) return;
+        if(isFinite(Number(nilai.perKm))) KAONE_CONFIG.ongkirPerKm = Number(nilai.perKm);
+        if(isFinite(Number(nilai.batasGratis))) KAONE_CONFIG.ongkirBatasGratis = Number(nilai.batasGratis);
+      })
+      .catch(function(){ /* offline / tabel belum dibuat — pakai nilai cadangan di atas */ });
+  })();
 
   function formatPhoneDisplay(waNumber){
     var digits = String(waNumber || '').replace(/^\+?62/, '');
@@ -2464,6 +2481,34 @@
   }
   function isValidPhone(v){
     return /^8[0-9]{8,11}$/.test(toNationalPhone(v));
+  }
+
+  /* Tiga bentuk nomor WhatsApp — sengaja dipisah supaya tidak tertukar:
+       - kolom isian        : 812xxxxxxxx  (kotak "+62" ada di kiri kolom, jangan diubah)
+       - gambar & teks WA   : +62 812xxxxxxxx
+       - Google Spreadsheet : 0812xxxxxxxx (selalu diawali 08, sama seperti format Indonesia biasa) */
+  function toSheetPhone(v){
+    var n = toNationalPhone(v);
+    return n ? ('0' + n) : '';
+  }
+  function toIntlPhone(v){
+    var n = toNationalPhone(v);
+    return n ? ('+62 ' + n) : '';
+  }
+  // Apakah judul kolom ini kolom nomor telepon/WhatsApp?
+  function isPhoneLabel(label){
+    return /whats\s*app|^wa$|^no\.?\s*(wa|hp|telp)|telepon|handphone|^hp$/i.test(String(label || '').trim());
+  }
+  // Nilai dari spreadsheet / Excel / teks tempel (0812…, 812…, 62812…, +62 812…, angka
+  // polos) -> "+62 812…" untuk gambar & teks WA. Bukan nomor yang wajar -> dibiarkan apa adanya.
+  function phoneForDisplay(label, value){
+    var raw = String(value === undefined || value === null ? '' : value).trim();
+    if(!raw || !isPhoneLabel(label)) return raw;
+    if(!/^[\d\s+\-().]+$/.test(raw)) return raw;
+    var d = raw.replace(/\D/g, '');
+    if(d.indexOf('62') === 0) d = d.slice(2);
+    d = d.replace(/^0+/, '');
+    return /^8[0-9]{8,11}$/.test(d) ? ('+62 ' + d) : raw;
   }
 
   /* =========================================================
@@ -3353,16 +3398,15 @@
      saat pengantaran, bukan ke harga paket). Tetap tersimpan/terkirim
      ke gambar ringkasan, teks WhatsApp, dan spreadsheet backup.
 
-     Aturan ongkir (ubah tarifnya di KAONE_CONFIG.ongkirPerKm):
-     jarak (km) x tarif/km -> kalau hasilnya di bawah
-     KAONE_CONFIG.ongkirBatasGratis, dianggap GRATIS (Rp 0).
+     Aturan ongkir (tarifnya diatur di Rekap Job > Pengaturan > Ongkos Antar Foto):
+     jarak (km) x tarif/km, dibulatkan ke atas per Rp 1.000 -> kalau hasilnya sama
+     dengan atau di bawah KAONE_CONFIG.ongkirBatasGratis, dianggap GRATIS (Rp 0).
   ========================================================= */
   function hitungOngkir(km){
     if(km == null || !isFinite(km)) return null;   // jarak belum diketahui
     var mentah = km * KAONE_CONFIG.ongkirPerKm;
-    if(mentah < KAONE_CONFIG.ongkirBatasGratis) return 0;
-    var bulat = KAONE_CONFIG.ongkirPembulatan || 1;
-    return Math.ceil(mentah / bulat) * bulat;
+    var dibulatkan = Math.ceil(mentah / 1000) * 1000;
+    return dibulatkan <= KAONE_CONFIG.ongkirBatasGratis ? 0 : dibulatkan;
   }
 
   function wireCetakPengambilan(formEl, prefix){
@@ -3503,13 +3547,14 @@
           if(val && (el.classList.contains('js-harga') || el.classList.contains('js-dp'))){
             val = 'Rp ' + val;
           }
-          if(val && el.classList.contains('js-phone')){
-            val = '+62 ' + toNationalPhone(val);
+          var isPhoneEl = el.classList.contains('js-phone');
+          if(val && isPhoneEl){
+            val = toIntlPhone(val);   // gambar & teks WA: +62 812…
           }
           if(val && el.classList.contains('js-ig')){
             val = '@' + val.replace(/^@+/, '');
           }
-          if(val) lines.push({ label:label, value:val });
+          if(val) lines.push({ label:label, value:val, phone:isPhoneEl });
         }
       });
 
@@ -3575,7 +3620,9 @@
     var flat = {};
     buildFieldGroups(formEl).forEach(function(g){
       g.lines.forEach(function(l){
-        flat[l.label] = (flat[l.label] !== undefined) ? (flat[l.label] + ' | ' + l.value) : l.value;
+        // Spreadsheet: nomor WhatsApp selalu 08xxxx (bukan +62 / 8xxx).
+        var v = l.phone ? toSheetPhone(l.value) : l.value;
+        flat[l.label] = (flat[l.label] !== undefined) ? (flat[l.label] + ' | ' + v) : v;
       });
     });
     getSummaryRows(formEl).forEach(function(r){ flat[r.label] = r.value; });
@@ -3598,7 +3645,8 @@
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        keepalive: true   // tetap terkirim walau tab ditutup / pindah ke WhatsApp
       }).catch(function(err){ console.error('Backup ke Spreadsheet gagal (jaringan):', err); });
     }catch(err){ console.error('Backup ke Spreadsheet gagal:', err); }
   }
@@ -4441,6 +4489,7 @@
         var label = line.slice(0, sep).trim();
         var value = line.slice(sep + 1).trim();
         if(!label || !value) return;
+        value = phoneForDisplay(label, value);   // 0812… / 812… -> +62 812…
 
         if(inSummary){
           summaryRows.push({ label:label, value:value, grand:/sisa pembayaran/i.test(label) });
@@ -4530,7 +4579,7 @@
         if(!val) return;
         if(/form\s*title/i.test(h)){ judul = val; return; }
         if(SHEET_SKIP_COLS.indexOf(String(h || '').toLowerCase()) !== -1) return;
-        lines.push({ label: h || ('Kolom ' + (i + 1)), value: val });
+        lines.push({ label: h || ('Kolom ' + (i + 1)), value: phoneForDisplay(h, val) });
       });
       return { lines:lines, judul:judul };
     }
@@ -4675,7 +4724,12 @@
         + '&limit=30'
         + '&q=' + encodeURIComponent(query);
 
-      fetch(url).then(function(res){ return res.json(); }).then(function(data){
+      fetch(url).then(function(res){
+        return res.text().then(function(txt){
+          try{ return JSON.parse(txt); }
+          catch(e){ var er = new Error('non-json'); er.kind = 'nonjson'; er.status = res.status; er.body = txt.slice(0, 300); throw er; }
+        });
+      }).then(function(data){
         sheetCariBtn.disabled = false;
         sheetCariBtn.classList.remove('is-loading');
         if(!data || data.ok === false){
@@ -4683,10 +4737,15 @@
           return;
         }
         applySheetTable(data.headers, data.rows, 'Tidak ada klien dengan nama tersebut ditemukan.');
-      }).catch(function(){
+      }).catch(function(err){
         sheetCariBtn.disabled = false;
         sheetCariBtn.classList.remove('is-loading');
-        setSheetStatus('Gagal terhubung ke spreadsheet. Periksa koneksi internet Anda, atau gunakan opsi tempel manual di bawah.', true);
+        console.error('Ambil data spreadsheet gagal:', err, url);
+        if(err && err.kind === 'nonjson'){
+          setSheetStatus('Server Apps Script membalas halaman error, bukan data (kode Code.gs error atau belum di-deploy ulang). Buka Console (F12) untuk detailnya, atau gunakan opsi tempel manual di bawah.', true);
+        } else {
+          setSheetStatus('Browser tidak bisa membuka Web App Apps Script. Penyebab tersering: akses Web App belum "Anyone" atau URL deployment tidak sesuai. Bisa juga koneksi internet. Gunakan opsi tempel manual di bawah.', true);
+        }
       });
     }
 
