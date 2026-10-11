@@ -614,6 +614,7 @@
   @media (max-width:560px){ .two-col{ grid-template-columns:1fr; } }
   .three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; }
   @media (max-width:720px){ .three-col{ grid-template-columns:1fr; } }
+  .three-col .col-full{ grid-column:1 / -1; }
   .js-uppercase-trim{ text-transform:uppercase; }
   .required-mark{ color:var(--maroon); }
 
@@ -1649,8 +1650,12 @@
               <label for="w-alamat-kab">Kabupaten</label>
               <input type="text" id="w-alamat-kab" name="w-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="w-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
             </div>
+            <div class="field col-full">
+              <label for="w-alamat-prov">Provinsi</label>
+              <input type="text" id="w-alamat-prov" name="w-alamat-prov" class="js-capitalize" data-address-part="provinsi" data-address-group="w-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Sumatera Utara" required>
+            </div>
           </div>
-          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara, Prov. Sumatera Utara</span>
         </div>
         <div class="field">
           <label for="w-maps">Maps Acara</label>
@@ -1830,8 +1835,12 @@
               <label for="m-alamat-kab">Kabupaten</label>
               <input type="text" id="m-alamat-kab" name="m-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="m-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
             </div>
+            <div class="field col-full">
+              <label for="m-alamat-prov">Provinsi</label>
+              <input type="text" id="m-alamat-prov" name="m-alamat-prov" class="js-capitalize" data-address-part="provinsi" data-address-group="m-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Sumatera Utara" required>
+            </div>
           </div>
-          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara, Prov. Sumatera Utara</span>
         </div>
         <div class="field">
           <label for="m-maps">Maps Acara</label>
@@ -2020,8 +2029,12 @@
               <label for="ay-alamat-kab">Kabupaten</label>
               <input type="text" id="ay-alamat-kab" name="ay-alamat-kab" class="js-capitalize" data-address-part="kabupaten" data-address-group="ay-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Padang Lawas Utara" required>
             </div>
+            <div class="field col-full">
+              <label for="ay-alamat-prov">Provinsi</label>
+              <input type="text" id="ay-alamat-prov" name="ay-alamat-prov" class="js-capitalize" data-address-part="provinsi" data-address-group="ay-alamat" data-address-label="Alamat Acara" placeholder="Contoh: Sumatera Utara" required>
+            </div>
           </div>
-          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</span>
+          <span class="hint">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara, Prov. Sumatera Utara</span>
         </div>
         <div class="field">
           <label for="ay-maps">Maps Acara</label>
@@ -3507,13 +3520,14 @@
   };
 
   /* Menggabungkan input Desa/Kecamatan/Kabupaten (data-address-part) menjadi
-     satu baris "Alamat Acara" dengan format: Desa, Kec. Kecamatan, Kab. Kabupaten
+     satu baris "Alamat Acara" dengan format: Desa, Kec. Kecamatan, Kab. Kabupaten, Prov. Provinsi
      — dipakai di pesan WhatsApp, gambar ringkasan, maupun backup spreadsheet. */
   function formatAddressParts(parts){
     var out = [];
     if(parts.desa) out.push(parts.desa);
     if(parts.kecamatan) out.push('Kec. ' + parts.kecamatan);
     if(parts.kabupaten) out.push('Kab. ' + parts.kabupaten);
+    if(parts.provinsi) out.push('Prov. ' + parts.provinsi);
     return out.join(', ');
   }
 
