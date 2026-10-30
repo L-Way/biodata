@@ -2974,12 +2974,12 @@ var KAONE_SHEET_BACKUP = false;
         if(data && data.valid){
           appliedDiscount = data.type === 'percent' ? Math.round(total * data.value / 100) : data.value;
           setVoucherStatus(
-            '✓ Kode valid — diskon ' + (data.type === 'percent' ? (data.value + '%') : formatRupiah(data.value)),
+            '✓ Kode valid — diskon ' + (data.type === 'percent' ? (data.value + '%') : formatRupiah(data.value)) + ((data.validUntilJam && data.validUntilJam !== '23:59') ? ' (berlaku sampai pukul ' + String(data.validUntilJam).replace(':', '.') + ' WIB)' : ''),
             '#3a7a4a'
           );
         } else {
           appliedDiscount = 0;
-          setVoucherStatus('✗ Kode voucher tidak ditemukan / tidak aktif.', 'var(--maroon)');
+          setVoucherStatus(data && data.reason === 'habis' ? '✗ Kuota voucher ini sudah habis.' : (data && data.reason === 'kadaluarsa' ? '✗ Kode voucher sudah tidak berlaku.' : '✗ Kode voucher tidak ditemukan / tidak aktif.'), 'var(--maroon)');
         }
         recalc();
       }).catch(function(){
